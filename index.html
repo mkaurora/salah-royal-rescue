@@ -995,8 +995,8 @@ const music=(()=>{
     loading[name]=fetch('music/'+name+'.m4a').then(r=>{if(!r.ok)throw new Error('music '+r.status);return r.arrayBuffer()})
       .then(ab=>new Promise((res,rej)=>a.decodeAudioData(ab,res,rej))).then(b=>(bufs[name]=b)).catch(e=>{delete loading[name];throw e});
     return loading[name]}
-  function fadeOut(s){try{const t=AC.currentTime;s.g.gain.cancelScheduledValues(t);s.g.gain.setValueAtTime(s.g.gain.value,t);s.g.gain.linearRampToValueAtTime(0,t+FADE);s.src&&s.src.stop(t+FADE+.05)}catch(e){}
-    setTimeout(()=>{try{s.g.disconnect()}catch(e){}},(FADE+.3)*1000)}
+  function fadeOut(s,d){d=d==null?FADE:d;try{const t=AC.currentTime;s.g.gain.cancelScheduledValues(t);s.g.gain.setValueAtTime(s.g.gain.value,t);s.g.gain.linearRampToValueAtTime(0,t+d);s.src&&s.src.stop(t+d+.02)}catch(e){}
+    setTimeout(()=>{try{s.g.disconnect()}catch(e){}},(d+.3)*1000)}
   function level(s){return s.mode==='level'?1:MAPVOL}
   function begin(w){const a=AC,name=trackOf(w.city);
     if(song&&song.name===name){if(song.mode!==w.mode){song.mode=w.mode;try{const t=a.currentTime;song.g.gain.cancelScheduledValues(t);song.g.gain.setValueAtTime(song.g.gain.value,t);song.g.gain.linearRampToValueAtTime(level(song),t+.8)}catch(e){}}return}
@@ -1009,13 +1009,13 @@ const music=(()=>{
   function btns(){['tMusic','pMus','mMus'].forEach(id=>{const b=$(id);if(b){b.classList.toggle('mOff',!save.music);b.setAttribute('aria-pressed',String(!!save.music))}})}
   const api={
     on(){save.music=true;persist();btns();ensure()},
-    off(){save.music=false;persist();btns();if(song){fadeOut(song);song=null}},
+    off(){save.music=false;persist();btns();if(song){fadeOut(song,.06);song=null}},
     isOn(){return !!save.music},
     toggle(){save.music?api.off():api.on()},
     current(){if(!want)return null;const c=CITIES[want.city];return {city:want.city,name:c.en,country:c.c,track:trackOf(want.city),style:musicStyleOf(want.city),mode:want.mode,
       playing:!!(save.music&&song&&song.src&&song.name===trackOf(want.city)&&AC&&AC.state==='running')}},
     play(city,mode){city=Math.max(0,Math.min(CITIES.length-1,city|0));want={city,mode:mode||'level'};ensure()},
-    ensure,btns,trackOf,
+    ensure,btns,trackOf,_dbg(){return song?{name:song.name,loop:!!(song.src&&song.src.loop),dur:song.src&&song.src.buffer?song.src.buffer.duration:0,t:AC?AC.currentTime:0,ctx:AC&&AC.state}:null},
     hide(){try{if(AC&&AC.state==='running')AC.suspend()}catch(e){}},
     show(){if(!gestured)return;actx();ensure()}
   };
@@ -1457,6 +1457,9 @@ function howHTML(){
    ${row(iconImg('box')+iconImg('box2'),'Crates: match next to them. Metal crates need 2 hits.','الصناديق: طابق بجانبها')}
    ${row('🎯','Finish the goals at the top before you run out of moves. More moves left = more stars ⭐!','أكمل الأهداف قبل انتهاء الحركات')}
    ${row('🗺️','Travel through Morocco and Kuwait! After the last city, play Endless mode ∞.','سافر بين المغرب والكويت!')}
+   <style>#musicCredits a{color:#ffe27a}</style><div class="how" id="musicCredits" style="display:block;font-size:13px;line-height:1.4"><b>🎵 Music credits / حقوق الموسيقى</b><br>
+   Kuwait levels: “Traditional Qatari Wedding Ceremony” by Noah Scalin, <a href="https://commons.wikimedia.org/wiki/File:Traditional_Qatari_Wedding_Ceremony.webm" target="_blank" rel="noopener">Wikimedia Commons</a>, licensed <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Excerpt (80 s), looped and volume-adjusted.<br>
+   Morocco levels: “وصلة من فن كناوة باب الاحد الرباط” (Gnawa, Bab El Had, Rabat) by RACHID BAYA, <a href="https://commons.wikimedia.org/wiki/File:%D9%88%D8%B5%D9%84%D8%A9_%D9%85%D9%86_%D9%81%D9%86_%D9%83%D9%86%D8%A7%D9%88%D8%A9_%D8%A8%D8%A7%D8%A8_%D8%A7%D9%84%D8%A7%D8%AD%D8%AF_%D8%A7%D9%84%D8%B1%D8%A8%D8%A7%D8%B7.webm" target="_blank" rel="noopener">Wikimedia Commons</a>, licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. This clip is adapted (120 s excerpt, looped, volume-adjusted) and the adapted clip (music/morocco.m4a) is shared under CC BY-SA 4.0.</div>
    </div><button class="btn big wide" id="howOk" style="margin-top:12px">OK! 👍<small class="ar">حسنًا</small></button></div>`}
 function showHow(back){openOv(howHTML());$('howOk').onclick=()=>{sfx.click();closeOv();back&&back()}}
 function showPause(){if(!g||g.over)return;g.busy=true;
