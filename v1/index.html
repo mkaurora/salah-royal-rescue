@@ -1,0 +1,197 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Salah Rescue">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#2a1a5e">
+<title>Salah's Royal Rescue</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;touch-action:none;font-family:-apple-system,system-ui,sans-serif;background:#2a1a5e;color:#fff}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 8px env(safe-area-inset-bottom)}
+#hud{display:flex;justify-content:space-between;gap:6px;margin:6px 0}
+.pill{flex:1;background:linear-gradient(#ffd54a,#f0a000);color:#5a2d00;border-radius:14px;padding:4px;text-align:center;font-weight:800;box-shadow:0 3px 0 #a86a00}
+.pill small{display:block;font-size:10px;font-weight:700}
+#scene{flex:1;min-height:150px;position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(#7fd3ff,#cdeeff 60%,#8bd06a 60%)}
+#scene svg{position:absolute;inset:0;width:100%;height:100%}
+#meter{position:absolute;left:10px;right:10px;bottom:8px;height:18px;background:#0005;border-radius:9px;overflow:hidden;border:2px solid #fff}
+#meterFill{height:100%;width:0;background:linear-gradient(90deg,#4cff7a,#1ec8ff);transition:width .4s}
+#meterTxt{position:absolute;inset:0;text-align:center;font-size:12px;font-weight:800;line-height:15px;text-shadow:0 1px 2px #000}
+#msg{position:absolute;top:8px;left:0;right:0;text-align:center;font-weight:800;text-shadow:0 2px 3px #000;font-size:15px}
+#boardWrap{margin:8px auto 8px;position:relative}
+#board{position:relative;width:100%;height:100%;background:#1b2d6b;border-radius:14px;border:3px solid #ffd54a;box-shadow:0 4px 0 #a86a00}
+.cell{position:absolute;border-radius:6px;background:#2c4590}
+.cell.alt{background:#34509f}
+.t{position:absolute;display:flex;align-items:center;justify-content:center;transition:transform .18s ease-in,opacity .2s;will-change:transform}
+.t div{width:88%;height:88%;border-radius:22%;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -4px 0 #0003,0 2px 2px #0004}
+.t svg{width:72%;height:72%}
+.t.sel div{outline:3px solid #fff;transform:scale(1.08)}
+.t.pop{opacity:0;transform-origin:center}
+.fire div{background:radial-gradient(#ffeb3b,#ff6d00 55%,#c62828)!important;animation:fl .5s infinite alternate}
+.box div{background:repeating-linear-gradient(45deg,#a0662b 0 8px,#8a5420 8px 16px)!important;border:3px solid #5a3510}
+@keyframes fl{to{filter:brightness(1.3);transform:scale(1.05)}}
+.ov{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:9}
+.card{background:linear-gradient(#5b3fd6,#3a2490);border:4px solid #ffd54a;border-radius:22px;padding:22px;text-align:center;width:85%;max-width:360px}
+.card h1{margin:4px 0 8px;font-size:30px;color:#ffd54a;text-shadow:0 3px 0 #7a4b00}
+.btn{display:block;width:100%;margin-top:12px;border:0;border-radius:16px;padding:14px;font-size:20px;font-weight:900;background:linear-gradient(#7dff6a,#2fb52a);color:#fff;text-shadow:0 2px 0 #1a6b16;box-shadow:0 4px 0 #1a6b16}
+.hide{display:none}
+</style></head><body>
+<div id="app">
+ <div id="hud"><div class="pill"><small>LEVEL</small><span id="lvl">1</span></div><div class="pill"><small>MOVES</small><span id="moves">0</span></div><div class="pill"><small>SCORE</small><span id="score">0</span></div></div>
+ <div id="scene"><svg id="sceneSvg" viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice"></svg><div id="msg"></div><div id="meter"><div id="meterFill"></div><div id="meterTxt"></div></div></div>
+ <div id="boardWrap"><div id="board"></div></div>
+</div>
+<div class="ov" id="ov"><div class="card" id="card"></div></div>
+<script>
+"use strict";
+const N=8,TYPES=5,COL=['#ffcf33','#4a8cff','#4cd964','#ff4fa3','#b06bff'];
+const ICON=[
+'<path d="M10 70 L15 30 L32 50 L50 20 L68 50 L85 30 L90 70Z" fill="#fff8c0" stroke="#a87000" stroke-width="5"/><rect x="10" y="70" width="80" height="12" fill="#fff8c0" stroke="#a87000" stroke-width="5"/>',
+'<path d="M50 10 L85 22 L80 60 Q70 82 50 92 Q30 82 20 60 L15 22Z" fill="#dfe9ff" stroke="#1d4fb8" stroke-width="6"/>',
+'<path d="M20 80 Q20 20 85 15 Q85 80 20 80Z" fill="#d6ffd0" stroke="#1d8a2c" stroke-width="6"/><path d="M22 78 L65 35" stroke="#1d8a2c" stroke-width="5"/>',
+'<path d="M25 15 H75 L92 38 L50 90 L8 38Z" fill="#ffe0f0" stroke="#b0145e" stroke-width="6"/><path d="M8 38 H92" stroke="#b0145e" stroke-width="4"/>',
+'<path d="M50 8 L62 38 L94 38 L68 58 L78 90 L50 70 L22 90 L32 58 L6 38 L38 38Z" fill="#f2e2ff" stroke="#6a1fb8" stroke-width="6"/>'];
+const SP_ICON={
+ rocketH:'<path d="M10 50 L30 35 H80 L92 50 L80 65 H30Z" fill="#fff" stroke="#c00" stroke-width="6"/>',
+ rocketV:'<path d="M50 8 L65 20 V80 L50 92 L35 80 V20Z" fill="#fff" stroke="#c00" stroke-width="6"/>',
+ bomb:'<circle cx="50" cy="58" r="32" fill="#222" stroke="#fff" stroke-width="5"/><path d="M62 28 Q72 10 85 14" stroke="#ffb300" stroke-width="6" fill="none"/>',
+ water:'<path d="M50 6 Q85 50 80 66 A30 30 0 0 1 20 66 Q15 50 50 6Z" fill="#bfe8ff" stroke="#0b6bd6" stroke-width="7"/>'};
+const LEVELS=[
+ {name:'The Sand Trap',goal:'score',target:1200,moves:20,text:'Sand is pouring on Salah! Match tiles to dig him out!'},
+ {name:'The Gem Pile',goal:'score',target:2200,moves:20,text:'A heavy gem pile is pressing the door!'},
+ {name:"King's Nightmare",goal:'fire',moves:24,fires:[[7,1],[7,2],[7,5],[7,6],[6,3],[6,4]],text:'Fire spreads every 2 moves! Put it out before it reaches Salah (top row)!'},
+ {name:'The Dragon Gate',goal:'box',moves:22,boxes:[[3,2],[3,5],[4,2],[4,5],[2,3],[2,4],[5,3],[5,4]],fires:[[7,0],[7,7]],text:'Break the crates and calm the fire to open the gate!'},
+ {name:'Royal Finale',goal:'score',target:4000,moves:22,text:'One last rescue — big score!'}];
+let g={},uid=1,busy=false,sel=null,cs=40;
+const $=id=>document.getElementById(id);
+function rnd(n){return Math.floor(Math.random()*n)}
+function newTile(){const t={id:uid++,type:rnd(TYPES)};if(Math.random()<0.03)t.sp='water';return t}
+// --- pure logic ---
+function isTile(c){return c&&!c.fixed}
+function findMatches(b){ // returns list of runs {cells:[[r,c]],dir}
+ const runs=[];
+ for(let r=0;r<N;r++)for(let c=0;c<N;){let e=c;while(e<N&&isTile(b[r][c])&&isTile(b[r][e])&&b[r][e].type===b[r][c].type)e++;if(e-c>=3)runs.push({dir:'h',cells:[...Array(e-c)].map((_,i)=>[r,c+i])});c=Math.max(e,c+1)}
+ for(let c=0;c<N;c++)for(let r=0;r<N;){let e=r;while(e<N&&isTile(b[r][c])&&isTile(b[e][c])&&b[e][c].type===b[r][c].type)e++;if(e-r>=3)runs.push({dir:'v',cells:[...Array(e-r)].map((_,i)=>[r+i,c])});r=Math.max(e,r+1)}
+ return runs}
+function applyGravity(b,gen){ // fixed cells stay; tiles fall within segments; refill each segment top
+ for(let c=0;c<N;c++){let r=N-1;while(r>=0){while(r>=0&&b[r][c]&&b[r][c].fixed)r--;let bot=r;while(r>=0&&!(b[r][c]&&b[r][c].fixed))r--;let top=r+1;
+  const ts=[];for(let i=bot;i>=top;i--)if(b[i][c])ts.push(b[i][c]);
+  let k=0;for(let i=bot;i>=top;i--){if(k<ts.length)b[i][c]=ts[k++];else{const t=gen();t.fromAbove=bot-i+1;b[i][c]=t}}}}
+ return b}
+function hasMove(b){for(let r=0;r<N;r++)for(let c=0;c<N;c++){if(isTile(b[r][c])&&b[r][c].sp)return true;for(const[dr,dc]of[[0,1],[1,0]]){const r2=r+dr,c2=c+dc;if(r2>=N||c2>=N||!isTile(b[r][c])||!isTile(b[r2][c2]))continue;swap(b,r,c,r2,c2);const m=findMatches(b).length;swap(b,r,c,r2,c2);if(m)return true}}return false}
+function swap(b,r,c,r2,c2){const t=b[r][c];b[r][c]=b[r2][c2];b[r2][c2]=t}
+function genBoard(L){let b;do{b=[...Array(N)].map(()=>Array(N).fill(null));(L.fires||[]).forEach(([r,c])=>b[r][c]={id:uid++,fixed:'fire'});(L.boxes||[]).forEach(([r,c])=>b[r][c]={id:uid++,fixed:'box'});
+ for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!b[r][c]){let t;do{t={id:uid++,type:rnd(TYPES)}}while((c>1&&isTile(b[r][c-1])&&isTile(b[r][c-2])&&b[r][c-1].type===t.type&&b[r][c-2].type===t.type)||(r>1&&isTile(b[r-1][c])&&isTile(b[r-2][c])&&b[r-1][c].type===t.type&&b[r-2][c].type===t.type));b[r][c]=t}}while(!hasMove(b));return b}
+// --- game ---
+function start(i){save.last=i;persist();g={lv:i,L:LEVELS[i],moves:LEVELS[i].moves,score:0,turn:0};g.b=genBoard(g.L);g.startFixed=countFixed();$('board').innerHTML='';els={};layout();drawBoardBg();render();hud();scene();hideOv();busy=false}
+function countFixed(){let f=0,x=0;for(const row of g.b)for(const c of row){if(c&&c.fixed==='fire')f++;if(c&&c.fixed==='box')x++}return{f,x}}
+let els={};
+function layout(){const w=Math.min(innerWidth-16,(innerHeight)*0.55,520);cs=Math.floor((w-6)/N);const bw=$('boardWrap');bw.style.width=bw.style.height=(cs*N+6)+'px'}
+function drawBoardBg(){const bd=$('board');for(let r=0;r<N;r++)for(let c=0;c<N;c++){const d=document.createElement('div');d.className='cell'+((r+c)%2?' alt':'');Object.assign(d.style,{left:c*cs+2+'px',top:r*cs+2+'px',width:cs-2+'px',height:cs-2+'px'});bd.appendChild(d)}}
+function tileHTML(t){if(t.fixed==='fire')return'<div><svg viewBox="0 0 100 100"><path d="M50 8 Q80 45 70 70 Q85 60 82 48 Q95 80 50 94 Q8 82 22 50 Q28 66 36 64 Q25 35 50 8Z" fill="#fff59d"/></svg></div>';if(t.fixed==='box')return'<div></div>';
+ const ic=t.sp?SP_ICON[t.sp]:ICON[t.type];const bg=t.sp==='water'?'#7fd0ff':t.sp==='bomb'?'#ff8a3d':COL[t.type];return`<div style="background:${bg}"><svg viewBox="0 0 100 100">${ic}</svg></div>`}
+function render(){const bd=$('board'),seen={};
+ for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=g.b[r][c];if(!t)continue;seen[t.id]=1;let e=els[t.id];
+  if(!e){e=document.createElement('div');e.className='t'+(t.fixed?' '+t.fixed:'');e.style.width=e.style.height=cs+'px';e.innerHTML=tileHTML(t);e.dataset.k=(t.sp||'')+t.type;
+   e.style.transition='none';e.style.transform=`translate(${c*cs+3}px,${(r-(t.fromAbove||0))*cs+3}px)`;bd.appendChild(e);els[t.id]=e;e.offsetWidth;e.style.transition=''}
+  else if(e.dataset.k!==(t.sp||'')+t.type){e.innerHTML=tileHTML(t);e.dataset.k=(t.sp||'')+t.type}
+  delete t.fromAbove;e.style.transform=`translate(${c*cs+3}px,${r*cs+3}px)`;e.classList.toggle('sel',!!sel&&sel[0]===r&&sel[1]===c)}
+ for(const id in els)if(!seen[id]){els[id].remove();delete els[id]}}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function hud(){$('lvl').textContent=g.lv+1;$('moves').textContent=g.moves;$('score').textContent=g.score;
+ let p,txt;const f=countFixed();
+ if(g.L.goal==='score'){p=g.score/g.L.target;txt=`Rescue: ${Math.min(g.score,g.L.target)} / ${g.L.target}`}
+ else if(g.L.goal==='fire'){p=f.f===0?1:1-f.f/Math.max(g.startFixed.f,f.f+1);txt=`🔥 Fires left: ${f.f}`}
+ else{const tot=g.startFixed.f+g.startFixed.x;p=1-(f.f+f.x)/tot;txt=`📦 ${f.x} crates · 🔥 ${f.f} fires left`}
+ $('meterFill').style.width=Math.max(0,Math.min(1,p))*100+'%';$('meterTxt').textContent=txt;scene(p)}
+function scene(p=0){const L=g.L,fire=L.goal!=='score';const danger=fire&&g.b&&g.b[1]&&g.b[1].some(c=>c&&c.fixed==='fire');
+ const pile=Math.max(0,1-p);
+ $('sceneSvg').innerHTML=`
+ <rect x="0" y="96" width="300" height="64" fill="#6bbf4e"/>
+ <rect x="190" y="30" width="80" height="70" fill="#c9a26b" stroke="#7a5528" stroke-width="3"/><path d="M185 30 L230 5 L275 30Z" fill="#d84a4a"/>
+ <rect x="215" y="${55+ (p>=1?40:0)}" width="30" height="45" rx="14" fill="#7a4b20" stroke="#4a2c10" stroke-width="2"/>
+ ${fire?`<g opacity="${pile}">${[0,1,2,3,4].map(i=>`<path transform="translate(${20+i*55},${92-pile*20})" d="M15 0 Q30 20 25 35 Q35 30 34 22 Q42 40 18 48 Q-6 42 2 25 Q6 32 10 31 Q4 15 15 0Z" fill="#ff7a00"/>`).join('')}</g>`
+  :`<path d="M150 100 Q200 ${100-pile*70} 300 ${100-pile*60} V100Z" fill="${g.lv===1?'#ff6fb7':'#e8c27a'}" opacity=".95"/>${g.lv===1?[0,1,2,3,4,5].map(i=>`<circle cx="${190+i*18}" cy="${100-pile*40+ (i%2)*8}" r="${6*pile}" fill="#ff2e93"/>`).join(''):''}`}
+ <g transform="translate(${p>=1?120:90},40)">
+  <circle cx="30" cy="22" r="18" fill="#c68a5a"/><path d="M12 18 Q30 -4 48 18 Q40 8 30 10 Q20 8 12 18Z" fill="#2b1a10"/>
+  <path d="M14 6 L20 -8 L28 4 L34 -10 L40 4 L48 -6 L46 8Z" fill="#ffd54a" stroke="#a86a00" stroke-width="1.5"/>
+  <circle cx="24" cy="22" r="2.5" fill="#000"/><circle cx="36" cy="22" r="2.5" fill="#000"/>
+  ${p>=1?'<path d="M22 30 Q30 38 38 30" stroke="#000" stroke-width="2" fill="none"/>':'<ellipse cx="30" cy="32" rx="4" ry="5" fill="#600"/>'}
+  <rect x="16" y="40" width="28" height="26" rx="6" fill="#2a7bff"/><text x="30" y="58" font-size="10" text-anchor="middle" fill="#fff" font-weight="bold">S</text>
+  <rect x="18" y="66" width="9" height="16" fill="#333"/><rect x="33" y="66" width="9" height="16" fill="#333"/>
+  ${p>=1?'':'<path d="M6 50 L-4 38 M54 50 L64 38" stroke="#c68a5a" stroke-width="6" stroke-linecap="round"/>'}
+ </g>
+ ${p>=1?'<text x="150" y="150" font-size="18" text-anchor="middle" fill="#fff" font-weight="900" stroke="#000" stroke-width=".8">Salah is safe! 🎉</text>':''}
+ ${danger?'<text x="150" y="150" font-size="14" text-anchor="middle" fill="#ff3" font-weight="900">⚠ Fire is close!</text>':''}`;
+ $('msg').textContent=g.L.name}
+// input
+let touch=null;
+$('board').addEventListener('pointerdown',e=>{if(busy)return;const rc=cellAt(e);if(!rc)return;touch={rc,x:e.clientX,y:e.clientY,done:false}});
+$('board').addEventListener('pointermove',e=>{if(!touch||touch.done||busy)return;const dx=e.clientX-touch.x,dy=e.clientY-touch.y;if(Math.max(Math.abs(dx),Math.abs(dy))<cs*0.35)return;touch.done=true;const[r,c]=touch.rc;const[r2,c2]=Math.abs(dx)>Math.abs(dy)?[r,c+Math.sign(dx)]:[r+Math.sign(dy),c];sel=null;tryMove(r,c,r2,c2)});
+$('board').addEventListener('pointerup',e=>{if(!touch||touch.done||busy){touch=null;return}const[r,c]=touch.rc;touch=null;
+ if(sel){const[sr,sc]=sel;sel=null;if(sr===r&&sc===c){if(isTile(g.b[r][c])&&g.b[r][c].sp)activateTap(r,c);else render();return}if(Math.abs(sr-r)+Math.abs(sc-c)===1){tryMove(sr,sc,r,c);return}}
+ if(isTile(g.b[r][c])){sel=[r,c];render()}});
+function cellAt(e){const b=$('board').getBoundingClientRect();const c=Math.floor((e.clientX-b.left-3)/cs),r=Math.floor((e.clientY-b.top-3)/cs);return r>=0&&r<N&&c>=0&&c<N?[r,c]:null}
+async function activateTap(r,c){busy=true;g.moves--;await resolve(new Set([r*N+c]),null);await endTurn()}
+async function tryMove(r,c,r2,c2){if(r2<0||r2>=N||c2<0||c2>=N||!isTile(g.b[r][c])||!isTile(g.b[r2][c2])){render();return}
+ busy=true;swap(g.b,r,c,r2,c2);render();await wait(190);
+ const a=g.b[r2][c2],b2=g.b[r][c];
+ if(findMatches(g.b).length===0&&!a.sp&&!b2.sp){swap(g.b,r,c,r2,c2);render();await wait(200);busy=false;return}
+ g.moves--;
+ if(findMatches(g.b).length===0){const s=new Set();if(a.sp)s.add(r2*N+c2);if(b2.sp)s.add(r*N+c);await resolve(s,null)}
+ else await resolve(null,[[r,c],[r2,c2]]);
+ await endTurn()}
+function douse(r,c,hits){if(r<0||r>=N||c<0||c>=N)return;const t=g.b[r][c];if(t&&t.fixed){hits.add(r*N+c)}}
+async function resolve(forced,swapCells){let combo=0;
+ while(true){const runs=forced?[]:findMatches(g.b);const clear=new Set(forced||[]);forced=null;if(!runs.length&&!clear.size)break;combo++;
+  const create=[];
+  // group overlapping runs for L/T
+  const owner={};runs.forEach((ru,i)=>ru.cells.forEach(([r,c])=>{const k=r*N+c;if(owner[k]!==undefined&&ru.dir!==runs[owner[k]].dir){ru.cross=k;runs[owner[k]].cross=k;}owner[k]=i}));
+  const used=new Set();
+  runs.forEach(ru=>{ru.cells.forEach(([r,c])=>clear.add(r*N+c));let pos=ru.cells.find(([r,c])=>swapCells&&swapCells.some(s=>s[0]===r&&s[1]===c))||ru.cells[Math.floor(ru.cells.length/2)];
+   let sp=null;if(ru.cross!==undefined){if(!used.has(ru.cross)){used.add(ru.cross);sp='bomb';pos=[Math.floor(ru.cross/N),ru.cross%N]}}else if(ru.cells.length>=5)sp='bomb';else if(ru.cells.length===4)sp=ru.dir==='h'?'rocketV':'rocketH';
+   if(sp)create.push({pos,sp,type:g.b[pos[0]][pos[1]].type})});
+  // adjacent douse/break
+  const hits=new Set();
+  runs.forEach(ru=>ru.cells.forEach(([r,c])=>[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc])=>douse(r+dr,c+dc,hits))));
+  // specials chain
+  const q=[...clear],done=new Set();
+  while(q.length){const k=q.pop();if(done.has(k))continue;done.add(k);const r=Math.floor(k/N),c=k%N,t=g.b[r][c];if(!isTile(t)||!t.sp)continue;
+   const area=[];if(t.sp==='rocketH')for(let i=0;i<N;i++)area.push([r,i]);else if(t.sp==='rocketV')for(let i=0;i<N;i++)area.push([i,c]);else for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)area.push([r+dr,c+dc]);
+   area.forEach(([ar,ac])=>{if(ar<0||ar>=N||ac<0||ac>=N)return;const at=g.b[ar][ac];if(at&&at.fixed)hits.add(ar*N+ac);else if(at){clear.add(ar*N+ac);q.push(ar*N+ac)}})}
+  // animate pop
+  clear.forEach(k=>{const t=g.b[Math.floor(k/N)][k%N];if(t&&els[t.id]){els[t.id].style.opacity=0;els[t.id].style.transform+=' scale(.3)'}});
+  hits.forEach(k=>{const t=g.b[Math.floor(k/N)][k%N];if(t&&els[t.id])els[t.id].style.opacity=0});
+  await wait(200);
+  g.score+=clear.size*20*combo+hits.size*60;
+  clear.forEach(k=>g.b[Math.floor(k/N)][k%N]=null);hits.forEach(k=>g.b[Math.floor(k/N)][k%N]=null);
+  create.forEach(({pos,sp,type})=>{g.b[pos[0]][pos[1]]={id:uid++,type,sp}});
+  applyGravity(g.b,newTile);render();hud();await wait(230);swapCells=null}
+}
+async function endTurn(){g.turn++;
+ if(g.L.fires&&g.turn%2===0){const fs=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(g.b[r][c]&&g.b[r][c].fixed==='fire')fs.push([r,c]);
+  if(fs.length){const opts=[];fs.forEach(([r,c])=>[[-1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc])=>{const r2=r+dr,c2=c+dc;if(r2>=0&&c2>=0&&c2<N&&isTile(g.b[r2][c2]))opts.push([r2,c2])}));
+   if(opts.length){const[r,c]=opts[rnd(opts.length)];g.b[r][c]={id:uid++,fixed:'fire'};render();$('msg').textContent='🔥 The fire spread!'}}}
+ hud();const f=countFixed();
+ if(g.L.fires&&g.b[0].some(c=>c&&c.fixed==='fire'))return lose('The fire reached Salah!');
+ const won=g.L.goal==='score'?g.score>=g.L.target:g.L.goal==='fire'?f.f===0:f.f+f.x===0;
+ if(won)return win();if(g.moves<=0)return lose('Out of moves!');
+ if(!hasMove(g.b)){await wait(300);g.b=genBoard({fires:pos('fire'),boxes:pos('box')});$('board').querySelectorAll('.t').forEach(e=>e.remove());els={};render()}
+ busy=false}
+function pos(k){const a=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(g.b[r][c]&&g.b[r][c].fixed===k)a.push([r,c]);return a}
+function ov(html){$('card').innerHTML=html;$('ov').classList.remove('hide')}
+function hideOv(){$('ov').classList.add('hide')}
+let save={};try{save=JSON.parse(localStorage.salahSave||'{}')}catch(e){}save.done=save.done||{};save.best=save.best||{};
+function persist(){try{localStorage.salahSave=JSON.stringify(save)}catch(e){}}
+function win(){busy=true;const s=Math.max(0,g.moves);g.score+=s*50;hud();save.done[g.lv]=1;save.best[g.lv]=Math.max(save.best[g.lv]||0,g.score);save.last=Math.min(g.lv+1,LEVELS.length-1);persist();const last=g.lv===LEVELS.length-1;
+ setTimeout(()=>ov(`<h1>You saved Salah! 🎉</h1><p>Score: <b>${g.score}</b><br>Bonus for ${s} moves left!</p>${last?'<p>👑 You finished all levels! Salah is the Royal Hero!</p>':`<button class="btn" onclick="start(${g.lv+1})">Next Level ▶</button>`}<button class="btn" style="background:linear-gradient(#ffd54a,#f0a000);box-shadow:0 4px 0 #a86a00" onclick="start(${g.lv})">Play again</button><button class="btn" style="background:#6a55c9;box-shadow:0 4px 0 #3a2a80" onclick="title()">Menu</button>`),500)}
+function lose(why){busy=true;setTimeout(()=>ov(`<h1>Oh no! 😢</h1><p>${why}<br>Salah still needs your help!</p><button class="btn" onclick="start(${g.lv})">Play again</button><button class="btn" style="background:#6a55c9;box-shadow:0 4px 0 #3a2a80" onclick="title()">Menu</button>`),400)}
+function title(){ov(`<h1>Salah's<br>Royal Rescue</h1><svg viewBox="0 0 60 90" width="90"><circle cx="30" cy="30" r="18" fill="#c68a5a"/><path d="M12 26 Q30 4 48 26 Q40 16 30 18 Q20 16 12 26Z" fill="#2b1a10"/><path d="M14 14 L20 0 L28 12 L34 -2 L40 12 L48 2 L46 16Z" fill="#ffd54a"/><circle cx="24" cy="30" r="2.5"/><circle cx="36" cy="30" r="2.5"/><path d="M22 38 Q30 46 38 38" stroke="#000" stroke-width="2" fill="none"/><rect x="16" y="48" width="28" height="26" rx="6" fill="#2a7bff"/><rect x="18" y="74" width="9" height="14" fill="#333"/><rect x="33" y="74" width="9" height="14" fill="#333"/></svg>
+ <p>Match 3 tiles to rescue Prince Salah!<br><small>Match 4 = 🚀 rocket · L/T or 5 = 💣 bomb · 💧 water douses fire. Tap a special twice to fire it.</small></p>
+ ${save.last!=null?`<button class="btn" style="background:linear-gradient(#ffd54a,#f0a000);box-shadow:0 4px 0 #a86a00" onclick="start(${save.last})">▶ Continue: Level ${save.last+1}</button>`:''}
+ ${LEVELS.map((L,i)=>{const un=i===0||save.done[i-1]||save.done[i];return `<button class="btn" ${un?'':'disabled style="opacity:.45"'} onclick="start(${i})">${save.done[i]?'⭐ ':un?'':'🔒 '}${i+1}. ${L.name}${L.goal!=='score'?' 🔥':''}${save.best[i]?`<br><small>Best: ${save.best[i]}</small>`:''}</button>`}).join('')}`)}
+addEventListener('resize',()=>{if(!g.b)return;layout();$('board').innerHTML='';els={};drawBoardBg();render()});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+g={L:LEVELS[0],lv:0};scene();title();
+if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js');
+window._t={findMatches,applyGravity,genBoard,hasMove};
+</script></body></html>
