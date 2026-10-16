@@ -9,7 +9,7 @@ const ctx=vm.createContext({console,Math,JSON});
 vm.runInContext(m[1],ctx);
 const L=vm.runInContext(`({N,findMatches,groupRuns,specialFor,areaOf,resolveStep,applyGravity,resolveAll,planMove,planTap,doMove,hasMove,hasMatchMove,findHint,
   shuffleBoard,genBoard,spreadFire,countFixed,parseGoal,goalState,levelWon,starsFor,CITIES,LEVELS,LEVEL_DEFS,endlessLevel,migrateV1,freshSave,sanitizeSave,
-  loadSave,validateCur,cleanCell,mulberry32,cloneBoard,isGem,isTile,isSpecial,nid})`,ctx);
+  loadSave,validateCur,cleanCell,mulberry32,cloneBoard,isGem,isTile,isSpecial,nid,musicPlan,degFreq,musicStyleOf,MAQAMS})`,ctx);
 
 let pass=0,fail=0;const fails=[];
 function test(name,fn){try{fn();pass++}catch(e){fail++;fails.push(name+'\n    '+(e&&e.message||e))}}
@@ -184,6 +184,38 @@ test('validateCur rejects bad data',()=>{const b=JSON.parse(JSON.stringify(L.gen
   bad({b:b.map((r,i)=>i?r:r.slice(1))});bad({b:b.map((r,i)=>i?r:[null,...r.slice(1)])});bad({b:b.map((r,i)=>i?r:[{type:9},...r.slice(1)])});
   bad({b:b.map((r,i)=>i?r:[{type:1,sp:'nuke'},...r.slice(1)])});bad({b:b.map((r,i)=>i?r:[{fixed:'lava'},...r.slice(1)])});bad({collected:{0:-3}});bad({mode:'endless',en:0});
   eq(L.validateCur(null),null);eq(L.validateCur('str'),null);eq(L.validateCur({}),null)});
+
+// ---------- music settings / migration ----------
+test('fresh save has music on and no last city',()=>{const s=L.freshSave();eq(s.music,true);eq(s.lastCity,null);eq(s.sound,true)});
+test('old saves without a music flag migrate to music on and keep sound',()=>{
+  const s=L.loadSave(k=>k==='salahSave2'?JSON.stringify({v:2,done:{0:3},sound:false}):null);eq(s.music,true);eq(s.sound,false);eq(s.done,{0:3});
+  const s1=L.loadSave(k=>k==='salahSave'?JSON.stringify({done:{0:1}}):null);eq(s1.music,true);
+  eq(L.loadSave(()=>{throw new Error('x')}).music,true);eq(L.loadSave(k=>k==='salahSave2'?'{bad':null).music,true)});
+test('music flag is independent of the sound flag and survives a round trip',()=>{
+  const s=L.loadSave(k=>k==='salahSave2'?JSON.stringify({v:2,sound:true,music:false}):null);eq(s.music,false);eq(s.sound,true);
+  const back=L.sanitizeSave(JSON.parse(JSON.stringify(s)));eq(back.music,false);eq(back.sound,true);
+  const s2=L.sanitizeSave({sound:false,music:true});eq([s2.sound,s2.music],[false,true])});
+test('sanitizeSave rejects non-boolean music and clamps lastCity',()=>{
+  ['yes',1,0,null,'false',{}].forEach(v=>eq(L.sanitizeSave({music:v}).music,true,String(v)));
+  eq(L.sanitizeSave({lastCity:3}).lastCity,3);eq(L.sanitizeSave({lastCity:'4'}).lastCity,4);eq(L.sanitizeSave({lastCity:999}).lastCity,L.CITIES.length-1);
+  eq(L.sanitizeSave({lastCity:-2}).lastCity,0);eq(L.sanitizeSave({lastCity:'x'}).lastCity,null);eq(L.sanitizeSave({lastCity:null}).lastCity,null);eq(L.sanitizeSave({}).lastCity,null)});
+
+// ---------- music plans ----------
+test('music style follows the country of each city',()=>{L.CITIES.forEach((c,i)=>{const p=L.musicPlan(i);eq(p.style,c.c==='KW'?'samri':'chaabi',c.en);eq(L.musicStyleOf(i),p.style);
+  if(c.c==='MA'){eq(p.steps,12);eq(p.perBeat,6)}else{eq(p.steps,16);eq(p.perBeat,4)}})});
+test('music plans are deterministic and every city has its own melody',()=>{
+  L.CITIES.forEach((c,i)=>eq(JSON.stringify(L.musicPlan(i)),JSON.stringify(L.musicPlan(i))));
+  eq(new Set(L.CITIES.map((c,i)=>JSON.stringify(L.musicPlan(i).melody))).size,L.CITIES.length);
+  eq(L.musicPlan(999).city,L.CITIES.length-1);eq(L.musicPlan(-3).city,0);eq(L.musicPlan('x').city,0)});
+test('melodies fill the 8-bar loop without overlaps and resolve to the tonic',()=>{L.CITIES.forEach((c,i)=>{const p=L.musicPlan(i),tot=p.steps*p.bars;let s=0;
+  for(const e of p.melody){eq(e.s,s,c.en);ok(e.l>=1);ok(e.d===null||Number.isInteger(e.d));s+=e.l}eq(s,tot,c.en);
+  ok(p.melody.some(e=>e.s===6*p.steps-p.perBeat&&e.d!==null),'B phrase ends on a note');eq(p.melody[p.melody.length-1].d,0,c.en);
+  for(const k of ['drum','clap','extra'])eq(p[k].length,p.steps,c.en+' '+k);ok(p.bpm>=80&&p.bpm<=120);ok(p.themeBpm<p.bpm)})});
+test('Kuwait tunes use maqam quarter tones, scale degrees map to pitches',()=>{
+  ok(L.CITIES.some((c,i)=>c.c==='KW'&&L.musicPlan(i).scale.some(x=>x%1)),'some Kuwaiti city uses a quarter-tone maqam');
+  ok(new Set(L.CITIES.map((c,i)=>L.musicPlan(i).maqam)).size>=3,'several maqams in use');
+  const p=L.musicPlan(1);ok(Math.abs(L.degFreq(p,0)-p.tonic)<1e-9);ok(Math.abs(L.degFreq(p,7)-2*p.tonic)<1e-9);ok(Math.abs(L.degFreq(p,-7)-p.tonic/2)<1e-9);
+  const bay={scale:L.MAQAMS.bayati,tonic:293.66};ok(Math.abs(L.degFreq(bay,1)/293.66-Math.pow(2,1.5/12))<1e-9)});
 
 // ---------- playability (seeded greedy bot) ----------
 function botPlay(lv,seed){
