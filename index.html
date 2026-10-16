@@ -958,7 +958,11 @@ const spr=new Map();let dying=[],parts=[],fxs=[],pops=[],shakeT=0,shakeA=0;
 
 // ---------- sound (WebAudio, created after a user gesture) ----------
 let AC=null;
-function actx(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C()}if(AC.state!=='running'&&AC.state!=='closed'&&!document.hidden)AC.resume().catch(()=>{});return AC}catch(e){return null}}
+function newCtx(){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}return new C()}
+function actx(){try{if(AC&&AC.state==='closed')AC=null;if(!AC){AC=newCtx();if(!AC)return null;AC.onstatechange=()=>{if(AC&&AC.state==='running'&&save.music)music.ensure()}}
+  if(AC.state!=='running'&&!document.hidden){const p=AC.resume();p&&p.then&&p.then(()=>{if(AC&&AC.state==='running'&&save.music)music.ensure()}).catch(()=>{})}return AC}catch(e){return null}}
+// iOS: the context must be created/resumed AND a sound started synchronously inside a real gesture (touchend/click count; pointerdown alone does not)
+function unlockAudio(){const a=actx();if(!a)return;try{const b=a.createBuffer(1,1,22050),s=a.createBufferSource();s.buffer=b;s.connect(a.destination);s.start(0)}catch(e){}}
 function audio(){return save.sound?actx():null}
 function tone(f,d,type,v,f2,delay){const a=AC&&save.sound?audio():null;if(!a)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),gn=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);
   if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(v||.12,t+.012);gn.gain.exponentialRampToValueAtTime(.0001,t+d);
@@ -1022,9 +1026,10 @@ const music=(()=>{
   return api;
 })();
 window.music=music;
-function onGesture(){gestured=true;if(save.sound)actx();if(save.music)music.ensure()}
-['pointerdown','touchend','keydown'].forEach(ev=>document.addEventListener(ev,onGesture,true));
+function onGesture(){gestured=true;if((save.sound||save.music)&&(!AC||AC.state!=='running'))unlockAudio();if(save.music)music.ensure()}
+['touchstart','touchend','pointerdown','pointerup','click','keydown'].forEach(ev=>document.addEventListener(ev,onGesture,{capture:true,passive:true}));
 document.addEventListener('visibilitychange',()=>{document.hidden?music.hide():music.show()});
+window.addEventListener('pageshow',()=>{if(!document.hidden)music.show()});
 function homeCity(){return save.lastCity!=null?save.lastCity:LEVELS[Math.min(currentLevel(),LEVELS.length-1)].city}
 
 // ---------- iOS: no page scroll / zoom ----------
