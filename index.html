@@ -28,6 +28,7 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer}
 .btn.red{background:linear-gradient(#ff9a8a,#f2483a 52%,#cc2a1d);box-shadow:0 6px 0 #8a170e,0 12px 20px #0005;text-shadow:0 2px 0 #8a170e}
 .btn.purple{background:linear-gradient(#d3a2ff,#9a52f0 52%,#7a33d0);box-shadow:0 6px 0 #4f1a92,0 12px 20px #0005;text-shadow:0 2px 0 #4f1a92}
 .btn.round{width:58px;height:58px;min-height:58px;min-width:58px;padding:0;border-radius:50%;font-size:26px}
+.btn.mOff{filter:saturate(.35);opacity:.75}.btn.mOff::after{content:'';position:absolute;left:14px;right:14px;top:50%;height:4px;margin-top:-2px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px #4f1a92;transform:rotate(-45deg);pointer-events:none}
 .btn.big{font-size:34px;min-height:84px;padding:12px 44px;border-radius:30px}
 .btn.wide{width:100%}
 /* ---------- panels ---------- */
@@ -154,10 +155,10 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer}
   <div id="logo"><div class="l2 ttl">Salah's</div><div class="l1 ttl">Royal Rescue</div><div class="l3 ttl">City Journey</div><span class="ar ttl">رحلة صلاح بين المدن</span></div>
   <div id="tSalah"></div>
   <div id="tBtns"><button class="btn big" id="tPlay">Play <small class="ar">العب</small></button>
-   <div style="display:flex;gap:14px"><button class="btn blue" style="flex:1" id="tHow">How to play<small class="ar">كيف تلعب</small></button><button class="btn purple round" id="tSound" aria-label="Sound">🔊</button></div></div>
+   <div style="display:flex;gap:14px"><button class="btn blue" style="flex:1" id="tHow">How to play<small class="ar">كيف تلعب</small></button><button class="btn purple round" id="tSound" aria-label="Sound effects">🔊</button><button class="btn purple round" id="tMusic" aria-label="Music">🎵</button></div></div>
  </div></div>
 <div id="map" class="scr"><div id="mapScroll"><div id="mapInner"></div></div>
- <div id="mapTop"><button class="btn blue round" id="mBack" aria-label="Back">⌂</button><div class="stars"><span class="chip">⭐ <span id="mStars">0</span></span></div><button class="btn gold round" id="mHow" aria-label="How to play">?</button></div></div>
+ <div id="mapTop"><button class="btn blue round" id="mBack" aria-label="Back">⌂</button><div class="stars"><span class="chip">⭐ <span id="mStars">0</span></span></div><button class="btn purple round" id="mMus" aria-label="Music">🎵</button><button class="btn gold round" id="mHow" aria-label="How to play">?</button></div></div>
 <div id="game" class="scr"><svg class="bgsvg" id="gBg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice"></svg><div id="gShade"></div>
  <div id="hud"><button class="btn blue round" id="pauseB" aria-label="Pause">❚❚</button><div id="goalsBox"><span class="gl">GOALS · الأهداف</span><div id="goals" style="display:flex;gap:12px;align-items:center"></div></div>
   <div id="movesBox"><small>MOVES</small><span id="moves">0</span><small class="ar">حركات</small></div></div>
@@ -485,7 +486,7 @@ function migrateV1(raw){
   }catch(e){return 0}
   return Math.max(0,Math.min(5,k|0));
 }
-function freshSave(){return {v:2,done:{},best:{},endless:{lv:1,best:0},sound:true,tut:{},cur:null,mig:0}}
+function freshSave(){return {v:2,done:{},best:{},endless:{lv:1,best:0},sound:true,music:true,lastCity:null,tut:{},cur:null,mig:0}}
 function sanitizeSave(o){
   const s=freshSave();if(!o||typeof o!=='object'||Array.isArray(o))return s;
   const intIn=(v,lo,hi)=>{v=Number(v);return Number.isFinite(v)?Math.max(lo,Math.min(hi,Math.floor(v))):null};
@@ -493,6 +494,8 @@ function sanitizeSave(o){
   if(o.best&&typeof o.best==='object')for(const k of Object.keys(o.best)){const i=Number(k),v=intIn(o.best[k],0,1e9);if(Number.isInteger(i)&&i>=0&&i<LEVELS.length&&v)s.best[i]=v}
   if(o.endless&&typeof o.endless==='object'){s.endless.lv=intIn(o.endless.lv,1,1e6)||1;s.endless.best=intIn(o.endless.best,0,1e6)||0}
   if(typeof o.sound==='boolean')s.sound=o.sound;
+  if(typeof o.music==='boolean')s.music=o.music; // older saves have no music flag: default on
+  if(o.lastCity!=null&&o.lastCity!==''){const c=intIn(o.lastCity,0,CITIES.length-1);if(c!=null)s.lastCity=c}
   if(o.tut&&typeof o.tut==='object')for(const k of Object.keys(o.tut))if(o.tut[k])s.tut[k]=1;
   if(o.cur&&typeof o.cur==='object')s.cur=o.cur;
   s.mig=intIn(o.mig,0,5)||0;
@@ -504,6 +507,59 @@ function loadSave(get){
   const s=freshSave();let v1=null;try{v1=get('salahSave')}catch(e){}
   const k=migrateV1(v1);for(let i=0;i<k;i++)s.done[i]=1;s.mig=k;return s;
 }
+// ---------- music plans (pure data; played by the WebAudio engine in the UI script) ----------
+// Scales in semitones above the tonic; .5 = approximate quarter tone (e.g. bayati's half-flat 2nd).
+const MAQAMS={
+ bayati:[0,1.5,3,5,7,8,10],
+ saba:[0,1.5,3,4,7,8,10],
+ rast:[0,2,3.5,5,7,9,10.5],
+ hijaz:[0,1,4,5,7,8,10],
+ nahawand:[0,2,3,5,7,8,11],
+ kurd:[0,1,3,5,7,8,10]
+};
+// Percussion strings, one char per step. KW: 16 steps (4/4, 16ths). MA: 12 steps (6/8, 16ths).
+// D doum/dum, t tak, k soft tak · x clap · m mirwas · Q/q qraqeb loud/soft · B bendir buzz
+const MUSIC_STYLES={
+ KW:{style:'samri',maqams:['bayati','saba','rast','bayati','hijaz'],tonics:[293.66,261.63,311.13,277.18],bpm:[80,98],steps:16,perBeat:4,
+  cells:[[4],[2,2],[3,1],[2,1,1],[1,1,2],[3,1],[2,2]],leads:[['oud','oud']],
+  drum:['D..tD.t.D..t..t.','D..D..t.D.t.t...','D.tD..t.D..D.t..','D...t.D.D...t.k.'],
+  clap:['..x...x...x...x.','...x..x....x..x.','x..x..x.x..x..x.','..x..x....x..x..'],
+  extra:['.m.m.m.m.m.m.m.m','...m...m...m.m.m','.m..m..m.m..m..m']},
+ MA:{style:'chaabi',maqams:['hijaz','nahawand','kurd','bayati','hijaz'],tonics:[293.66,329.63,246.94,277.18],bpm:[100,120],steps:12,perBeat:6,
+  cells:[[6],[4,2],[2,2,2],[2,4],[3,3],[2,1,1,2],[4,2]],leads:[['oud','violin'],['violin','violin'],['violin','oud'],['oud','oud']],
+  drum:['D.....D.t.t.','D...t.D.t...','D.tkt.D.t.tk','D..t..D.tkt.'],
+  clap:['...x.....x..','......x.....','...x..x..x..','............'],
+  extra:['Q.qQ.qQ.qQ.q','Q.q.qqQ.q.qq','Q.qQ.qQ.qQqq'],
+  bendir:['B.....B.....','B.....b..b..','B..b..B..b..']}
+};
+function musicStyleOf(ci){const c=CITIES[ci];return c&&c.c==='MA'?'chaabi':'samri'}
+// Deterministic, per-city tune: maqam, tonic, tempo, grooves and an 8-bar melody (A A' B A').
+function musicPlan(ci){
+  ci=Math.max(0,Math.min(CITIES.length-1,Number.isInteger(ci)?ci:0));
+  const city=CITIES[ci],kw=city.c!=='MA',S=MUSIC_STYLES[kw?'KW':'MA'];
+  let h=2166136261;for(const ch of 'salah-music:'+city.id){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}
+  const R=mulberry32(h>>>0),ri=n=>Math.floor(R()*n),pk=a=>a[ri(a.length)];
+  const maqam=pk(S.maqams),tonic=pk(S.tonics),bpm=S.bpm[0]+ri(S.bpm[1]-S.bpm[0]+1),steps=S.steps,beat=S.perBeat,bars=8;
+  const moves=[-1,-1,1,1,0,2,-2,1,-1,-3,3];
+  function phrase(from,to,lo,hi){ // two bars of notes {s,d,l}; d=null is a rest
+    const ev=[],nb=2*steps/beat;let d=from,s=0;
+    for(let b=0;b<nb;b++){
+      if(b===nb-1){ev.push({s,d:to,l:beat});s+=beat;break}
+      for(const l of pk(S.cells)){
+        if(ev.length&&R()<.07)ev.push({s,d:null,l});
+        else{if(ev.length){let m=pk(moves);if(b===nb-2)m=Math.sign(to-d)*Math.min(2,Math.abs(to-d))||m;d=Math.max(lo,Math.min(hi,d+m))}ev.push({s,d,l})}
+        s+=l}}
+    return ev}
+  const A=phrase(0,4,-2,7),A2=A.map(e=>Object.assign({},e));
+  A2[A2.length-1].d=0;{const p=A2[A2.length-2];if(p&&p.d!=null)p.d=pk([1,2,-1])}
+  const Bp=phrase(4,pk([4,3]),2,9),len=2*steps,melody=[];
+  [A,A2,Bp,A2].forEach((ph,k)=>ph.forEach(e=>melody.push({s:e.s+k*len,d:e.d,l:e.l})));
+  const plan={city:ci,id:city.id,country:city.c,kw,style:S.style,maqam,scale:MAQAMS[maqam],tonic,bpm,themeBpm:Math.round(bpm*.78),
+    steps,perBeat:beat,bars,lead:pk(S.leads),drum:pk(S.drum),clap:pk(S.clap),extra:pk(S.extra),bendir:S.bendir?pk(S.bendir):'',melody};
+  return plan;
+}
+// Frequency of a scale degree (0 = tonic, 7 = octave, negative = below).
+function degFreq(plan,d){const n=plan.scale.length,o=Math.floor(d/n),i=((d%n)+n)%n;return plan.tonic*Math.pow(2,(plan.scale[i]+12*o)/12)}
 function cleanCell(t){
   if(!t||typeof t!=='object')return null;
   if(t.fixed==='fire')return {id:nid(),fixed:'fire'};
@@ -902,13 +958,15 @@ const spr=new Map();let dying=[],parts=[],fxs=[],pops=[],shakeT=0,shakeA=0;
 
 // ---------- sound (WebAudio, created after a user gesture) ----------
 let AC=null;
-function audio(){if(!save.sound)return null;try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C()}if(AC.state==='suspended')AC.resume();return AC}catch(e){return null}}
+function actx(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C()}if(AC.state!=='running'&&AC.state!=='closed'&&!document.hidden)AC.resume().catch(()=>{});return AC}catch(e){return null}}
+function audio(){return save.sound?actx():null}
 function tone(f,d,type,v,f2,delay){const a=AC&&save.sound?audio():null;if(!a)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),gn=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);
   if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(v||.12,t+.012);gn.gain.exponentialRampToValueAtTime(.0001,t+d);
   o.connect(gn);gn.connect(a.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
 let NB=null;
-function noise(d,v,freq,delay,hp){const a=AC&&save.sound?audio():null;if(!a)return;try{if(!NB){NB=a.createBuffer(1,a.sampleRate,a.sampleRate);const ch=NB.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=Math.random()*2-1}
-  const t=a.currentTime+(delay||0),s=a.createBufferSource(),f=a.createBiquadFilter(),gn=a.createGain();s.buffer=NB;f.type=hp?'highpass':'lowpass';f.frequency.value=freq||1200;
+function nbuf(a){if(!NB){NB=a.createBuffer(1,a.sampleRate,a.sampleRate);const ch=NB.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=Math.random()*2-1}return NB}
+function noise(d,v,freq,delay,hp){const a=AC&&save.sound?audio():null;if(!a)return;try{
+  const t=a.currentTime+(delay||0),s=a.createBufferSource(),f=a.createBiquadFilter(),gn=a.createGain();s.buffer=nbuf(a);f.type=hp?'highpass':'lowpass';f.frequency.value=freq||1200;
   gn.gain.setValueAtTime(v||.2,t);gn.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(gn);gn.connect(a.destination);s.start(t);s.stop(t+d+.02)}catch(e){}}
 const sfx={
   click(){tone(660,.08,'triangle',.1)},
@@ -926,7 +984,48 @@ const sfx={
   win(){[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.13,null,i*.12))},
   lose(){[392,330,262].forEach((f,i)=>tone(f,.3,'triangle',.1,null,i*.18))}
 };
-document.addEventListener('pointerdown',()=>{if(save.sound)audio()},true);
+
+// ---------- background music: two original looping tracks (music/kuwait.m4a, music/morocco.m4a) ----------
+// Made from CC0 percussion samples + synthesis; see music/CREDITS.md. Kuwait cities -> kuwait, Morocco cities -> morocco.
+let gestured=false;
+const music=(()=>{
+  const MVOL=.32,MAPVOL=.6,FADE=1.2;let bus=null,song=null,want=null;const bufs={},loading={};
+  const trackOf=ci=>CITIES[ci]&&CITIES[ci].c==='MA'?'morocco':'kuwait';
+  function load(a,name){if(bufs[name])return Promise.resolve(bufs[name]);if(loading[name])return loading[name];
+    loading[name]=fetch('music/'+name+'.m4a').then(r=>{if(!r.ok)throw new Error('music '+r.status);return r.arrayBuffer()})
+      .then(ab=>new Promise((res,rej)=>a.decodeAudioData(ab,res,rej))).then(b=>(bufs[name]=b)).catch(e=>{delete loading[name];throw e});
+    return loading[name]}
+  function fadeOut(s){try{const t=AC.currentTime;s.g.gain.cancelScheduledValues(t);s.g.gain.setValueAtTime(s.g.gain.value,t);s.g.gain.linearRampToValueAtTime(0,t+FADE);s.src&&s.src.stop(t+FADE+.05)}catch(e){}
+    setTimeout(()=>{try{s.g.disconnect()}catch(e){}},(FADE+.3)*1000)}
+  function level(s){return s.mode==='level'?1:MAPVOL}
+  function begin(w){const a=AC,name=trackOf(w.city);
+    if(song&&song.name===name){if(song.mode!==w.mode){song.mode=w.mode;try{const t=a.currentTime;song.g.gain.cancelScheduledValues(t);song.g.gain.setValueAtTime(song.g.gain.value,t);song.g.gain.linearRampToValueAtTime(level(song),t+.8)}catch(e){}}return}
+    if(song)fadeOut(song);
+    const s={name,mode:w.mode,g:a.createGain(),src:null};s.g.gain.value=0;s.g.connect(bus);song=s;
+    load(a,name).then(b=>{if(song!==s||!save.music)return;const src=a.createBufferSource();src.buffer=b;src.loop=true;src.connect(s.g);src.start();s.src=src;
+      const t=a.currentTime;s.g.gain.setValueAtTime(0,t);s.g.gain.linearRampToValueAtTime(level(s),t+FADE)}).catch(()=>{})}
+  function ensure(){if(!save.music||!gestured||document.hidden)return;const a=actx();if(!a)return;
+    try{if(!bus){bus=a.createGain();bus.gain.value=MVOL;bus.connect(a.destination)}if(want)begin(want)}catch(e){}}
+  function btns(){['tMusic','pMus','mMus'].forEach(id=>{const b=$(id);if(b){b.classList.toggle('mOff',!save.music);b.setAttribute('aria-pressed',String(!!save.music))}})}
+  const api={
+    on(){save.music=true;persist();btns();ensure()},
+    off(){save.music=false;persist();btns();if(song){fadeOut(song);song=null}},
+    isOn(){return !!save.music},
+    toggle(){save.music?api.off():api.on()},
+    current(){if(!want)return null;const c=CITIES[want.city];return {city:want.city,name:c.en,country:c.c,track:trackOf(want.city),style:musicStyleOf(want.city),mode:want.mode,
+      playing:!!(save.music&&song&&song.src&&song.name===trackOf(want.city)&&AC&&AC.state==='running')}},
+    play(city,mode){city=Math.max(0,Math.min(CITIES.length-1,city|0));want={city,mode:mode||'level'};ensure()},
+    ensure,btns,trackOf,
+    hide(){try{if(AC&&AC.state==='running')AC.suspend()}catch(e){}},
+    show(){if(!gestured)return;actx();ensure()}
+  };
+  return api;
+})();
+window.music=music;
+function onGesture(){gestured=true;if(save.sound)actx();if(save.music)music.ensure()}
+['pointerdown','touchend','keydown'].forEach(ev=>document.addEventListener(ev,onGesture,true));
+document.addEventListener('visibilitychange',()=>{document.hidden?music.hide():music.show()});
+function homeCity(){return save.lastCity!=null?save.lastCity:LEVELS[Math.min(currentLevel(),LEVELS.length-1)].city}
 
 // ---------- iOS: no page scroll / zoom ----------
 document.addEventListener('touchmove',e=>{if(!(e.target.closest&&e.target.closest('#mapScroll,#howScroll')))e.preventDefault()},{passive:false});
@@ -1084,7 +1183,7 @@ function newGame(mode,lv,en){
 function enterGame(fresh){
   spr.clear();dying=[];parts=[];fxs=[];pops=[];sel=null;hint=null;
   closeOv();show('game');
-  const city=cityOf();$('gBg').innerHTML=landSVG(city.id);$('game').style.background=LAND_GROUND[city.id]||'#2b74e6';
+  const city=cityOf();if(save.lastCity!==g.L.city){save.lastCity=g.L.city;persist()}music.play(g.L.city,'level');$('gBg').innerHTML=landSVG(city.id);$('game').style.background=LAND_GROUND[city.id]||'#2b74e6';
   layoutGame();
   if(fresh)for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=g.b[r][c];if(t)t.fromAbove=N+1-r+rand(2)}
   $('levelTag').textContent=g.mode==='endless'?`∞ Endless · Level ${g.en}`:`${city.en} · Level ${g.lv+1}`;
@@ -1366,7 +1465,8 @@ function showPause(){if(!g||g.over)return;g.busy=true;
    <div class="fact">${cityOf().fact}</div>
    <button class="btn big wide" id="pRes">Play ▶<small class="ar">العب</small></button>
    <div class="btnRow"><button class="btn gold" id="pRe">Restart<small class="ar">من جديد</small></button><button class="btn blue" id="pMap">Map<small class="ar">الخريطة</small></button>
-   <button class="btn purple round" id="pSnd">${save.sound?'🔊':'🔇'}</button><button class="btn purple round" id="pHow">?</button></div></div>`);
+   <button class="btn purple round" id="pSnd" aria-label="Sound effects">${save.sound?'🔊':'🔇'}</button><button class="btn purple round" id="pMus" aria-label="Music">🎵</button><button class="btn purple round" id="pHow">?</button></div></div>`);
+  music.btns();$('pMus').onclick=()=>{music.toggle();sfx.click()};
   $('pRes').onclick=()=>{sfx.click();closeOv();g.busy=false};
   $('pRe').onclick=()=>{sfx.click();if(g.mode==='endless')startEndless(g.en);else start(g.lv)};
   $('pMap').onclick=()=>{sfx.click();openMap()};
@@ -1378,10 +1478,14 @@ $('pauseB').onclick=()=>{sfx.click();showPause()};
 // ---------- map ----------
 function unlocked(i){return i===0||!!save.done[i-1]||!!save.done[i]}
 function currentLevel(){for(let i=0;i<LEVELS.length;i++)if(!save.done[i])return i;return LEVELS.length}
-function openMap(){if(g){g.over=true;g.busy=true}g=null;closeOv();show('map');buildMap()}
+function openMap(){if(g){g.over=true;g.busy=true}g=null;closeOv();show('map');music.play(homeCity(),'map');buildMap()}
+// map music follows the city in the middle of the screen
+let mapGeo=null,mapMusT=0;
+function mapMusic(){if(!mapGeo||!$('map').classList.contains('on'))return;const sc=$('mapScroll'),ci=Math.floor((sc.scrollTop+sc.clientHeight*.5-mapGeo.top)/mapGeo.h);music.play(Math.max(0,Math.min(CITIES.length-1,ci)),'map')}
+$('mapScroll').addEventListener('scroll',()=>{clearTimeout(mapMusT);mapMusT=setTimeout(mapMusic,250)},{passive:true});
 function buildMap(){
   const W=innerWidth,H=innerHeight,inner=$('mapInner'),secH=Math.max(340,Math.min(460,W*.95));
-  const nodes=[];const topPad=Math.round(($('mapTop').getBoundingClientRect().height||80)+4);let html=`<div class="city" style="top:0;height:${topPad}px;background:linear-gradient(#1f56c4,#56b8ff)"></div>`,y=topPad;
+  const nodes=[];const topPad=Math.round(($('mapTop').getBoundingClientRect().height||80)+4);mapGeo={top:topPad,h:secH};let html=`<div class="city" style="top:0;height:${topPad}px;background:linear-gradient(#1f56c4,#56b8ff)"></div>`,y=topPad;
   const totalStars=Object.values(save.done).reduce((a,b)=>a+(+b||0),0);$('mStars').textContent=totalStars+' / '+LEVELS.length*3;
   const cur=currentLevel();let gi=0;
   CITIES.forEach((city,ci)=>{const lv=LEVELS.filter(L=>L.city===ci);
@@ -1404,22 +1508,25 @@ function buildMap(){
   inner.style.height=y+'px';inner.innerHTML=html;
   inner.querySelectorAll('.node[data-i]').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(!unlocked(i)){sfx.bad();toast('🔒 Finish level '+i+' first!');return}sfx.click();start(i)});
   $('endNode').onclick=()=>{if(!eun){sfx.bad();toast('🔒 Finish all '+LEVELS.length+' levels first!');return}sfx.click();startEndless(save.endless.lv||1)};
-  const target=cur>=LEVELS.length?endY:nodes[cur].y;requestAnimationFrame(()=>{$('mapScroll').scrollTop=Math.max(0,target-H*.55)});
+  const target=cur>=LEVELS.length?endY:nodes[cur].y;requestAnimationFrame(()=>{$('mapScroll').scrollTop=Math.max(0,target-H*.55);mapMusic()});
 }
 $('mBack').onclick=()=>{sfx.click();openTitle()};
 $('mHow').onclick=()=>{sfx.click();showHow()};
+$('mMus').onclick=()=>{music.toggle();sfx.click()};
 
 // ---------- title ----------
-function openTitle(){g=null;closeOv();show('title');$('tBg').innerHTML=titleSVG();$('tSalah').innerHTML=salahSVG('wave');$('tSound').textContent=save.sound?'🔊':'🔇'}
+function openTitle(){g=null;closeOv();show('title');$('tBg').innerHTML=titleSVG();$('tSalah').innerHTML=salahSVG('wave');$('tSound').textContent=save.sound?'🔊':'🔇';music.btns();music.play(homeCity(),'title')}
 $('tPlay').onclick=()=>{sfx.click();openMap()};
 $('tHow').onclick=()=>{sfx.click();showHow()};
+$('tMusic').onclick=()=>{music.toggle();sfx.click()};
 $('tSound').onclick=()=>{save.sound=!save.sound;persist();$('tSound').textContent=save.sound?'🔊':'🔇';if(save.sound){audio();sfx.click()}};
 
 addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(()=>{if($('game').classList.contains('on')&&g)layoutGame();if($('map').classList.contains('on')){const st=$('mapScroll').scrollTop;buildMap();$('mapScroll').scrollTop=st}},150)});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&g&&!g.busy&&!g.over)saveCur()});
 
 // ---------- boot ----------
-window._t={findMatches,applyGravity,resolveStep,resolveAll,planMove,hasMove,shuffleBoard,genBoard,spreadFire,validateCur,migrateV1,loadSave,endlessLevel,LEVELS,CITIES};
+music.btns();
+window._t={musicPlan,findMatches,applyGravity,resolveStep,resolveAll,planMove,hasMove,shuffleBoard,genBoard,spreadFire,validateCur,migrateV1,loadSave,endlessLevel,LEVELS,CITIES};
 (function boot(){
   try{buildIcons()}catch(e){console.error(e)}
   requestAnimationFrame(frame);
