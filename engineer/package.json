@@ -1,0 +1,17 @@
+{
+  "name": "little-engineer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Salah's Little Engineer - a kids' engineering & coding PWA",
+  "scripts": {
+    "test": "node --test test/",
+    "e2e": "node e2e/run.js",
+    "serve": "node e2e/server.js",
+    "icons": "node tools/make-icons.js",
+    "e2e:levels": "node e2e/all-levels.js"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  }
+}

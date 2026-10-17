@@ -1,0 +1,58 @@
+/* Bridges world */
+.br-wrap { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; position: relative; }
+.br-stage {
+  flex: 1 1 auto; min-height: 180px; position: relative; border-radius: 24px; overflow: hidden;
+  box-shadow: 0 6px 0 rgba(20, 70, 130, .35), 0 10px 22px rgba(0, 40, 90, .25), inset 0 0 0 3px rgba(255,255,255,.6);
+  background: #9fdcff;
+}
+.br-canvas { position: absolute; left: 0; top: 0; display: block; touch-action: none; }
+.br-wrap.erasing .br-canvas { cursor: crosshair; }
+
+/* HUD on top of the scene */
+.br-hud { position: absolute; left: 8px; right: 8px; top: 8px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; z-index: 2; }
+.br-hud > * { pointer-events: auto; }
+.br-coins {
+  display: flex; align-items: center; gap: 6px; height: 48px; padding: 0 12px 0 8px; border-radius: 24px;
+  background: rgba(255,255,255,.95); box-shadow: 0 4px 0 rgba(0,0,0,.15); font-weight: 900; color: #6a4500;
+  transition: background .2s;
+}
+.br-coins .br-coin { width: 30px; height: 30px; filter: drop-shadow(0 2px 0 rgba(0,0,0,.15)); }
+.br-coins-num { font-size: 26px; min-width: 20px; text-align: center; color: #8a5a00; }
+.br-coins-stars { display: flex; gap: 1px; }
+.br-coins-stars .star-svg { width: 20px; height: 20px; }
+.br-coins.over { background: #fff3d6; }
+.br-hud-r { display: flex; gap: 8px; }
+.br-hud .btn.icon { width: 48px; height: 48px; border-radius: 16px; }
+.br-hud .btn.icon svg { width: 26px; height: 26px; }
+.br-hud .btn.icon:disabled { opacity: .55; filter: none; }
+
+/* Bottom bar: tools + Go */
+.br-bar { display: flex; align-items: center; gap: 8px; flex: none; }
+.br-tools {
+  flex: 1; display: flex; gap: 8px; padding: 7px; border-radius: 24px; justify-content: center;
+  background: rgba(255,255,255,.4); box-shadow: inset 0 3px 6px rgba(20, 70, 130, .2);
+}
+.br-tool {
+  width: 66px; height: 70px; border: 0; padding: 4px 0 0; border-radius: 18px; flex: none;
+  background: linear-gradient(180deg, #ffffff, #e8eef9); box-shadow: 0 4px 0 #aab6cc, inset 0 2px 0 #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  font-family: inherit; color: var(--ink);
+}
+.br-tool-ico { width: 40px; height: 40px; }
+.br-tool-ico svg { width: 100%; height: 100%; }
+.br-tool-lbl { font-size: 13px; font-weight: 900; line-height: 1.1; }
+.br-tool.on {
+  background: linear-gradient(180deg, #ffd35c, #ff9f1c); box-shadow: 0 4px 0 #b56a00, 0 0 0 3px #fff, inset 0 2px 0 rgba(255,255,255,.6);
+  color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+.br-tool-erase.on { background: linear-gradient(180deg, #ff9ab8, #f2475a); box-shadow: 0 4px 0 #b11d33, 0 0 0 3px #fff, inset 0 2px 0 rgba(255,255,255,.6); }
+.br-tool-steel.on { background: linear-gradient(180deg, #8fc4ff, #3d7fd6); box-shadow: 0 4px 0 #1d4f99, 0 0 0 3px #fff, inset 0 2px 0 rgba(255,255,255,.6); }
+.br-bar .go-btn { width: 88px; height: 84px; border-radius: 26px; font-size: 18px; flex: none; }
+.br-bar .go-btn svg { width: 36px; height: 36px; }
+.br-wrap.running .br-tools, .br-wrap.running .br-hud-r { opacity: .5; pointer-events: none; }
+
+@media (max-height: 700px) {
+  .br-tool { width: 60px; height: 62px; }
+  .br-tool-ico { width: 34px; height: 34px; }
+  .br-bar .go-btn { width: 80px; height: 74px; }
+}

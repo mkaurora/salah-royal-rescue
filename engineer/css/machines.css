@@ -1,0 +1,49 @@
+/* Machines world */
+.theme-machines { --level-bg: linear-gradient(180deg, #ffcf7a 0%, #ffad5a 55%, #f28a4a 100%); }
+.mc-wrap { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; position: relative; }
+.mc-board-wrap { flex: 1 1 auto; min-height: 140px; display: flex; align-items: center; justify-content: center; }
+.mc-board { touch-action: none; filter: drop-shadow(0 6px 10px rgba(90, 40, 10, .3)); }
+.mc-wrap.running .mc-board { cursor: default; }
+
+.mc-bottom { display: flex; align-items: stretch; gap: 8px; flex: none; }
+.mc-tray {
+  flex: 1 1 auto; min-width: 0; display: flex; gap: 6px; padding: 8px 6px; border-radius: 22px; min-height: 80px; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #8a4f26, #6e3a18);
+  box-shadow: inset 0 3px 6px rgba(0,0,0,.3), 0 4px 0 #4a2610; overflow: hidden;
+}
+.mc-part {
+  position: relative; width: 60px; min-width: 48px; height: 62px; flex: 0 1 60px; border-radius: 16px; touch-action: none;
+  background: linear-gradient(180deg, #fff8e8, #f3dcb0);
+  box-shadow: 0 4px 0 #b9884c, inset 0 2px 0 #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.mc-part-ico canvas { display: block; pointer-events: none; max-width: 100%; height: auto !important; }
+.mc-part-ico { width: 44px; max-width: 86%; }
+.mc-count {
+  position: absolute; right: -3px; top: -5px; min-width: 26px; height: 24px; padding: 0 5px; border-radius: 12px;
+  background: linear-gradient(180deg, #ff7a5a, #e8484f); color: #fff; font-weight: 900; font-size: 14px; line-height: 24px; text-align: center;
+  box-shadow: 0 2px 0 #9e1f2c; pointer-events: none;
+}
+.mc-part.empty { opacity: .45; filter: grayscale(.6); }
+.mc-part.empty .mc-count { background: #9aa3b5; box-shadow: 0 2px 0 #6e778a; }
+.mc-wrap.running .mc-tray { opacity: .8; }
+
+.mc-controls { display: flex; flex-direction: row; gap: 8px; flex: none; align-items: center; justify-content: center; }
+.mc-go.go-btn { width: 84px; height: 84px; border-radius: 26px; flex-direction: column; gap: 0; padding: 0; font-size: 17px; }
+.mc-go.go-btn svg { width: 36px; height: 36px; }
+.mc-clear.btn.icon { width: 48px; height: 48px; border-radius: 16px; color: #c62f3a; }
+.mc-clear.btn.icon svg { width: 26px; height: 26px; }
+
+.mc-ghost { position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none; filter: drop-shadow(0 10px 10px rgba(0,0,0,.35)); }
+.mc-ghost canvas { transform: scale(1.1) rotate(-5deg); }
+.mc-hand-ghost { display: block; }
+
+@media (max-height: 700px) {
+  .mc-tray { min-height: 72px; padding: 6px; }
+  .mc-part { width: 56px; height: 56px; }
+  .mc-go.go-btn { width: 76px; height: 76px; }
+}
+@media (max-width: 340px) {
+  .mc-bottom, .mc-controls { gap: 6px; }
+  .mc-go.go-btn { width: 70px; }
+}
