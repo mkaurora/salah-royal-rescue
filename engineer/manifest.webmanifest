@@ -1,0 +1,21 @@
+{
+  "name": "Salah's Little Engineer",
+  "short_name": "Little Engineer",
+  "description": "Build bridges, machines and circuits, and code a robot!",
+  "start_url": "/salah-royal-rescue/engineer/",
+  "scope": "/salah-royal-rescue/engineer/",
+  "id": "/salah-royal-rescue/engineer/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#2f86f0",
+  "background_color": "#59c3ff",
+  "lang": "en",
+  "categories": ["education", "games", "kids"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

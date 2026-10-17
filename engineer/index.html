@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#2f86f0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Little Engineer">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="description" content="Salah's Little Engineer — build bridges, machines, circuits and code a robot!">
+  <title>Salah's Little Engineer</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/robot.css">
+  <link rel="stylesheet" href="css/bridges.css">
+  <link rel="stylesheet" href="css/machines.css">
+  <link rel="stylesheet" href="css/circuits.css">
+</head>
+<body>
+  <div id="app"></div>
+  <canvas id="fx"></canvas>
+  <div id="hand"></div>
+  <div class="rotate-msg"><div class="rm-ico">📱</div><div>Please turn your phone<br>the other way!</div></div>
+
+  <!-- Pure logic + level data (shared with Node tests) -->
+  <script src="js/logic/save.js"></script>
+  <script src="js/logic/robot.js"></script>
+  <script src="js/logic/bridges.js"></script>
+  <script src="js/logic/machines.js"></script>
+  <script src="js/logic/circuits.js"></script>
+  <script src="js/data/robot-levels.js"></script>
+  <script src="js/data/robot-content.js"></script>
+  <script src="js/data/bridges-levels.js"></script>
+  <script src="js/data/bridges-content.js"></script>
+  <script src="js/data/machines-levels.js"></script>
+  <script src="js/data/machines-content.js"></script>
+  <script src="js/data/circuits-levels.js"></script>
+  <script src="js/data/circuits-content.js"></script>
+  <!-- Browser core -->
+  <script src="js/core/ui.js"></script>
+  <script src="js/core/audio.js"></script>
+  <script src="js/core/buddy.js"></script>
+  <!-- World views -->
+  <script src="js/views/robot-view.js"></script>
+  <script src="js/views/practice-view.js"></script>
+  <script src="js/views/bridges-view.js"></script>
+  <script src="js/views/machines-view.js"></script>
+  <script src="js/views/circuits-view.js"></script>
+  <!-- App shell (boots last) -->
+  <script src="js/core/app.js"></script>
+</body>
+</html>
