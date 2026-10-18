@@ -175,7 +175,7 @@
             'C0 I1 I1 I1 C3'],
       tray: { I: 1 }, par: 1,
       solution: { placed: [P('I', 2, 0, 1)], rots: { '0,2': 0 }, sw: {} },
-      hint: 'Tap the bottom battery so its + points up, like the top one.'
+      hint: 'Tap the bottom battery so its plus end points up, like the top one.'
     },
     {
       id: 'c13', name: 'Fan and Light',
@@ -236,6 +236,129 @@
       solution: { placed: [P('T', 2, 0, 0), P('C', 4, 0, 2), P('T', 2, 2, 2), P('C', 4, 2, 3)], rots: {}, sw: { '1,0': true } },
       winNote: 'You lit up the whole city!',
       hint: 'Use T wires for the first house and corners for the second. Don\'t forget the switch!'
+    },
+    /* ---------- v2: ten more gentle levels (practice + one new idea at a time) ---------- */
+    {
+      id: 'c18', name: 'Twisty Wires',
+      goal: 'Turn the wires so the power can go round!',
+      map: ['C0* I0* I1 C2',
+            'B0 ## ## H0',
+            'C0 I1 .. C3'],
+      tray: { I: 1 }, par: 1,
+      solution: { placed: [P('I', 2, 2, 1)], rots: { '0,0': 1, '1,0': 1 }, sw: {} },
+      hint: 'Tap the wires with the yellow arrow until they join up. Then fill the gap.'
+    },
+    {
+      id: 'c19', name: 'Street Lamps',
+      goal: 'Put a lamp in each gap to light the street!',
+      lamps: 2,
+      map: ['C1 I1 I1 I1 C2',
+            'B0 ## ## ## I0',
+            'C0 .. I1 .. C3'],
+      tray: { P: 2 }, par: 2,
+      solution: { placed: [P('P', 1, 2, 1), P('P', 3, 2, 1)], rots: {}, sw: {} },
+      winNote: 'Two lamps on one path share the power.',
+      hint: 'Drag a lamp into each empty square at the bottom.'
+    },
+    {
+      id: 'c20', name: 'Two Switches',
+      goal: 'Two switches! Turn BOTH on to light the house.',
+      tip: 'twoSwitch',
+      map: ['C1 S1 I1 S1 C2',
+            'B0 ## ## ## H0',
+            'C0 I1 .. I1 C3'],
+      tray: { I: 1 }, par: 1,
+      solution: { placed: [P('I', 2, 2, 1)], rots: {}, sw: { '1,0': true, '3,0': true } },
+      winNote: 'Power must pass through BOTH switches!',
+      hint: 'Fill the gap. Then tap both switches at the top.'
+    },
+    {
+      id: 'c21', name: 'Fan Corners',
+      goal: 'Make the fan spin! Go round the corners.',
+      map: ['.. .. I1 ..',
+            'B0 ## ## M0',
+            'C0 I1 I1 C3'],
+      tray: { C: 2, I: 1 }, par: 3,
+      solution: { placed: [P('C', 0, 0, 1), P('I', 1, 0, 1), P('C', 3, 0, 2)], rots: {}, sw: {} },
+      hint: 'Put a corner in each top corner square, and a wire in between.'
+    },
+    {
+      id: 'c22', name: 'Lights Out',
+      goal: 'Turn OFF the sleepy house. Light the other house!',
+      tip: 'off',
+      map: ['C1 I1 T0 I1 C2',
+            'B0 ## S0+ ## H0',
+            'I0 ## Z0 ## I0',
+            'C0 I1 T2 .. C3'],
+      tray: { I: 1 }, par: 1,
+      solution: { placed: [P('I', 3, 3, 1)], rots: {}, sw: { '2,1': false } },
+      winNote: 'Switch off a light, and the others stay on!',
+      hint: 'Tap the switch above the sleepy house to turn it off. Then fill the gap.'
+    },
+    {
+      id: 'c23', name: 'Three Bright',
+      goal: 'Make all three houses BRIGHT!',
+      need: 'bright',
+      map: ['C1 T0 I1 T0 C2',
+            'B0 H0 ## H0 H0',
+            'C0 .. I1 .. ..'],
+      tray: { T: 2, C: 1 }, par: 3,
+      solution: { placed: [P('T', 1, 2, 2), P('T', 3, 2, 2), P('C', 4, 2, 3)], rots: {}, sw: {} },
+      winNote: 'Every house has its own path. All bright!',
+      hint: 'Put a T wire under each of the first two houses, and a corner at the end.'
+    },
+    {
+      id: 'c24', name: 'Wrong Spot',
+      goal: 'The lamp is in the wrong spot! Move it into the gap.',
+      tip: 'move', lamps: 1,
+      map: ['C1 I1 T0 I1 C2',
+            'B0 ## .. ## H0',
+            'C0 I1 .. I1 C3'],
+      start: [P('P', 2, 1, 0)],
+      tray: { P: 0 }, par: 1,
+      solution: { placed: [P('P', 2, 2, 1)], rots: {}, sw: {} },
+      hint: 'Drag the lamp down into the empty square at the bottom.',
+      tutorial: [
+        { say: 'This lamp is not in the loop. Drag it down into the gap!', drag: ['cell:2,1', 'cell:2,2'], wait: 'move' }
+      ]
+    },
+    {
+      id: 'c25', name: 'Fan Boost',
+      goal: 'Two fans in a row! Add a battery to make them spin FAST.',
+      needFan: 'fast',
+      map: ['C1 I1 I1 C2',
+            'B2 ## ## M0',
+            'I0 ## ## M0',
+            'C0 I1 .. C3'],
+      tray: { B: 1 }, par: 1,
+      solution: { placed: [P('B', 2, 3, 1)], rots: {}, sw: {} },
+      winNote: 'Two batteries push twice as hard!',
+      hint: 'Put the battery in the gap. Its + must point the way the power goes.'
+    },
+    {
+      id: 'c26', name: 'Cross Town',
+      goal: 'Make the fan FAST and both houses BRIGHT!',
+      need: 'bright', needFan: 'fast',
+      map: ['C1 I1 T0 I1 C2',
+            'I0 ## M0 ## B0',
+            'T3 H1 .. .. C3',
+            'I0 ## H0 ## ##',
+            'C0 I1 C3 ## ##'],
+      tray: { X: 1, I: 1 }, par: 2,
+      solution: { placed: [P('X', 2, 2, 0), P('I', 3, 2, 1)], rots: {}, sw: {} },
+      hint: 'Put the cross wire in the middle, then a wire next to the battery.'
+    },
+    {
+      id: 'c27', name: 'Big City',
+      goal: 'Big city! Fan FAST, house BRIGHT. Shh, one house sleeps!',
+      need: 'bright', needFan: 'fast',
+      map: ['C1 S1 T0 T0 C2',
+            'B0 ## H0 Z0 M0',
+            'C0 I1 .. .. ..'],
+      tray: { T: 2, I: 1, C: 1 }, par: 3,
+      solution: { placed: [P('T', 2, 2, 2), P('I', 3, 2, 1), P('C', 4, 2, 3)], rots: {}, sw: { '1,0': true } },
+      winNote: 'You powered the whole big city!',
+      hint: 'A T wire under the house, a straight wire under the sleepy house, a corner under the fan. Then the switch!'
     }
   ];
 

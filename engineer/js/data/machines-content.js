@@ -102,6 +102,23 @@
       pic: svg('<rect x="60" y="2" width="80" height="8" rx="3" fill="#8a5a2b"/><circle cx="100" cy="30" r="24" fill="#c9ced8" stroke="#3b4458" stroke-width="3"/><circle cx="100" cy="30" r="6" fill="#ffc83d" stroke="#3b4458" stroke-width="2"/>' +
         '<path d="M76 30 V96 M124 30 V58" stroke="#d9b37a" stroke-width="4"/><path d="M62 96 h28 l-4 18 h-20z" fill="#3d8bff" stroke="#1d4f99" stroke-width="3"/>' + ball(76, 92, 9) +
         '<rect x="106" y="58" width="36" height="6" fill="#e3a557" stroke="' + OUT + '" stroke-width="2.5"/>' + box(110, 32, 26) + arrow(160, 70, 160, 40) + arrow(40, 50, 40, 90))
+    },
+    chain: {
+      title: 'Chain reaction',
+      text: 'One ball bumps the next ball, and that one keeps rolling. Bump, bump, GO!',
+      pic: svg(floor(96) + ball(30, 84) + arrow(46, 84, 62, 84) + ball(80, 84) + '<text x="80" y="58" font-size="20" text-anchor="middle">💥</text>' + ball(130, 84) + arrow(146, 84, 156, 84) + basket(176, 96))
+    },
+    carry: {
+      title: 'Belts carry things',
+      text: 'A moving belt carries things on top. Even a box with no wheels!',
+      pic: svg(floor(104) + '<rect x="20" y="78" width="160" height="22" rx="11" fill="#2f3342" stroke="#2b2f3d" stroke-width="3"/>' +
+        '<circle cx="34" cy="89" r="7" fill="#c9ced8" stroke="#3b4458" stroke-width="2"/><circle cx="166" cy="89" r="7" fill="#c9ced8" stroke="#3b4458" stroke-width="2"/>' +
+        box(58, 44, 32) + arrow(104, 60, 150, 60) + '<path d="M150 50 L164 60 L150 70Z" fill="#fff"/>')
+    },
+    slow: {
+      title: 'Big gears go slow',
+      text: 'A big gear turns slowly. Slow is good when you need to stop in the right spot!',
+      pic: svg(gear(56, 62, 26, 8, '#e8484f') + gear(118, 62, 40, 13, '#ffc83d') + arc(118, 62, 22, false) + '<text x="176" y="40" font-size="26" text-anchor="middle">🐢</text>')
     }
   };
 
@@ -121,9 +138,19 @@
     'Conveyor belts carry bags at the airport.',
     'A screw is really a ramp wrapped around a pole.',
     'Elevators go up and down with pulleys and strong ropes.',
-    'Engineers call ramps, levers, wedges, pulleys, wheels and screws "simple machines".',
+    'Engineers call ramps, levers, wedges, pulleys, wheels and screws simple machines.',
     'A wheelbarrow uses a wheel AND a lever!',
-    'Gears that touch always turn in opposite directions.'
+    'Gears that touch always turn in opposite directions.',
+    'Dominoes falling one after another are a chain reaction!',
+    'Some factories have belts longer than a soccer field.',
+    'Supermarket checkouts have a little belt that carries your food.',
+    'A big gear turns slowly but pushes very hard.',
+    'Old windmills used big wooden gears to grind wheat into flour.',
+    'Wheelchair ramps help people roll into buildings.',
+    'A pizza cutter is a wheel with a sharp edge.',
+    'A zipper uses tiny wedges to open and close.',
+    'Ski lifts use pulleys and a long moving cable.',
+    'A Rube Goldberg machine does a simple job in lots of funny steps!'
   ];
 
   return { tips: tips, facts: facts };

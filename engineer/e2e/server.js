@@ -9,7 +9,7 @@ const BASE = '/salah-royal-rescue/engineer/';
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon', '.txt': 'text/plain'
+  '.ico': 'image/x-icon', '.txt': 'text/plain', '.mp3': 'audio/mpeg'
 };
 
 function createServer() {

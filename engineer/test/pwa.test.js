@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { appFiles } = require('../tools/build-sw.js');
+const { appFiles, precacheList, precacheClips } = require('../tools/build-sw.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -47,13 +47,19 @@ test('index.html: relative assets only, viewport-fit=cover, apple touch icon, al
   });
 });
 
-test('service worker: cache engineer-v1, precaches every app file, registered with scope ./', () => {
+test('service worker: cache engineer-v2, precaches every app file + early voice clips, registered with scope ./', () => {
   const sw = read('sw.js');
-  assert.match(sw, /var CACHE = 'engineer-v1';/);
+  assert.match(sw, /var CACHE = 'engineer-v2';/);
   const listed = [...sw.matchAll(/^\s+'(\.\/[^']*)'/gm)].map((m) => m[1]);
-  const expected = ['./'].concat(appFiles().map((f) => './' + f));
-  assert.deepStrictEqual(listed.sort(), expected.sort(), 'run node tools/build-sw.js');
+  assert.deepStrictEqual(listed.slice().sort(), precacheList().sort(), 'run node tools/build-sw.js');
+  listed.forEach((f) => assert.ok(f === './' || fs.existsSync(path.join(ROOT, f)), 'precached file exists on disk: ' + f));
   assert.ok(listed.includes('./index.html') && listed.includes('./manifest.webmanifest'));
+  assert.ok(listed.includes('./audio/voice/manifest.json'), 'voice manifest is precached');
+  assert.ok(!listed.includes('./audio/voice/lines.json'), 'lines.json is a tool file, not needed offline');
+  precacheClips().forEach((f) => assert.ok(listed.includes('./' + f)));
+  // only engineer-* caches other than the current one are deleted; only complete (200) responses are cached
+  assert.match(sw, /k\.indexOf\('engineer-'\) === 0 && k !== CACHE/);
+  assert.match(sw, /res\.status === 200/);
   const app = read('js/core/app.js');
   assert.match(app, /serviceWorker\.register\('\.\/sw\.js', \{ scope: '\.\/' \}\)/);
 });
@@ -62,7 +68,10 @@ test('no runtime network calls or external URLs in app code', () => {
   appFiles().filter((f) => /\.(js|css|html)$/.test(f)).forEach((f) => {
     const src = read(f);
     assert.ok(!/https?:\/\/(?!www\.w3\.org)/.test(src), f + ' contains an external URL');
-    assert.ok(!/\bfetch\(|XMLHttpRequest|WebSocket|import\(/.test(src), f + ' makes network calls');
+    assert.ok(!/XMLHttpRequest|WebSocket|import\(/.test(src), f + ' makes network calls');
+    // The only fetches: the game's own voice files (relative audio/voice/ paths) in audio.js.
+    if (f === 'js/core/audio.js') assert.match(src, /var VOICE_DIR = 'audio\/voice\/';/);
+    else assert.ok(!/\bfetch\(/.test(src), f + ' makes network calls');
   });
 });
 

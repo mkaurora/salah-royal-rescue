@@ -137,3 +137,33 @@ test('machines: failure reasons help the hints', () => {
   // wrong-way wedge does not split the log
   assert.strictEqual(M.simulate(byId('m11'), [{ slot: '3,4', part: 'wedge', dir: -1 }]).success, false);
 });
+
+test('machines: there are at least as many facts as levels', () => {
+  assert.ok(content.facts.length >= levels.length, content.facts.length + ' facts for ' + levels.length + ' levels');
+});
+
+test('machines: new ideas — chain reaction, belts carry boxes, big gear = slow belt', () => {
+  const byId = id => levels.find(l => l.id === id);
+  const chain = M.simulate(byId('m20'), byId('m20').solution);
+  assert.strictEqual(chain.events.filter(e => e.type === 'push').length, 2, 'ball bumps ball bumps ball');
+  // a box with no wheels rides the belt
+  const carry = M.simulate(byId('m21'), byId('m21').solution);
+  assert.ok(carry.success);
+  assert.ok(carry.frames[carry.frames.length - 1].items.some(it => it.kind === 'box' && it.done));
+  assert.strictEqual(M.simulate(byId('m21'), [{ slot: 'p1', part: 'gearS' }]).reason, 'belt');
+  // small gear flings the ball over the basket, big gear drops it in
+  const fast = M.simulate(byId('m22'), [{ slot: 'axle', part: 'gearS' }]);
+  assert.strictEqual(fast.success, false);
+  assert.ok(fast.events.some(e => e.type === 'fling'));
+  assert.strictEqual(M.simulate(byId('m22'), [{ slot: 'axle', part: 'gearB' }]).belt.speed, 1);
+  // gear train: the last gear decides the speed
+  assert.strictEqual(M.simulate(byId('m25'), [{ slot: 'p1', part: 'gearS' }, { slot: 'p2', part: 'gearB' }, { slot: 'axle', part: 'gearB' }]).reason, 'lost');
+});
+
+test('machines: a belt does not keep shoving a blocked item (no endless bumping)', () => {
+  const lv = levels.find(l => l.id === 'm28');
+  const r = M.simulate(lv, [{ slot: 'p1', part: 'gearS' }, { slot: '3,2', part: 'wedge', dir: -1 }, { slot: 'hook', part: 'pulley' }]);
+  assert.strictEqual(r.success, false);
+  assert.ok(r.ticks < 10, 'stops quickly (' + r.ticks + ' ticks)');
+  assert.strictEqual(r.events.filter(e => e.type === 'bump').length, 1);
+});

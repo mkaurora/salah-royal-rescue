@@ -283,8 +283,11 @@
         return true;
       }
       if (P.belts[key(x, y + 1)] && belt.running) {
+        if (it.beltBlocked) return false;   // pushed against something: the belt just slips under it
         it.vx = belt.dir;
         var m = moveH(it);
+        var lastEv = events[events.length - 1];
+        if (it.x === x && lastEv && lastEv.type === 'bump' && lastEv.id === it.id && lastEv.t === tick) { it.beltBlocked = true; return true; }
         if (m && it.x !== x && !P.belts[key(it.x, it.y + 1)] && belt.speed > 1) { it.fly = FLING; ev('fling', { id: it.id }); }
         return m;
       }

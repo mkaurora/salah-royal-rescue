@@ -209,3 +209,47 @@ test('solver is deterministic', () => {
     assert.strictEqual(a, b);
   });
 });
+
+/* ---------- v2 levels (c18–c27) ---------- */
+const L = (id) => levels.find((l) => l.id === id);
+const P2 = (t, x, y, r) => ({ t, x, y, r });
+
+test('there are at least as many facts as levels', () => {
+  assert.ok(content.facts.length >= levels.length, content.facts.length + ' facts for ' + levels.length + ' levels');
+});
+
+test('c20: both switches in a row must be on', () => {
+  const l = L('c20'), placed = l.solution.placed;
+  assert.ok(!C.evaluate(l, { placed, sw: { '1,0': true } }).solved);
+  assert.ok(!C.evaluate(l, { placed, sw: { '3,0': true } }).solved);
+  assert.ok(C.evaluate(l, { placed, sw: { '1,0': true, '3,0': true } }).solved);
+});
+
+test('c22: the sleepy house is awake at the start and must be switched off', () => {
+  const l = L('c22');
+  assert.strictEqual(C.evaluate(l, C.initialState(l)).status, 'sleepy');
+  assert.strictEqual(C.evaluate(l, { placed: l.solution.placed }).status, 'sleepy');
+  assert.ok(C.evaluate(l, l.solution).solved);
+});
+
+test('c24: the start lamp is a dead end; moving it into the gap solves', () => {
+  const l = L('c24');
+  assert.ok(!C.evaluate(l, C.initialState(l)).solved);
+  assert.strictEqual(C.remaining(l, C.initialState(l)).P, 0);
+  assert.strictEqual(C.remaining(l, { placed: [] }).P, 1);
+});
+
+test('c25: a backwards battery cancels; one battery would only spin the fans slowly', () => {
+  const l = L('c25');
+  assert.strictEqual(C.evaluate(l, { placed: [P2('B', 2, 3, 3)] }).parts['3,1'].level, 0);
+  const one = C.evaluate(Object.assign({}, l, { map: ['C1 I1 I1 C2', 'B2 ## ## M0', 'I0 ## ## M0', 'C0 I1 I1 C3'] }), { placed: [] });
+  assert.strictEqual(one.status, 'dim');
+});
+
+test('c27: a T wire under the sleepy house wakes it up; a straight wire does not', () => {
+  const l = L('c27');
+  const bad = l.solution.placed.map((q) => (q.x === 3 ? P2('T', 3, 2, 2) : q));
+  assert.strictEqual(C.evaluate(l, { placed: bad, sw: { '1,0': true } }).status, 'sleepy');
+  assert.ok(!C.evaluate(l, { placed: l.solution.placed }).solved, 'switch must be on');
+  assert.ok(C.evaluate(l, l.solution).solved);
+});

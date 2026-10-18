@@ -1,0 +1,105 @@
+/* Construction world */
+.theme-construction { --level-bg: linear-gradient(180deg, #7fcdfb 0%, #bfe8ff 50%, #ffe7b8 100%); }
+
+.cn-wrap { flex: 1; display: flex; flex-direction: column; gap: 6px; min-height: 0; position: relative; }
+
+/* Header: undo · stage pips + moves · restart */
+.cn-head { display: flex; align-items: center; gap: 8px; flex: none; height: 52px; }
+.cn-undo.btn { min-height: 48px; height: 48px; padding: 0 12px 0 8px; border-radius: 16px; font-size: 16px; gap: 4px; flex: none; }
+.cn-undo.btn svg { width: 24px; height: 24px; color: #2f86f0; }
+.cn-undo.btn.off { --c1: #ffffff; --c2: #eef1f6; --c3: #c5ccd8; opacity: .6; color: var(--ink); }
+.cn-restart.btn { width: 48px; height: 48px; min-width: 48px; padding: 0; border-radius: 16px; flex: none; }
+.cn-restart.btn svg { width: 24px; height: 24px; color: #e07a00; }
+.cn-undo.cn-pulse { animation: cnPulse .9s ease-in-out 4; }
+@keyframes cnPulse { 0%,100% { transform: scale(1); box-shadow: 0 5px 0 var(--c3), 0 0 0 0 rgba(255,200,40,.9); } 50% { transform: scale(1.1); box-shadow: 0 5px 0 var(--c3), 0 0 0 10px rgba(255,200,40,0); } }
+
+.cn-info { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.cn-pips { display: flex; align-items: center; gap: 2px; }
+.cn-pip {
+  position: relative; width: 38px; height: 32px; border-radius: 11px; padding: 2px 3px;
+  background: rgba(255,255,255,.55); box-shadow: 0 2px 0 rgba(0,0,0,.12); opacity: .6; transition: opacity .2s, transform .2s, background .2s;
+}
+.cn-pip svg { width: 100%; height: 100%; }
+.cn-pip.on { opacity: 1; background: #fff; transform: scale(1.08); box-shadow: 0 0 0 3px #ffc21a, 0 3px 0 rgba(0,0,0,.15); }
+.cn-pip.done { opacity: 1; }
+.cn-pip.done::after {
+  content: "✓"; position: absolute; right: -5px; top: -6px; width: 18px; height: 18px; border-radius: 50%;
+  background: #22b14c; color: #fff; font-size: 12px; font-weight: 900; line-height: 18px; text-align: center; box-shadow: 0 2px 0 #138a36;
+}
+.cn-pip-arrow { color: #a86400; font-weight: 900; font-size: 18px; line-height: 1; }
+.cn-wrap:not(.cn-multi) .cn-pips { display: none; }
+.cn-multi .cn-mv-lbl, .cn-multi .cn-undo.btn span { display: none; }
+.cn-multi .cn-undo.btn { width: 48px; padding: 0; }
+.cn-multi .cn-pip { width: 34px; height: 28px; }
+.cn-multi .cn-moves { padding: 4px 6px; }
+.cn-moves {
+  display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,.9); border-radius: 14px; padding: 4px 8px;
+  font-size: 13px; font-weight: 900; color: #6a4c00; box-shadow: 0 3px 0 rgba(120,80,0,.2); white-space: nowrap;
+}
+.cn-moves b { font-size: 18px; color: var(--ink); min-width: 14px; text-align: center; }
+.cn-moves .cn-par { display: inline-flex; align-items: center; gap: 1px; background: #fff3c4; border-radius: 9px; padding: 1px 6px 1px 3px; color: #a86400; font-size: 14px; }
+.cn-moves .star-svg { width: 16px; height: 16px; }
+.cn-moves.over b { color: #e07a00; }
+
+/* Board */
+.cn-board-wrap { flex: 1 1 auto; min-height: 120px; position: relative; overflow: hidden; }
+.cn-board { position: absolute; left: 0; top: 0; display: block; touch-action: none; }
+
+/* Controls */
+.cn-ctrl { flex: none; display: flex; justify-content: center; align-items: center; }
+.cn-pad {
+  display: grid; grid-template-columns: repeat(3, 76px); grid-template-rows: 54px 54px; gap: 6px;
+  grid-template-areas: ". u ." "l d r";
+}
+.cn-a-U { grid-area: u; } .cn-a-L { grid-area: l; } .cn-a-D { grid-area: d; } .cn-a-R { grid-area: r; }
+.cn-arrow.btn { width: 100%; height: 100%; min-height: 50px; padding: 0; border-radius: 18px; }
+.cn-arrow.btn svg { width: 34px; height: 34px; filter: drop-shadow(0 2px 0 rgba(120,70,0,.35)); }
+.cn-crane-row { display: flex; align-items: center; gap: 10px; }
+.cn-crane-row .cn-arrow.btn { width: 76px; height: 64px; }
+.cn-grab.btn { width: 112px; height: 72px; flex-direction: column; gap: 0; padding: 0; border-radius: 22px; font-size: 16px; }
+.cn-grab.btn svg { width: 36px; height: 36px; }
+
+.cn-tray {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; padding: 6px; border-radius: 20px; width: 100%;
+  background: linear-gradient(180deg, #8a5a2b, #6e4218); box-shadow: inset 0 3px 6px rgba(0,0,0,.3), 0 4px 0 #4a2a10;
+}
+.cn-piece {
+  position: relative; flex: 0 0 auto; width: clamp(48px, calc((100% - 25px) / 6), 66px); height: 60px; border-radius: 15px;
+  background: linear-gradient(180deg, #fffaf0, #f3dcb0); box-shadow: 0 4px 0 #b9884c, inset 0 2px 0 #fff;
+  display: flex; align-items: center; justify-content: center; touch-action: none;
+}
+.cn-piece-ico { width: 44px; height: 44px; pointer-events: none; }
+.cn-piece-ico svg { width: 100%; height: 100%; }
+.cn-count {
+  position: absolute; right: -4px; top: -6px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px;
+  background: linear-gradient(180deg, #ffd84a, #f5a300); color: #5a3a00; font-weight: 900; font-size: 13px; line-height: 22px; text-align: center;
+  box-shadow: 0 2px 0 #a86400; pointer-events: none;
+}
+.cn-count:empty { display: none; }
+.cn-piece.empty { opacity: .4; filter: grayscale(.7); }
+.cn-piece.lifted { opacity: .45; transform: scale(.92); }
+.cn-ghost { position: fixed; left: 0; top: 0; width: 72px; height: 72px; z-index: 90; pointer-events: none; filter: drop-shadow(0 10px 8px rgba(0,0,0,.35)); }
+.cn-ghost svg { width: 100%; height: 100%; }
+.cn-hand-ghost { width: 56px; height: 56px; }
+.cn-hand-ghost svg { width: 100%; height: 100%; }
+
+@media (max-height: 700px) {
+  .cn-head { height: 50px; }
+  .cn-pad { grid-template-rows: 50px 50px; grid-template-columns: repeat(3, 72px); }
+  .cn-crane-row .cn-arrow.btn { height: 58px; }
+  .cn-grab.btn { height: 64px; }
+  .cn-piece { height: 54px; }
+  .cn-piece-ico { width: 40px; height: 40px; }
+}
+@media (max-width: 340px) {
+  .cn-multi .cn-pip-arrow { display: none; }
+  .cn-multi .cn-pip { width: 30px; height: 26px; }
+  .cn-multi .cn-info { gap: 4px; }
+  .cn-head { gap: 6px; }
+  .cn-tray.cn-tray-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .cn-tray.cn-tray-6 .cn-piece { width: auto; height: 48px; }
+  .cn-tray.cn-tray-6 .cn-piece-ico { width: 38px; height: 38px; }
+  .cn-moves .cn-mv-lbl { display: none; }
+  .cn-undo.btn span { display: none; }
+  .cn-undo.btn { width: 48px; padding: 0; }
+}

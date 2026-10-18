@@ -5,7 +5,9 @@
  * noBelow: a boat sails under — no beams below the road. vehicle: 'car' | 'bus' | 'truck'.
  * materials: beams the player may use. Beams are written 'x1,y1-x2,y2' (wood) or 's:x1,y1-x2,y2' (steel).
  * Stars: cost <= budget3 → 3 stars, cost <= budget2 → 2 stars, any working bridge → 1 star.
- * solution: stored 3-star bridge (verified by test/bridges.test.js). */
+ * solution: stored 3-star bridge (verified by test/bridges.test.js).
+ * trim: start bridge already works but costs too much (erase beams for 3 stars).
+ * eraseDemo: "Show me" erases the wrong beams with the Erase tool instead of clearing everything. */
 (function (root, factory) {
   var mod = factory();
   if (typeof module === 'object' && module.exports) module.exports = mod;
@@ -188,6 +190,97 @@
       budget3: 18, budget2: 22,
       hint: 'Steel supports from the low bolts and the rock. Steel road at the ends.',
       solution: ['s:1,2-2,2'].concat(road(2, 6, 2), ['s:6,2-7,2', 's:1,3-2,2', 's:7,3-6,2', 's:4,3-3,2', 's:4,3-4,2', 's:4,3-5,2'])
+    },
+    /* ---- Part 2: practice levels, mixed with small new twists ---- */
+    {
+      id: 'b18', name: 'Bus on a Rock',
+      goal: 'The bus is back! Use the low bolts and the rock.',
+      rows: 5, deck: 2, left: 1, right: 5, anchors: [[1, 3], [5, 3], [3, 3]], pillars: [{ x: 3, top: 3 }], vehicle: 'bus',
+      budget3: 9, budget2: 11,
+      hint: 'One support from each low bolt. Then three beams from the rock bolt.',
+      solution: road(1, 5, 2).concat(['1,3-2,2', '5,3-4,2', '3,3-2,2', '3,3-3,2', '3,3-4,2'])
+    },
+    {
+      id: 'b19', name: 'Fill the Hole',
+      goal: 'Oh no, a hole in the road! Can you fix it?',
+      rows: 5, deck: 2, left: 1, right: 5, anchors: [[1, 3], [5, 3]],
+      startBeams: ['1,2-2,2', '2,2-3,2', '4,2-5,2', '1,3-2,2', '5,3-4,2', '2,2-3,1', '3,1-4,2', '3,1-3,2'],
+      budget3: 9, budget2: 11,
+      hint: 'Find the gap in the road. Drag one beam across it.',
+      solution: road(1, 5, 2).concat(['1,3-2,2', '5,3-4,2', '2,2-3,1', '3,1-4,2', '3,1-3,2'])
+    },
+    {
+      id: 'b20', name: 'Swap to Steel',
+      goal: 'One wood beam is too weak for the truck. Swap it for steel!',
+      rows: 5, deck: 2, left: 1, right: 4, anchors: [[1, 3], [4, 3]], vehicle: 'truck', materials: ['wood', 'steel'],
+      startBeams: road(1, 4, 2).concat(['s:1,3-2,2', '4,3-3,2']),
+      budget3: 7, budget2: 9,
+      tip: 'erase',
+      eraseDemo: true,
+      hint: 'Tap Erase, then tap the wood support. Build it again with steel.',
+      solution: road(1, 4, 2).concat(['s:1,3-2,2', 's:4,3-3,2'])
+    },
+    {
+      id: 'b21', name: 'One Tower',
+      goal: 'Only one tower! Use the tower and the low bolt.',
+      rows: 5, deck: 2, left: 1, right: 5, anchors: [[5, 3]], towers: [{ x: 1, top: 0 }],
+      budget3: 8, budget2: 10,
+      hint: 'Two beams from the tower bolt. Two beams from the low bolt.',
+      solution: road(1, 5, 2).concat(['1,1-2,2', '1,1-3,2', '5,3-4,2', '5,3-3,2'])
+    },
+    {
+      id: 'b22', name: 'Lopsided',
+      goal: 'A low bolt on one side only. Make the other side strong!',
+      rows: 5, deck: 2, left: 1, right: 4, anchors: [[1, 3]],
+      budget3: 7, budget2: 9,
+      hint: 'A support from the low bolt. Then a triangle on top near the other side.',
+      solution: road(1, 4, 2).concat(['1,3-2,2', '2,2-3,1', '3,1-4,2', '3,1-3,2'])
+    },
+    {
+      id: 'b23', name: 'Steel Cables',
+      goal: 'A truck and tall towers. Hang the road with steel!',
+      rows: 4, deck: 2, left: 1, right: 5, anchors: [], towers: [{ x: 1, top: 0 }, { x: 5, top: 0 }], noBelow: true,
+      vehicle: 'truck', materials: ['wood', 'steel'],
+      budget3: 12, budget2: 14,
+      hint: 'Wood road. Then steel beams from the tower bolts to the road dots.',
+      solution: road(1, 5, 2).concat(['s:1,1-2,2', 's:1,1-3,2', 's:5,1-3,2', 's:5,1-4,2'])
+    },
+    {
+      id: 'b24', name: 'Coin Cutter',
+      goal: 'This bridge costs too many coins. Erase the extra beams!',
+      rows: 5, deck: 2, left: 1, right: 4, anchors: [[1, 3], [4, 3]],
+      startBeams: road(1, 4, 2).concat(['1,3-2,2', '4,3-3,2', '1,2-2,1', '2,1-3,2', '2,1-2,2']),
+      trim: true,
+      budget3: 5, budget2: 7,
+      eraseDemo: true,
+      hint: 'The two low supports are enough. Erase the beams on top.',
+      solution: road(1, 4, 2).concat(['1,3-2,2', '4,3-3,2'])
+    },
+    {
+      id: 'b25', name: 'Bus Arch',
+      goal: 'Deep bolts again, and a big bus. Build a strong arch!',
+      rows: 6, deck: 2, left: 1, right: 5, anchors: [[1, 4], [5, 4]], vehicle: 'bus',
+      budget3: 11, budget2: 13,
+      hint: 'Build the arch with a low point in the middle. Then connect the low point to more road dots.',
+      solution: road(1, 5, 2).concat(['1,4-2,2', '4,2-5,4', '1,4-3,3', '3,3-5,4', '3,2-3,3', '2,2-3,3', '3,3-4,2'])
+    },
+    {
+      id: 'b26', name: 'Rock and Towers',
+      goal: 'Towers and a rock! Use them all to hold the bus.',
+      rows: 5, deck: 2, left: 1, right: 5, anchors: [[3, 3]], pillars: [{ x: 3, top: 3 }], towers: [{ x: 1, top: 0 }, { x: 5, top: 0 }],
+      vehicle: 'bus',
+      budget3: 9, budget2: 11,
+      hint: 'One beam from each tower bolt. Then three beams from the rock bolt.',
+      solution: road(1, 5, 2).concat(['1,1-2,2', '5,1-4,2', '3,3-2,2', '3,3-3,2', '3,3-4,2'])
+    },
+    {
+      id: 'b27', name: 'Grand Parade',
+      goal: 'The last bridge! A bus parade is coming!',
+      rows: 5, deck: 2, left: 1, right: 7, anchors: [[1, 3], [7, 3], [3, 3], [5, 3]], pillars: [{ x: 3, top: 3 }, { x: 5, top: 3 }],
+      vehicle: 'bus',
+      budget3: 14, budget2: 17,
+      hint: 'Supports from the low bolts. Then three beams from each rock bolt.',
+      solution: road(1, 7, 2).concat(['1,3-2,2', '7,3-6,2', '3,3-2,2', '3,3-3,2', '3,3-4,2', '5,3-4,2', '5,3-5,2', '5,3-6,2'])
     }
   ];
 

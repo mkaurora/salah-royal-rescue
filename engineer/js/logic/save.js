@@ -9,7 +9,7 @@
 
   var KEY = 'littleEngineerSave';
   var VERSION = 1;
-  var WORLDS = ['bridges', 'machines', 'circuits', 'robot'];
+  var WORLDS = ['bridges', 'machines', 'circuits', 'robot', 'construction'];
 
   function defaults() {
     var stars = {};

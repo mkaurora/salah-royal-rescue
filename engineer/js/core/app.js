@@ -8,12 +8,38 @@
   LE.sound.setMuted(!store.getSound());
   LE.voiceOn = store.data.settings.voice !== false;
 
+  /* ---------- Everything the shell says (static, so every line has a pre-recorded voice clip) ---------- */
+  /* VOICE-LINES:START */
+  var LINES = {
+    hello: ['Hi Salah! What shall we build today?', 'I love building things!', 'Tap a world to start!', 'Engineers never give up!', 'Beep boop! You are awesome!'],
+    voiceOn: 'Hi Salah!',
+    encourage: ['Almost! Let\'s try again!', 'So close! You can do it!', 'Good try! Let\'s fix it together.', 'Oops! Engineers try again and again!', 'Nice try! Change one thing and try again.'],
+    showYou: 'Want me to show you?',
+    hint: 'Here is a hint!',
+    welcomeBack: 'Welcome back!',
+    idle: 'Need help? Tap me and I can show you!',
+    tapMe: 'Tap me for help!',
+    watch: 'Watch me! 👀',
+    nowYou: 'See? Now you try!',
+    tapGo: { Go: 'Your turn! Tap Go! ▶', Play: 'Your turn! Tap Play! ▶' },
+    praise: ['Hooray! You did it!', 'Awesome job, Salah!', 'Wow! Super engineer!', 'You are amazing!'],
+    didYouKnow: 'Did you know? ',
+    practiceWelcome: 'Welcome to the Practice Room! Play as much as you like. Try a challenge, or just have fun!'
+  };
+  /* VOICE-LINES:END */
+  LE.LINES = LINES;
+  function tipLine(tip) { return LE.voiceKey.tipLine(tip.title, tip.text); }
+  function factLine(fact) { return LINES.didYouKnow + fact; }
+  LE.tipLine = tipLine;
+  LE.factLine = factLine;
+
   /* ---------- Worlds ---------- */
   var WORLD_META = [
     { id: 'bridges', name: 'Bridges', sub: 'Build it strong!' },
     { id: 'machines', name: 'Machines', sub: 'Gears & ramps' },
     { id: 'circuits', name: 'Circuits', sub: 'Light it up!' },
-    { id: 'robot', name: 'Robot Coder', sub: 'Code a robot' }
+    { id: 'robot', name: 'Robot Coder', sub: 'Code a robot' },
+    { id: 'construction', name: 'Construction', sub: 'Dig, lift & build!' }
   ];
   function world(id) {
     var meta = WORLD_META.filter(function (w) { return w.id === id; })[0];
@@ -46,6 +72,13 @@
         '<rect x="66" y="64" width="26" height="18" rx="6" fill="#ff9f1c" stroke="#b56a00" stroke-width="3"/><text x="79" y="79" font-size="14" font-weight="900" text-anchor="middle" fill="#fff">3x</text>' +
         '<g transform="translate(60 6)"><line x1="0" y1="0" x2="0" y2="10" stroke="#5b3fbf" stroke-width="3"/><circle cx="0" cy="2" r="4" fill="#ffe14d"/><rect x="-22" y="10" width="44" height="36" rx="12" fill="#b38bff" stroke="#5b3fbf" stroke-width="3"/>' +
         '<rect x="-15" y="17" width="30" height="20" rx="7" fill="#2a1f5c"/><circle cx="-7" cy="27" r="4" fill="#7ff3ff"/><circle cx="7" cy="27" r="4" fill="#7ff3ff"/></g></svg>',
+      construction: '<svg viewBox="0 0 120 90"><path d="M0 74 q30 -10 60 0 t60 0 v16 h-120z" fill="#b8793e" stroke="#7a4a1e" stroke-width="3"/>' +
+        '<path d="M4 76 q10 -14 22 0z" fill="#9a6230" stroke="#7a4a1e" stroke-width="2.5"/>' +
+        '<g transform="translate(58 34)"><rect x="0" y="12" width="40" height="18" rx="5" fill="#ffc21a" stroke="#a36b00" stroke-width="3"/><rect x="18" y="0" width="18" height="16" rx="4" fill="#ffc21a" stroke="#a36b00" stroke-width="3"/><rect x="22" y="4" width="10" height="8" rx="2" fill="#bfe9ff"/>' +
+        '<rect x="-2" y="30" width="44" height="12" rx="6" fill="#3a3a48" stroke="#1d1d26" stroke-width="2.5"/><circle cx="6" cy="36" r="3.5" fill="#888"/><circle cx="20" cy="36" r="3.5" fill="#888"/><circle cx="34" cy="36" r="3.5" fill="#888"/>' +
+        '<path d="M0 22 L-14 22 L-18 40 L-4 40z" fill="#c9cdd6" stroke="#5a5f6e" stroke-width="3" stroke-linejoin="round"/></g>' +
+        '<g stroke="#ff8a1c" stroke-width="3" fill="none"><path d="M20 70 V8 H60"/><path d="M20 8 L28 16 M28 8 L36 16 M36 8 L44 16 M44 8 L52 16"/></g><line x1="52" y1="8" x2="52" y2="30" stroke="#333" stroke-width="2"/>' +
+        '<rect x="44" y="30" width="16" height="9" rx="2" fill="#ff4f6d" stroke="#8a1c33" stroke-width="2.5"/></svg>',
       practice: '<svg viewBox="0 0 120 90"><rect x="10" y="10" width="100" height="70" rx="12" fill="#5ac46c" stroke="#2e7a3b" stroke-width="3"/>' +
         '<g stroke="rgba(255,255,255,.35)" stroke-width="2"><path d="M30 10 v70 M50 10 v70 M70 10 v70 M90 10 v70 M10 30 h100 M10 50 h100 M10 70 h100"/></g>' +
         '<g transform="translate(40 40)"><rect x="-12" y="-12" width="24" height="24" rx="7" fill="#b38bff" stroke="#5b3fbf" stroke-width="3"/><circle cx="-4" cy="-2" r="3" fill="#fff"/><circle cx="4" cy="-2" r="3" fill="#fff"/></g>' +
@@ -127,7 +160,7 @@
     });
     voiceBtn = LE.button('purple big wide', '', function () {
       LE.voiceOn = !LE.voiceOn; store.data.settings.voice = LE.voiceOn; store.save(); refresh();
-      if (LE.voiceOn) LE.speak('Hi Salah!'); else LE.stopSpeaking();
+      if (LE.voiceOn) LE.speak(LINES.voiceOn); else LE.stopSpeaking();
     });
     refresh();
     openOverlay([
@@ -154,17 +187,17 @@
     store.setLast({ screen: 'menu' });
     var el = h('div.menu-screen');
     var buddyWrap = h('div.menu-buddy', { html: LE.buddySVG() });
-    var hello = h('div.menu-bubble', 'Hi Salah! What shall we build today?');
+    var hello = h('div.menu-bubble', LINES.hello[0]);
+    LE.voice.prefetchGroup('common');
     var grid = h('div.world-grid');
     WORLD_META.forEach(function (m) {
       var w = world(m.id);
       var total = w.levels.length * 3, got = store.totalStars(m.id);
       var card = LE.button('world-card w-' + m.id, '', function () { showMap(m.id); }, { label: m.name });
-      card.append(
-        h('div.world-icon', { html: LE.worldIcon(m.id) }),
-        h('div.world-name', m.name),
-        h('div.world-stars', { html: LE.starSVG(true) + '<span>' + got + ' / ' + total + '</span>' })
-      );
+      var nameEl = h('div.world-name', m.name), starsEl = h('div.world-stars', { html: LE.starSVG(true) + '<span>' + got + ' / ' + total + '</span>' });
+      card.append(h('div.world-icon', { html: LE.worldIcon(m.id) }));
+      if (m.id === 'construction') card.append(h('div.cn-menu-text', nameEl, starsEl));
+      else card.append(nameEl, starsEl);
       card.dataset.world = m.id;
       grid.appendChild(card);
     });
@@ -182,7 +215,7 @@
     buddyWrap.addEventListener('click', function () {
       LE.sound.play('pop');
       buddyWrap.classList.remove('waving'); void buddyWrap.offsetWidth; buddyWrap.classList.add('waving');
-      var lines = ['Hi Salah! What shall we build today?', 'I love building things!', 'Tap a world to start!', 'Engineers never give up!', 'Beep boop! You are awesome!'];
+      var lines = LINES.hello;
       hello.textContent = lines[Math.floor(Math.random() * lines.length)];
       LE.speak(hello.textContent);
     });
@@ -279,12 +312,24 @@
         h('p.tip-text', tip.text),
         LE.button('green big wide', 'Got it! 👍', function () { closeOverlay(); resolve(); })
       ], 'tip');
-      LE.speak(tip.title + '. ' + tip.text);
+      LE.speak(tipLine(tip));
     });
   }
 
   /* ---------- Level controller ---------- */
-  var ENCOURAGE = ['Almost! Let\'s try again!', 'So close! You can do it!', 'Good try! Let\'s fix it together.', 'Oops! Engineers try again and again!', 'Nice try! Change one thing and try again.'];
+  var ENCOURAGE = LINES.encourage;
+
+  /** Fetch/decode the voice clips this level will need (runtime-captured group + the level's own lines). */
+  function prefetchLevel(w, level, index) {
+    var lines = [level.goal, level.hint, LINES.watch, LINES.welcomeBack].concat(LINES.praise, LINES.encourage);
+    (level.tutorial || []).forEach(function (s) { if (s.say) lines.push(s.say); });
+    var tip = level.tip && w.content.tips && w.content.tips[level.tip];
+    if (tip) lines.push(tipLine(tip));
+    var facts = w.content.facts || [];
+    if (facts.length) lines.push(factLine(facts[index % facts.length]));
+    LE.voice.prefetch(lines);
+    LE.voice.prefetchGroup(w.id + ':' + index);
+  }
 
   function openLevel(worldId, index, opts) {
     opts = opts || {};
@@ -304,6 +349,7 @@
     var host = h('div.play-host');
     el.append(bar, buddyBar, host);
     var buddy = new LE.Buddy(buddyBar);
+    prefetchLevel(w, level, index);
     var won = false, alive = true, attempts = 0, listeners = {}, tutorialToken = 0, demoRunning = false, lastActivity = Date.now();
 
     function emit(name, data) {
@@ -356,7 +402,7 @@
       if (Date.now() - lastActivity > 35000 && idleNudged < 3) {
         idleNudged++;
         lastActivity = Date.now();
-        buddy.say(idleNudged === 1 ? 'Need help? Tap me and I can show you!' : level.hint || 'Tap me for help!', {
+        buddy.say(idleNudged === 1 ? LINES.idle : level.hint || LINES.tapMe, {
           buttons: [{ label: '👉 Show me', cls: 'orange showme-btn', onTap: function () { showMe(); } }]
         });
       }
@@ -376,7 +422,8 @@
       if (level.tutorial && level.tutorial.length && best === 0 && !resumed) {
         runTutorial(level.tutorial);
       } else {
-        buddy.say((resumed ? 'Welcome back! ' : '') + level.goal, {
+        buddy.say((resumed ? LINES.welcomeBack + ' ' : '') + level.goal, {
+          speakParts: resumed ? [LINES.welcomeBack, level.goal] : null,
           buttons: [{ label: '👉 Show me', cls: 'orange showme-btn', onTap: function () { showMe(); } },
                     { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }]
         });
@@ -390,6 +437,9 @@
         if (token !== tutorialToken || !alive) return;
         let s = steps[i];
         var waiter = s.wait ? waitFor(s.wait, s.times || 1) : null;
+        // Let the previous line finish before the next one starts (clips are slower than the old voice).
+        await buddy.afterSpeech(250);
+        if (token !== tutorialToken || !alive) return;
         var said = buddy.say(s.say, { ok: !s.wait });
         if (s.drag) LE.hand.loop(function () { return inst.target(s.drag[0]); }, function () { return inst.target(s.drag[1]); }, inst.ghost && inst.ghost(s.drag[0]));
         else if (s.point) LE.hand.loop(function () { return inst.target(s.point); });
@@ -412,11 +462,15 @@
       el.appendChild(shield);
       try {
         var steps = inst.showMe() || [];
-        buddy.say(steps.intro || 'Watch me! 👀', { speak: true });
+        buddy.say(steps.intro || LINES.watch, { speak: true });
         await LE.wait(700);
         for (var i = 0; i < steps.length && alive; i++) {
           let s = steps[i];
-          if (s.say) buddy.say(s.say);
+          if (s.say) {
+            await buddy.afterSpeech();        // don't talk over the previous line
+            if (!alive) return;
+            buddy.say(s.say);
+          }
           if (s.from && s.to) await LE.hand.drag(function () { return inst.target(s.from); }, function () { return inst.target(s.to); }, inst.ghost && inst.ghost(s.from));
           else if (s.from) { await LE.hand.moveTo(function () { return inst.target(s.from); }, 450); await LE.hand.tap(); }
           if (!alive) return;
@@ -430,8 +484,10 @@
       }
       if (!alive || won) return;
       emit('showme-done');
-      if (inst.noGo) { buddy.say('See? Now you try!'); return; }
-      buddy.say('Your turn! Tap ' + (inst.goLabel || 'Go') + '! ▶', {});
+      await buddy.afterSpeech();
+      if (!alive || won) return;
+      if (inst.noGo) { buddy.say(LINES.nowYou); return; }
+      buddy.say(LINES.tapGo[inst.goLabel || 'Go'] || LINES.tapGo.Go, {});
       var goKey = inst.goKey || 'go';
       LE.hand.loop(function () { return inst.target(goKey); });
       var off = on('run', function () { off(); LE.hand.stop(); });
@@ -444,12 +500,13 @@
       setTimeout(function () { buddy.mood(''); }, 1500);
       var msg = r.message || ENCOURAGE[(attempts - 1) % ENCOURAGE.length];
       if (attempts >= 3) {
-        buddy.say(msg + ' Want me to show you?', {
+        buddy.say(msg + ' ' + LINES.showYou, {
+          speakParts: [msg, LINES.showYou],
           buttons: [{ label: '👉 Show me', cls: 'orange showme-btn', onTap: function () { showMe(); } },
                     { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }]
         });
       } else if (attempts === 2 && level.hint) {
-        buddy.say(msg + ' Hint: ' + level.hint);
+        buddy.say(msg + ' Hint: ' + level.hint, { speakParts: [msg, LINES.hint, level.hint] });
       } else {
         buddy.say(msg);
       }
@@ -466,7 +523,7 @@
       tutorialToken++;
       LE.hand.hide();
       buddy.cheer();
-      buddy.say(['Hooray! You did it!', 'Awesome job, Salah!', 'Wow! Super engineer!', 'You are amazing!'][index % 4]);
+      buddy.say(LINES.praise[index % LINES.praise.length]);
       LE.sound.play('success');
       LE.fx.confetti();
       setTimeout(function () { if (alive) showWin(stars, prevBest, hasNext, r); }, 900 / LE.speed);
@@ -483,14 +540,14 @@
       }, { sound: 'whoosh' });
       var note = r.note ? h('div.win-note', r.note) : null;
       openOverlay([
-        h('h2.win-title', stars === 3 ? 'Perfect!' : 'You did it!'),
+        h('h2.win-title', !hasNext ? 'World complete!' : stars === 3 ? 'Perfect!' : 'You did it!'),
         starsEl,
         note,
         fact ? h('div.fact', h('div.fact-title', '💡 Did you know?'), h('div.fact-text', fact)) : null,
         next,
         h('div.row',
           LE.button('blue', '↻ Replay', function () { closeOverlay(); openLevel(worldId, index, { fresh: true }); }),
-          LE.button('purple', '🗺️ Map', function () { closeOverlay(); showMap(worldId); }))
+          hasNext ? LE.button('purple', '🗺️ Map', function () { closeOverlay(); showMap(worldId); }) : null)
       ], 'win');
       starsEl.querySelectorAll('.win-star').forEach(function (s, i) {
         if (i < stars) setTimeout(function () {
@@ -498,7 +555,8 @@
           LE.fx.sparkle(s.getBoundingClientRect().left + 30, s.getBoundingClientRect().top + 30);
         }, (350 + i * 380) / LE.speed);
       });
-      if (fact) setTimeout(function () { LE.speak('Did you know? ' + fact); }, 1400 / LE.speed);
+      // Read the fact only after the praise clip has finished (real clips can run longer than the delay).
+      if (fact) Promise.all([LE.wait(1400 / LE.speed), buddy.afterSpeech(300)]).then(function () { if (alive) LE.speak(factLine(fact)); });
       if (!hasNext) setTimeout(function () { LE.fx.confetti(220); LE.sound.play('cheer'); }, 1500 / LE.speed);
     }
   }
@@ -542,7 +600,7 @@
       el.appendChild(shield);
       try {
         var steps = inst.showMe();
-        buddy.say('Watch me! 👀');
+        buddy.say(LINES.watch);
         await LE.wait(600);
         for (var i = 0; i < steps.length && alive; i++) {
           let s = steps[i];
@@ -554,7 +612,9 @@
         }
       } finally { demoRunning = false; shield.remove(); }
       if (!alive) return;
-      buddy.say('Your turn! Tap Play! ▶');
+      await buddy.afterSpeech();
+      if (!alive) return;
+      buddy.say(LINES.tapGo.Play);
       LE.hand.loop(function () { return inst.target('go'); });
       var off = function () {};
       listeners.run = [function () { LE.hand.stop(); listeners.run = []; }];
@@ -562,7 +622,7 @@
     }
     setTimeout(function () {
       if (!alive) return;
-      buddy.say('Welcome to the Practice Room! Play as much as you like. Try a challenge, or just have fun!', {
+      buddy.say(LINES.practiceWelcome, {
         buttons: [{ label: '👍 OK', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }]
       });
     }, 400 / LE.speed);

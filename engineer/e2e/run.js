@@ -13,7 +13,8 @@ const WORLDS = [
   { id: 'bridges', shot: 'bridges.png' },
   { id: 'machines', shot: 'machines.png' },
   { id: 'circuits', shot: 'circuits.png' },
-  { id: 'robot', shot: 'robot.png' }
+  { id: 'robot', shot: 'robot.png' },
+  { id: 'construction', shot: 'construction.png' }
 ];
 
 let failures = 0;
@@ -52,7 +53,7 @@ async function runBrowser(browserType, name, device) {
     await page.waitForSelector('.menu-screen');
     await page.waitForTimeout(900);
 
-    await check('menu: title, buddy, 4 worlds, Practice Room, settings', async () => {
+    await check('menu: title, buddy, 5 worlds, Practice Room, settings', async () => {
       const t = await page.textContent('.menu-title');
       if (!/Little Engineer/.test(t)) throw new Error('title missing');
       for (const w of WORLDS) if (!(await page.locator('.w-' + w.id).count())) throw new Error('missing world ' + w.id);
@@ -83,6 +84,7 @@ async function runBrowser(browserType, name, device) {
 
     for (const w of WORLDS) {
       await check(`${w.id}: map loads with >= 15 levels`, async () => {
+        await page.evaluate(() => LE.closeOverlay());
         await page.evaluate(() => LE.app.showMenu());
         await page.waitForTimeout(350);
         await page.tap('.w-' + w.id);
@@ -151,7 +153,34 @@ async function runBrowser(browserType, name, device) {
       });
     }
 
-    await check('resume: reopening the app returns to the same level', async () => {
+    await check('resume: reopening the app returns to the same level (construction)', async () => {
+      await page.reload();
+      await page.waitForSelector('.level-screen.theme-construction');
+      await page.waitForTimeout(500);
+      const num = await page.textContent('.lvl-num');
+      if (num.trim() !== '2') throw new Error('resumed at ' + num);
+    });
+
+    await check('resume: construction in-progress moves are restored', async () => {
+      await dismissTip(page);
+      await page.evaluate(() => LE.closeOverlay());
+      const before = await page.evaluate(() => JSON.stringify(LE.app.store.getInProgress('construction', 1)));
+      const r = await page.evaluate(() => { const t = LE.activeLevel.inst.target('btn:R'); return { x: t.left + t.width / 2, y: t.top + t.height / 2 }; });
+      await page.mouse.click(r.x, r.y);                      // drive the bulldozer one step
+      await page.waitForTimeout(800);
+      const saved = await page.evaluate(() => LE.app.store.getInProgress('construction', 1));
+      if (!saved || JSON.stringify(saved) === before) throw new Error('no in-progress state saved');
+      await page.reload();
+      await page.waitForSelector('.level-screen.theme-construction');
+      await page.waitForTimeout(600);
+      const after = await page.evaluate(() => LE.app.store.getInProgress('construction', 1));
+      if (JSON.stringify(after) !== JSON.stringify(saved)) throw new Error('state changed after reload');
+      if (!(await page.textContent('.bubble-text')).includes('Welcome back')) throw new Error('no welcome back');
+    });
+
+    await check('resume: reopening the app returns to the same level (robot)', async () => {
+      await page.evaluate(() => { LE.app.store.setStars('robot', 0, 1); LE.app.openLevel('robot', 1); });
+      await page.waitForTimeout(500);
       await page.reload();
       await page.waitForSelector('.level-screen.theme-robot');
       await page.waitForTimeout(500);
@@ -218,11 +247,11 @@ async function runBrowser(browserType, name, device) {
     });
 
     if (name === 'chromium') {
-      await check('service worker caches engineer-v1 and the game works offline', async () => {
+      await check('service worker caches engineer-v2 and the game works offline', async () => {
         await page.evaluate(() => navigator.serviceWorker.ready);
-        await page.waitForFunction(async () => (await caches.keys()).includes('engineer-v1'), null, { timeout: 15000 });
+        await page.waitForFunction(async () => (await caches.keys()).includes('engineer-v2'), null, { timeout: 15000 });
         await page.waitForFunction(async () => {
-          const c = await caches.open('engineer-v1');
+          const c = await caches.open('engineer-v2');
           return (await c.keys()).length > 20;
         }, null, { timeout: 15000 });
         await context.setOffline(true);
@@ -241,10 +270,119 @@ async function runBrowser(browserType, name, device) {
   }
 }
 
+/* Voice clips: with a clip present LE.speak plays it through WebAudio (not speechSynthesis);
+ * without one it falls back to speechSynthesis. Uses route interception + a short tone mp3 made with ffmpeg. */
+async function voiceCheck() {
+  console.log('\n▶ voice clips (chromium, iPhone 13)');
+  const os = require('os');
+  const { execFileSync } = require('child_process');
+  const VK = require('../js/core/voice-key.js');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'le-voice-'));
+  const mp3 = path.join(tmp, 'tone.mp3');
+  try {
+    execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=0.9', '-ac', '1', '-ar', '22050', '-b:a', '32k', mp3]);
+  } catch (e) { bad('voice: ffmpeg available to make a test clip', String(e.message).split('\n')[0]); return; }
+  const browser = await pw.chromium.launch();
+  const context = await browser.newContext({ ...pw.devices['iPhone 13'] });
+  const page = await context.newPage();
+  const errors = [];
+  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  const { server, url } = await start(0);
+  const withClip = 'Hi Salah! What shall we build today?';
+  const goal = (require('../js/data/bridges-levels.js').levels[0]).goal;
+  const keys = [VK.key(withClip), VK.key(goal)];
+  await page.route('**/audio/voice/manifest.json', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(keys) }));
+  for (const k of keys) await page.route('**/audio/voice/' + k + '.mp3', (r) => r.fulfill({ contentType: 'audio/mpeg', body: fs.readFileSync(mp3) }));
+  await page.addInitScript(() => {
+    window.__synth = []; window.__clips = 0;
+    if (window.speechSynthesis) { const o = speechSynthesis.speak.bind(speechSynthesis); speechSynthesis.speak = (u) => { window.__synth.push(u.text); return o(u); }; }
+    const AB = window.AudioBufferSourceNode;
+    if (AB) { const st = AB.prototype.start; AB.prototype.start = function () { if (this.buffer && this.buffer.duration > 0.1) window.__clips++; return st.apply(this, arguments); }; }
+  });
+  try {
+    await page.goto(url + '?menu=1&nosw=1');
+    await page.waitForSelector('.menu-screen');
+    await page.waitForTimeout(500);
+    await check('voice: browser and Node compute the same clip keys', async () => {
+      const b = await page.evaluate((t) => t.map((x) => LE.voiceKey.key(x)), [withClip, goal, 'Watch me! 👀', 'Ada’s robot']);
+      const n = [withClip, goal, 'Watch me! 👀', 'Ada’s robot'].map(VK.key);
+      if (JSON.stringify(b) !== JSON.stringify(n)) throw new Error(b + ' vs ' + n);
+    });
+    await check('voice: a line with a clip plays through WebAudio (not speechSynthesis) and the promise waits for it', async () => {
+      await page.tap('.menu-bubble');                 // first tap unlocks audio (iOS rule)
+      const r = await page.evaluate(async (t) => {
+        await LE.voice.ready();
+        const t0 = performance.now();
+        const p = LE.speak(t);
+        await new Promise((res) => setTimeout(res, 150));
+        const playing = LE.voice.playing;
+        await p;
+        return { ms: performance.now() - t0, playing, clips: window.__clips, synth: window.__synth.length, state: LE.sound.state };
+      }, withClip);
+      if (r.state !== 'running') throw new Error('audio state ' + r.state);
+      if (!r.playing || r.clips < 1) throw new Error('clip not played via WebAudio ' + JSON.stringify(r));
+      if (r.synth !== 0) throw new Error('speechSynthesis was used');
+      if (r.ms < 700) throw new Error('speak() resolved before the clip ended: ' + Math.round(r.ms) + 'ms');
+    });
+    await check('voice: a line without a clip falls back to speechSynthesis', async () => {
+      const r = await page.evaluate(async () => { const c = window.__clips; await LE.speak('This line has no clip yet.'); return { synth: window.__synth.slice(), clips: window.__clips - c }; });
+      if (!r.synth.includes('This line has no clip yet.')) throw new Error('synth not used: ' + JSON.stringify(r));
+      if (r.clips !== 0) throw new Error('WebAudio clip played for a missing line');
+    });
+    await check('voice: muted → no clip, speak() resolves at once', async () => {
+      const r = await page.evaluate(async (t) => { LE.sound.setMuted(true); const c = window.__clips, t0 = performance.now(); await LE.speak(t); const out = { ms: performance.now() - t0, clips: window.__clips - c }; LE.sound.setMuted(false); return out; }, withClip);
+      if (r.clips !== 0 || r.ms > 100) throw new Error(JSON.stringify(r));
+    });
+    await check('voice: level goal clip prefetched + the 🔊 button replays the clip', async () => {
+      await page.evaluate(() => { LE.app.store.data.seenTips['bridges:road'] = true; LE.app.store.setStars('bridges', 0, 1); LE.app.openLevel('bridges', 0, { fresh: true }); });
+      await page.waitForSelector('.bubble.show', { timeout: 8000 });
+      await page.waitForFunction(() => LE.voice._stats().decoded >= 2, null, { timeout: 8000 });
+      await page.waitForTimeout(1500);
+      const before = await page.evaluate(() => window.__clips);
+      await page.tap('.bubble-speak');
+      await page.waitForTimeout(300);
+      const r = await page.evaluate(() => ({ clips: window.__clips, playing: LE.voice.playing }));
+      if (r.clips <= before || !r.playing) throw new Error('replay did not play the clip ' + JSON.stringify(r));
+    });
+    await check('voice: Show me waits for each narrated line to finish (no talking over)', async () => {
+      const all = JSON.parse(fs.readFileSync(path.join(__dirname, '../audio/voice/lines.json'), 'utf8')).map((l) => l.id).concat(keys);
+      await page.unroute('**/audio/voice/manifest.json');
+      await page.route('**/audio/voice/manifest.json', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(all) }));
+      await page.route(/\/audio\/voice\/[0-9a-f]{8}\.mp3$/, (r) => r.fulfill({ contentType: 'audio/mpeg', body: fs.readFileSync(mp3) }));
+      await page.goto(url + '?nosw=1&menu=1');
+      await page.waitForSelector('.menu-screen');
+      await page.tap('.menu-bubble');
+      await page.evaluate(() => {
+        window.__overlap = []; window.__lines = [];
+        const orig = LE.speak;
+        // The intro ("Watch me!") may cut the goal line short — the kid tapped Show me. After that, no overlaps.
+        LE.speak = function (t) { if (LE.voice.playing && window.__lines.length) window.__overlap.push(String(t)); window.__lines.push(String(t)); return orig.apply(this, arguments); };
+        const s = LE.app.store; s.setStars('bridges', 0, 1); s.setStars('bridges', 1, 1); s.data.seenTips['bridges:triangle'] = true;
+        LE.app.openLevel('bridges', 2, { fresh: true });
+      });
+      await page.waitForSelector('.bubble.show', { timeout: 8000 });
+      await page.evaluate(() => { window.__overlap = []; window.__lines = []; LE.activeLevel.showMe(); });
+      await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 90000 });
+      await page.waitForFunction(() => /Tap Go/.test(document.querySelector('.bubble-text').textContent), null, { timeout: 15000 });
+      const r = await page.evaluate(() => ({ overlap: window.__overlap, lines: window.__lines }));
+      if (r.lines.length < 3) throw new Error('too few lines: ' + r.lines.join(' / '));
+      if (r.overlap.length) throw new Error('started while a clip was playing: ' + r.overlap.join(' / '));
+    });
+    await check('voice: no console errors', async () => { if (errors.length) throw new Error(errors.slice(0, 3).join(' | ')); });
+  } finally {
+    await browser.close();
+    server.close();
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
 (async () => {
   fs.mkdirSync(SHOTS, { recursive: true });
-  await runBrowser(pw.chromium, 'chromium', 'iPhone 13');
-  if (!process.env.SKIP_WEBKIT) {
+  const only = process.env.E2E_ONLY;              // 'voice' → just the voice checks
+  if (!only) await runBrowser(pw.chromium, 'chromium', 'iPhone 13');
+  await voiceCheck();
+  if (!only && !process.env.SKIP_WEBKIT) {
     let canWebkit = true;
     try { const b = await pw.webkit.launch(); await b.close(); } catch (e) { canWebkit = false; console.log('\n(WebKit not runnable on this host — skipped: ' + String(e.message).split('\n')[0] + ')'); }
     if (canWebkit) await runBrowser(pw.webkit, 'webkit', 'iPhone 13');

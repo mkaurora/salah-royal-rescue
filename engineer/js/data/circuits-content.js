@@ -114,8 +114,8 @@
       pic: svg(wire('M40 60 V16 H160 V104 H40 V60', true) + battery(40, 40) + battery(40, 84) + house(160, 40, 2) + house(160, 86, 2))
     },
     polarity: {
-      title: 'Which way up?',
-      text: 'Batteries have a + and a − end. Point them the same way, + to −.',
+      title: 'Which way up',
+      text: 'Batteries have a plus end and a minus end. Point them the same way!',
       pic: svg(battery(60, 40) + battery(60, 86) + '<text x="100" y="68" font-size="30" font-weight="900" fill="#43e07a">✓</text>' +
         battery(150, 40) + battery(150, 86, 180) + '<text x="182" y="68" font-size="30" font-weight="900" fill="#ff5d73">✕</text>')
     },
@@ -123,6 +123,28 @@
       title: 'The cross wire',
       text: 'A cross wire joins all four sides. Power can go every way!',
       pic: svg(wire('M100 16 V104 M44 60 H156', true) + '<circle cx="100" cy="60" r="9" fill="#ffd23f" stroke="#7a3d12" stroke-width="3"/>')
+    },
+    twoSwitch: {
+      title: 'Two switches in a row',
+      text: 'When two switches are on one path, BOTH must be ON. If one is OFF, the light stays dark.',
+      pic: svg(wire('M30 60 V24 H58 M86 24 H114 M142 24 H170 V96 H30 V60', true) + sw(72, 24, true) + sw(128, 24, true) +
+        battery(30, 60) + house(170, 64, 2) +
+        '<text x="72" y="54" font-size="15" font-weight="900" text-anchor="middle" fill="#43e07a">ON</text>' +
+        '<text x="128" y="54" font-size="15" font-weight="900" text-anchor="middle" fill="#43e07a">ON</text>')
+    },
+    off: {
+      title: 'Switch it OFF',
+      text: 'Tap a switch that is ON to turn it OFF. Only the light on that path goes dark.',
+      pic: svg(wire('M30 60 V22 H170 V98 H30 V60 M100 22 V38 M100 62 V98', true) + battery(30, 60) + sw(100, 50, false) +
+        house(100, 84, 0, true) + house(170, 62, 2) +
+        '<text x="128" y="54" font-size="15" font-weight="900" text-anchor="middle" fill="#ff5d73">OFF</text>')
+    },
+    move: {
+      title: 'Move a tile',
+      text: 'Wrong spot? Drag a tile on the board to a new square. Drag it to the box to put it away.',
+      pic: svg(wire('M30 90 H170', true) + '<rect x="84" y="74" width="32" height="32" rx="8" fill="none" stroke="#5fe0ff" stroke-width="3" stroke-dasharray="5 5"/>' +
+        bulb(100, 34, false) + '<path d="M100 54 V66" stroke="#fff" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M92 60 L100 70 L108 60" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>')
     }
   };
 
@@ -144,7 +166,17 @@
     'The word "electricity" comes from an old Greek word for amber, a shiny stone.',
     'Static electricity is why a balloon rubbed on your hair can stick to a wall!',
     'Never put anything in a wall socket — real electricity is strong and dangerous!',
-    'A fan uses a motor: a magnet and wire that spin when power flows.'
+    'A fan uses a motor: a magnet and wire that spin when power flows.',
+    'A flashlight is a tiny circuit: a battery, a switch and a bulb.',
+    'Some lights in a hallway can be switched on and off from two different places!',
+    'Toy cars, robots and drones all use little electric motors.',
+    'Street lights turn on by themselves when it gets dark outside.',
+    'Birds can sit on a power line safely because the power does not go through them.',
+    'Your TV remote, your toys and your watch can all run on batteries.',
+    'Engineers draw circuits as maps with little symbols, called circuit diagrams.',
+    'Fireflies make their own light, and they do it without any electricity!',
+    'Some electric trains get their power from a wire above the track.',
+    'Hydro dams make electricity from rushing water.'
   ];
 
   return { tips: tips, facts: facts };

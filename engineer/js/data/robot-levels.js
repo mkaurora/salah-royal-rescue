@@ -175,7 +175,7 @@
       blocks: ['F', 'L', 'R', 'rep', 'ifw'], par: 4,
       tip: 'ifWall',
       solution: [rep(8, [ifw([R]), F])],
-      hint: 'Inside a Repeat 8: put "If wall: Turn Right", then Forward.'
+      hint: 'Inside a Repeat 8: put If wall Turn Right, then Forward.'
     },
     {
       id: 'r14', name: 'Forever Loop',
@@ -188,7 +188,7 @@
       blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 4,
       tip: 'forever',
       solution: [rep(0, [ifw([R]), F])],
-      hint: 'Tap the Repeat number until it shows ∞. Inside: If wall Turn Right, then Forward.'
+      hint: 'Tap the Repeat number until it shows infinity. Inside: If wall Turn Right, then Forward.'
     },
     {
       id: 'r15', name: 'Left at Walls',
@@ -238,6 +238,131 @@
       blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 4,
       solution: [rep(0, [ifw([R]), F])],
       hint: 'Use the wall trick: Repeat forever, If wall Turn Right, Forward.'
+    },
+    {
+      id: 'r19', name: 'Rocky Road',
+      goal: 'Rocks block the way too! Go along, then up.',
+      map: ['TT#TF',
+            'T#TT.',
+            '#TT#G',
+            'TT#T.',
+            '>..G.'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 5,
+      solution: [rep(4, [F]), L, rep(4, [F])],
+      hint: 'Repeat 4 Forward, Turn Left, then Repeat 4 Forward.'
+    },
+    {
+      id: 'r20', name: 'Fix the Bug',
+      goal: 'Oh no, this program has a bug! Tap Play, then fix it.',
+      map: ['>.G.#',
+            'TTT.T',
+            'TTTGT',
+            'TTTFT'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 5,
+      startProgram: [rep(4, [F]), R, rep(3, [F])],
+      tip: 'debug',
+      solution: [rep(3, [F]), R, rep(3, [F])],
+      hint: 'Robo walks too far at the start. Tap the first number and make it 3.'
+    },
+    {
+      id: 'r21', name: 'Down the Hill',
+      goal: 'Walk down the stairs. Find the pattern!',
+      map: ['>.TT',
+            'TG.T',
+            'TT.G',
+            'TTTF'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 5,
+      solution: [rep(3, [F, R, F, L])],
+      hint: 'One step down is: Forward, Right, Forward, Left. Repeat it 3 times!'
+    },
+    {
+      id: 'r22', name: 'Many Ways',
+      goal: 'There are many ways to the flag. Pick the way with the gears!',
+      map: ['....F',
+            '.T.T.',
+            '.T.TG',
+            '.....',
+            '>...G'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 5,
+      tip: 'manyWays',
+      solution: [rep(4, [F]), L, rep(4, [F])],
+      hint: 'Go all the way along the bottom first. Then Turn Left and go up.'
+    },
+    {
+      id: 'r23', name: 'Wall Walker',
+      goal: 'Use the wall trick to walk around the trees!',
+      map: ['>.G..',
+            'TTTT.',
+            'FTTTG',
+            '.TTT.',
+            '..G..'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 4,
+      solution: [rep(0, [ifw([R]), F])],
+      hint: 'Repeat forever: If wall Turn Right, then Forward.'
+    },
+    {
+      id: 'r24', name: 'Bug Hunt',
+      goal: 'Another bug! Robo turns the wrong way. Can you fix it?',
+      map: ['>..GT',
+            'TTT.T',
+            'FG..T',
+            'TTTTT'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 4,
+      startProgram: [rep(0, [ifw([L]), F])],
+      solution: [rep(0, [ifw([R]), F])],
+      hint: 'Take out the Turn Left. Put a Turn Right inside If wall instead.'
+    },
+    {
+      id: 'r25', name: 'Lake Loop',
+      goal: 'Walk all the way around the lake!',
+      map: ['..G..',
+            '.~~~.',
+            'G~~~.',
+            '.~~~^',
+            '..G.F'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 4,
+      solution: [rep(0, [ifw([L]), F])],
+      hint: 'This lake turns LEFT. Repeat forever: If wall Turn Left, then Forward.'
+    },
+    {
+      id: 'r26', name: 'Back and Forth',
+      goal: 'Grab the gear at the top, then turn around to the flag!',
+      map: ['TGT',
+            'T.T',
+            'T^T',
+            'T.T',
+            'TGT',
+            'TFT'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 5,
+      solution: [rep(0, [ifw([R, R]), F])],
+      hint: 'At the wall, two Turn Rights make Robo turn around!'
+    },
+    {
+      id: 'r27', name: 'Gear Spiral',
+      goal: 'A big spiral full of gears. Grab them all!',
+      map: ['>....G',
+            'TTTTT.',
+            '.G..T.',
+            '.TF.T.',
+            '.TTTT.',
+            'G.....'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 4,
+      solution: [rep(0, [ifw([R]), F])],
+      hint: 'Use the wall trick: Repeat forever, If wall Turn Right, Forward.'
+    },
+    {
+      id: 'r28', name: 'Robot Master',
+      goal: 'The final maze! Turn Robo first, then use the wall trick.',
+      map: ['...G..',
+            '.TTTT.',
+            'GTTTT.',
+            '.T.FTG',
+            '.T.TT.',
+            '>T....'],
+      blocks: ['F', 'L', 'R', 'rep', 'ifw', 'forever'], par: 5,
+      tip: 'beforeLoop',
+      solution: [L, rep(0, [ifw([R]), F])],
+      hint: 'Turn Left first. Then Repeat forever: If wall Turn Right, Forward.'
     }
   ];
 

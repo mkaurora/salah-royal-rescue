@@ -715,7 +715,7 @@
             });
             if (b.t === 'rep' && b.n !== 2) {
               steps.push({ from: 'count:' + path, say: 'Tap the number…', apply: function () { openPicker(path); }, pause: 300 });
-              steps.push({ from: 'pick:' + b.n, say: b.n === 0 ? '∞ means forever!' : 'Repeat ' + b.n + ' times!', apply: function () { setCount(path, b.n); } });
+              steps.push({ from: 'pick:' + b.n, say: b.n === 0 ? 'Infinity ∞ means forever!' : 'Repeat ' + b.n + ' times!', apply: function () { setCount(path, b.n); } });
             }
             if (b.body) addList(b.body, path);
           })(b, path, slotPath);
