@@ -1087,13 +1087,30 @@
       want.forEach(function (b) { wantKeys[BL.beamStr(b)] = true; });
       var haveKeys = {};
       beams.forEach(function (b) { haveKeys[BL.beamStr(b)] = true; });
-      var extras = beams.some(function (b) { return !wantKeys[BL.beamStr(b)]; });
+      var bad = beams.filter(function (b) { return !wantKeys[BL.beamStr(b)]; });
+      var extras = bad.length > 0;
       var sim2 = beams.slice();
-      if (extras) {
+      var curTool = tool === 'erase' ? null : tool;
+      if (extras && level.eraseDemo && bad.length <= 4) {
+        // "Erase and swap" levels: take away only the wrong beams with the Erase tool (same path as a tap).
+        steps.push({ from: 'tool:erase', say: 'Tap Erase. Then tap the beam to take it away.', apply: function () { setTool('erase'); } });
+        bad.forEach(function (b) {
+          var k = BL.beamStr(b);
+          steps.push({
+            from: 'beam:' + BL.beamKey(b),
+            apply: function () {
+              var i = -1;
+              beams.forEach(function (q, j) { if (i < 0 && BL.beamStr(q) === k) i = j; });
+              removeBeam(i);
+            }
+          });
+        });
+        sim2 = beams.filter(function (b) { return wantKeys[BL.beamStr(b)]; });
+        curTool = 'erase';
+      } else if (extras) {
         steps.push({ from: 'clear', say: 'First, let\'s start fresh.', apply: function () { clearAll(false); } });
         sim2 = []; haveKeys = {};
       }
-      var curTool = tool === 'erase' ? null : tool;
       if (!curTool) {
         steps.push({ from: 'tool:wood', apply: function () { setTool('wood'); } });
         curTool = 'wood';

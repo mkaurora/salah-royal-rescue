@@ -536,7 +536,7 @@
           if (st === 'short') {
             ctx.sfx('spark'); burstShort();
             var hasLamp = (left().P || 0) > 0 || trayTypes.indexOf('P') >= 0;
-            ctx.fail({ message: 'Whoa, sparks! The power took a shortcut. ' + (hasLamp ? 'Put a lamp in the path.' : 'Put a light in the path.') });
+            ctx.fail({ message: hasLamp ? 'Whoa, sparks! The power took a shortcut. Put a lamp in the path.' : 'Whoa, sparks! The power took a shortcut. Put a light in the path.' });
           } else if (st === 'sleepy') {
             ctx.fail({ message: 'Shh! The sleepy house woke up! Keep it dark.' });
           } else if (st === 'dim') {

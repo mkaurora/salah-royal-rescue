@@ -101,10 +101,42 @@ test('bridges: a flat deck without triangles never works (except the 1-plank lev
   });
 });
 
-test('bridges: start beams (fix-it levels) fail before fixing', () => {
+test('bridges: start beams (fix-it levels) fail before fixing; trim levels work but miss 3 stars', () => {
   levels.filter((lv) => lv.startBeams).forEach((lv) => {
-    assert.ok(!B.simulate(lv, lv.startBeams).ok, lv.id + ' start bridge is broken');
+    if (lv.trim) {
+      const c = B.check(lv, lv.startBeams);
+      assert.ok(c.ok && c.stars < 3, lv.id + ' trim start bridge works but costs too much');
+    } else {
+      assert.ok(!B.simulate(lv, lv.startBeams).ok, lv.id + ' start bridge is broken');
+    }
   });
+});
+
+test('bridges: erase levels — erasing the wrong start beams, then building, gives the 3-star solution', () => {
+  const eraseLevels = levels.filter((lv) => lv.eraseDemo);
+  assert.ok(eraseLevels.length >= 1);
+  eraseLevels.forEach((lv) => {
+    assert.ok(lv.startBeams, lv.id + ' erase level has start beams');
+    const want = new Set(B.normalize(lv.solution).map(B.beamStr));
+    let beams = B.normalize(lv.startBeams);
+    const bad = beams.filter((b) => !want.has(B.beamStr(b)));
+    assert.ok(bad.length >= 1 && bad.length <= 4, lv.id + ' 1..4 beams to erase (Show me erases them one by one)');
+    beams = beams.filter((b) => want.has(B.beamStr(b)));
+    const have = new Set(beams.map(B.beamStr));
+    B.normalize(lv.solution).forEach((b) => {
+      if (have.has(B.beamStr(b))) return;
+      let r = B.addBeam(lv, beams, b.x1, b.y1, b.x2, b.y2, b.m);
+      if (!r.ok) r = B.addBeam(lv, beams, b.x2, b.y2, b.x1, b.y1, b.m);
+      assert.ok(r.ok, lv.id + ' cannot place ' + B.beamStr(b) + ': ' + r.reason);
+      beams = r.beams;
+    });
+    assert.strictEqual(B.check(lv, beams).stars, 3, lv.id + ' erase + rebuild earns 3 stars');
+  });
+});
+
+test('bridges: enough "Did you know?" facts for every level', () => {
+  assert.ok(content.facts.length >= levels.length, 'facts ' + content.facts.length + ' < levels ' + levels.length);
+  assert.strictEqual(new Set(content.facts).size, content.facts.length, 'facts are unique');
 });
 
 test('physics: flat unsupported 3-segment deck is wobbly', () => {

@@ -1,6 +1,6 @@
 # World module contract (internal dev notes)
 
-Each world (bridges, machines, circuits, robot) is made of 5 files. The Robot Coder world is the
+Each world (bridges, machines, circuits, robot, construction) is made of 5 files. The Robot Coder world is the
 reference implementation — read it first:
 
 | File | Purpose | Loaded by |
@@ -9,7 +9,7 @@ reference implementation — read it first:
 | `js/data/<world>-levels.js` | Level array. UMD: `module.exports = { levels }` in Node, `LE.levels.<world> = levels` in browser. | browser + Node tests |
 | `js/data/<world>-content.js` | `{ tips, facts }`. UMD: `LE.content.<world>`. | browser + Node tests |
 | `js/views/<world>-view.js` | Browser UI: `LE.views.<world> = { create(host, level, ctx) }` | browser |
-| `css/<world>.css` | World styles. Prefix classes (`br-`, `mc-`, `ci-`). | browser |
+| `css/<world>.css` | World styles. Prefix classes (`br-`, `mc-`, `ci-`, `cn-`). | browser |
 | `test/<world>.test.js` | `node:test` tests (run by `npm test` = `node --test test/`). | Node |
 
 UMD template (copy exactly, change names):
@@ -74,7 +74,7 @@ and returns:
 ## ctx (provided by the app)
 
 ```js
-ctx.sfx(name)          // 'tap','click','place','pop','remove','whoosh','step','turn','bump','gear','buzz','oops','success',
+ctx.sfx(name)          // 'dig','beep','thud','rumble','whirr','hammer', 'tap','click','place','pop','remove','whoosh','step','turn','bump','gear','buzz','oops','success',
                        // 'star','cheer','car','honk','creak','snap','break','splash','spark','zap','motor','roll','bounce',
                        // 'clank','ding','rotate','open','close'
 ctx.say(text, opts)    // buddy speech bubble
@@ -99,3 +99,26 @@ tips: { beam: { title: 'Beams', text: '1–2 short sentences.', pic: '<svg viewB
 facts: [ '…', … ]   // >= 15 "Did you know?" facts, one short sentence each, true and kid-friendly
 ```
 Tip pictures sit on a blue rounded panel. Use bright cartoon colours with dark outlines.
+
+## Voice (v2)
+
+Everything the buddy says is played from a pre-generated human-voice clip `audio/voice/<key>.mp3`
+(`key = LE.voiceKey.key(text)`: 8-hex FNV-1a of the normalized, lowercased text — see `js/core/voice-key.js`).
+If a clip is missing (or fails to load/decode) the old speech synthesis is used.
+
+Rules for world modules:
+- Spoken text (`goal`, `hint`, tutorial `say`, showMe step `say` / `steps.intro`, `ctx.say(...)`, `ctx.fail({ message })`)
+  must be **static string literals** (or a small finite set) — never compose lines with arbitrary numbers or names.
+  Keep the literal forms `say: '…'`, `ctx.say('…')`, `message: '…'` so `tools/collect-voice-lines.js` finds them.
+  Dynamic-but-finite lines must be enumerated in `dynamicLines()` of that tool.
+- `ctx.say(text, opts)` returns a Promise (OK button). `opts.speakParts: [..]` speaks a line as several clips
+  (the bubble still shows `text`). `buddy.spoken` is the narration Promise, `buddy.afterSpeech(pauseMs)` resolves
+  when the current line ended (+ a short pause; immediate under `?fast=1`).
+- The level controller already waits for narration between Show me steps and tutorial steps; `opts.time`
+  auto-hide never hides the bubble before the clip ends + ~1s.
+- `LE.speak(textOrLines) → Promise` (resolves when finished, immediately when muted / fast / voice off),
+  `LE.stopSpeaking()`, `LE.voice.prefetch(lines)`, `LE.voice.prefetchGroup('bridges:3')`.
+
+After changing any spoken text run `node tools/collect-voice-lines.js` (updates `audio/voice/lines.json` +
+`groups.json`; `npm test` fails if a level line is missing). When new clips arrive: copy them to `audio/voice/`,
+run `node tools/build-voice-manifest.js` (manifest + missing/orphan report) and `node tools/build-sw.js`.

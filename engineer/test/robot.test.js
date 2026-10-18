@@ -55,10 +55,27 @@ levels.forEach((level, i) => {
   });
 });
 
+test('"fix the bug" levels start with a buggy program that does not win', () => {
+  ['r20', 'r24'].forEach((id) => {
+    const l = levels.find((x) => x.id === id);
+    assert.ok(l && Array.isArray(l.startProgram) && l.startProgram.length, id + ' has a start program');
+    assert.ok(R.validate(l.startProgram, l.blocks), id + ' start program uses unlocked blocks');
+    assert.strictEqual(R.check(l, l.startProgram).ok, false, id + ' start program has a bug');
+  });
+});
+
+test('levels fit small phones: maps at most 7 wide / 6 tall, short names', () => {
+  levels.forEach((l) => {
+    assert.ok(l.map[0].length <= 7 && l.map.length <= 6, l.id + ' map size');
+    assert.ok(l.name.length <= 16, l.id + ' name length');
+  });
+});
+
 test('tip ids referenced by levels exist; at least 15 facts', () => {
   levels.forEach((l) => { if (l.tip) assert.ok(content.tips[l.tip], 'missing tip ' + l.tip); });
   Object.values(content.tips).forEach((t) => { assert.ok(t.title && t.text && t.pic.startsWith('<svg')); });
   assert.ok(content.facts.length >= 15);
+  assert.ok(content.facts.length >= levels.length, 'a different fact after every level');
 });
 
 test('interpreter: forward, turns, bump, gears, repeat, if-wall, forever', () => {

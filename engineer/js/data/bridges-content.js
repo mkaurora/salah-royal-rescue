@@ -151,6 +151,16 @@
       pic: svg(water + cliffs(30, 170, 66) + beam(30, 66, 65, 30) + beam(65, 30, 135, 30) + beam(135, 30, 170, 66) + beam(65, 30, 100, 66) + beam(100, 66, 135, 30) +
         road(30, 170, 66) + '<g transform="translate(100 96)"><path d="M-26 0 H26 L18 12 H-18Z" fill="#ff4f6d" stroke="#7a1830" stroke-width="2.5"/>' +
         '<rect x="-2" y="-24" width="4" height="24" fill="#6b4b2a"/><path d="M2 -22 L20 -4 H2Z" fill="#fff" stroke="#999" stroke-width="1.5"/></g>')
+    },
+    erase: {
+      title: 'Erase and swap',
+      text: 'Tap Erase, then tap a beam to take it away. Now you can build a better one!',
+      pic: svg(beam(18, 44, 82, 44, '#ff4040', 12) +
+        '<g transform="translate(58 30) rotate(-35)"><rect x="-16" y="-9" width="32" height="18" rx="5" fill="#ff8fb1" stroke="#a3204a" stroke-width="2.5"/><rect x="-16" y="-9" width="12" height="18" rx="5" fill="#fff" stroke="#a3204a" stroke-width="2.5"/></g>' +
+        txt(50, 92, '✖', '#ff4f6d', 26) + txt(100, 52, '➜', '#fff', 26) +
+        '<line x1="122" y1="44" x2="184" y2="44" stroke="#2c3f5a" stroke-width="18" stroke-linecap="round"/><line x1="122" y1="44" x2="184" y2="44" stroke="#8fb3d9" stroke-width="13" stroke-linecap="round"/>' +
+        '<circle cx="137" cy="44" r="3" fill="#2c3f5a"/><circle cx="153" cy="44" r="3" fill="#2c3f5a"/><circle cx="169" cy="44" r="3" fill="#2c3f5a"/>' +
+        txt(153, 92, '💪💪', '#fff', 22))
     }
   };
 
@@ -171,7 +181,17 @@
     'Engineers test small bridge models in wind tunnels before they build the real one.',
     'Bridges that hang from big cables are called suspension bridges.',
     'The Millau Viaduct in France is taller than the Eiffel Tower!',
-    'Bridge builders use triangles because a triangle can not change its shape.'
+    'Bridge builders use triangles because a triangle can not change its shape.',
+    'The towers of one big bridge in New York lean apart a tiny bit, because the Earth is round!',
+    'Some bridges can swing to the side to let tall boats go by.',
+    'Covered bridges have a roof so rain and snow do not rot the wooden road.',
+    'Big bridges have special joints that let them stretch and shrink without cracking.',
+    'Venice in Italy has about 400 bridges over its water streets!',
+    'A drawbridge on a castle could be pulled up to keep enemies out.',
+    'Some bridges float on top of the water on big hollow blocks.',
+    'Engineers erase and redraw their plans many times before a bridge is built.',
+    'The Golden Gate Bridge has two main cables made of about 27,000 thin wires each.',
+    'The Rialto Bridge in Venice is over 400 years old and has little shops on it!'
   ];
 
   return { tips: tips, facts: facts };

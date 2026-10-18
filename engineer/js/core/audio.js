@@ -1,9 +1,9 @@
-/* WebAudio synthesized sound effects, with iOS first-tap unlock. */
+/* WebAudio synthesized sound effects + pre-generated voice clips, with iOS first-tap unlock. */
 (function () {
   'use strict';
   var LE = window.LE = window.LE || {};
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx = null, master = null, noiseBuf = null;
+  var ctx = null, master = null, voiceGain = null, noiseBuf = null;
   var muted = false;
 
   function ensureCtx() {
@@ -14,6 +14,9 @@
         master = ctx.createGain();
         master.gain.value = 0.55;
         master.connect(ctx.destination);
+        voiceGain = ctx.createGain();     // voice clips get their own volume, independent of SFX
+        voiceGain.gain.value = 1;
+        voiceGain.connect(ctx.destination);
       } catch (e) { ctx = null; }
     }
     return ctx;
@@ -41,6 +44,7 @@
       if (s.start) s.start(0); else s.noteOn(0);
       unlock.done = true;
     } catch (e) {}
+    if (LE.voice) LE.voice._decodePending();
   }
 
   ['touchstart', 'touchend', 'pointerdown', 'click', 'keydown'].forEach(function (ev) {
@@ -48,6 +52,7 @@
   });
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible') resume();
+    else if (LE.voice) LE.voice.stop();
   });
   window.addEventListener('pageshow', resume);
   window.addEventListener('focus', resume);
@@ -145,8 +150,147 @@
     ding: function () { tone({ type: 'sine', f: notes.A5, d: 0.6, v: 0.25 }); tone({ type: 'sine', f: notes.A5 * 2, d: 0.4, v: 0.08 }); },
     rotate: function () { tone({ type: 'triangle', f: 520, f2: 700, d: 0.07, v: 0.15 }); },
     open: function () { tone({ type: 'sine', f: 400, f2: 800, d: 0.15, v: 0.2 }); },
-    close: function () { tone({ type: 'sine', f: 700, f2: 350, d: 0.15, v: 0.2 }); }
+    close: function () { tone({ type: 'sine', f: 700, f2: 350, d: 0.15, v: 0.2 }); },
+    dig: function () { noise({ d: 0.28, v: 0.32, filter: 'lowpass', f: 900, f2: 180 }); tone({ type: 'sine', f: 120, f2: 60, d: 0.18, v: 0.25 }); },
+    beep: function () { tone({ type: 'square', f: 1040, d: 0.12, v: 0.07 }); tone({ type: 'square', f: 1040, t: 0.22, d: 0.12, v: 0.07 }); },
+    thud: function () { tone({ type: 'sine', f: 110, f2: 45, d: 0.25, v: 0.5 }); noise({ d: 0.12, v: 0.2, filter: 'lowpass', f: 500 }); },
+    rumble: function () { tone({ type: 'sawtooth', f: 55, f2: 70, d: 0.45, v: 0.07 }); noise({ d: 0.45, v: 0.1, filter: 'lowpass', f: 260 }); },
+    whirr: function () { tone({ type: 'triangle', f: 300, f2: 520, d: 0.3, v: 0.08 }); tone({ type: 'square', f: 150, f2: 260, d: 0.3, v: 0.025 }); },
+    hammer: function () { tone({ type: 'square', f: 900, f2: 500, d: 0.05, v: 0.1 }); noise({ d: 0.06, v: 0.2, filter: 'bandpass', f: 1800, q: 2 }); }
   };
+
+
+  /* ---------- Voice clips (audio/voice/<key>.mp3, listed in audio/voice/manifest.json) ---------- */
+  var VOICE_DIR = 'audio/voice/';
+  var available = null;            // Set-like object of clip keys (null until manifest loaded)
+  var manifestP = null;
+  var raw = {};                    // key -> Promise<ArrayBuffer>
+  var decoded = {};                // key -> AudioBuffer
+  var decoding = {};               // key -> Promise<AudioBuffer>
+  var groups = null;               // audio/voice/groups.json: { common: [keys], 'world:index': [keys] }
+  var current = null;              // { src, done, timer }
+
+  function getJSON(url) {
+    if (!window.fetch) return Promise.reject(new Error('no fetch'));
+    return window.fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  function loadManifest() {
+    if (manifestP) return manifestP;
+    manifestP = getJSON(VOICE_DIR + 'manifest.json').then(function (list) {
+      available = {};
+      (Array.isArray(list) ? list : []).forEach(function (k) { available[k] = true; });
+      return available;
+    }).catch(function () { available = {}; return available; });
+    getJSON(VOICE_DIR + 'groups.json').then(function (g) { groups = g || {}; }).catch(function () { groups = {}; });
+    return manifestP;
+  }
+
+  /** decodeAudioData: promise form + the callback form older Safari needs. */
+  function decode(ab) {
+    return new Promise(function (resolve, reject) {
+      var done = false;
+      function ok(b) { if (!done) { done = true; resolve(b); } }
+      function fail(e) { if (!done) { done = true; reject(e || new Error('decode failed')); } }
+      try {
+        var p = ctx.decodeAudioData(ab, ok, fail);
+        if (p && p.then) p.then(ok, fail);
+      } catch (e) { fail(e); }
+    });
+  }
+  function fetchClip(k) {
+    if (!raw[k]) {
+      raw[k] = window.fetch(VOICE_DIR + k + '.mp3').then(function (r) {
+        if (!r.ok) throw new Error('clip ' + r.status);
+        return r.arrayBuffer();
+      });
+      raw[k].catch(function () { delete raw[k]; });
+    }
+    return raw[k];
+  }
+  function decodeClip(k) {
+    if (decoded[k]) return Promise.resolve(decoded[k]);
+    if (decoding[k]) return decoding[k];
+    if (!ensureCtx()) return Promise.reject(new Error('no audio'));
+    decoding[k] = fetchClip(k).then(function (ab) {
+      // decodeAudioData detaches the buffer: keep the cached one intact for retries.
+      return decode(ab.slice(0));
+    }).then(function (b) { decoded[k] = b; delete decoding[k]; return b; },
+      function (e) { delete decoding[k]; throw e; });
+    return decoding[k];
+  }
+  function stopVoice() {
+    var c = current;
+    current = null;
+    if (!c) return;
+    clearTimeout(c.timer);
+    try { c.src.onended = null; c.src.stop(0); } catch (e) {}
+    c.done();
+  }
+  function playBuffer(buf) {
+    stopVoice();
+    return new Promise(function (resolve) {
+      var src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(voiceGain);
+      var me = { src: src, done: resolve, timer: 0 };
+      current = me;
+      function end() { if (current === me) current = null; clearTimeout(me.timer); resolve(); }
+      src.onended = end;
+      // Safety net: if the context stays locked/suspended, 'ended' never fires.
+      me.timer = setTimeout(end, buf.duration * 1000 + 1500);
+      resume();
+      if (src.start) src.start(0); else src.noteOn(0);
+    });
+  }
+
+  LE.voice = {
+    ready: function () { return loadManifest(); },
+    get loaded() { return !!available; },
+    key: function (text) { return LE.voiceKey.key(text); },
+    has: function (text) { return !!(available && available[LE.voiceKey.key(text)]); },
+    /** Play the clip for `text`. Resolves true when it finished, rejects if there is no usable clip. */
+    play: function (text) {
+      var k = LE.voiceKey.key(text);
+      return loadManifest().then(function () {
+        if (!available[k]) throw new Error('no clip');
+        if (!ensureCtx()) throw new Error('no audio');
+        return decodeClip(k);
+      }).then(function (buf) { return playBuffer(buf).then(function () { return buf.duration; }); });
+    },
+    /** Duration (s) of a decoded clip, or 0. */
+    duration: function (text) { var b = decoded[LE.voiceKey.key(text)]; return b ? b.duration : 0; },
+    stop: stopVoice,
+    get playing() { return !!current; },
+    /** Fetch (and decode once audio is unlocked) the clips for these lines. */
+    prefetch: function (texts) {
+      return loadManifest().then(function () {
+        (texts || []).forEach(function (t) {
+          var k = LE.voiceKey.key(t);
+          if (!available[k]) return;
+          if (ctx) decodeClip(k).catch(function () {}); else fetchClip(k).catch(function () {});
+        });
+      });
+    },
+    /** Prefetch a group from groups.json ('common', 'robot:0', ...). */
+    prefetchGroup: function (name) {
+      return loadManifest().then(function () {
+        var tries = 0;
+        (function go() {
+          if (!groups) { if (tries++ < 20) setTimeout(go, 150); return; }
+          (groups[name] || []).forEach(function (k) {
+            if (!available[k]) return;
+            if (ctx) decodeClip(k).catch(function () {}); else fetchClip(k).catch(function () {});
+          });
+        })();
+      });
+    },
+    _decodePending: function () {
+      if (!ctx) return;
+      Object.keys(raw).forEach(function (k) { if (!decoded[k]) decodeClip(k).catch(function () {}); });
+    },
+    _stats: function () { return { available: available ? Object.keys(available).length : -1, decoded: Object.keys(decoded).length, fetched: Object.keys(raw).length }; }
+  };
+  loadManifest();
 
   LE.sound = {
     play: function (name) {
@@ -157,7 +301,7 @@
       var fn = SFX[name] || SFX.tap;
       try { fn(); } catch (e) { /* never let audio break the game */ }
     },
-    setMuted: function (m) { muted = !!m; },
+    setMuted: function (m) { muted = !!m; if (muted) stopVoice(); },
     isMuted: function () { return muted; },
     unlock: unlock,
     names: Object.keys(SFX),

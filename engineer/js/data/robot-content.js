@@ -74,7 +74,7 @@
     },
     forever: {
       title: 'Repeat forever',
-      text: 'Tap the number until you see ∞. Robo keeps going until it finds the flag!',
+      text: 'Tap the number until you see the infinity sign. Robo keeps going until it finds the flag!',
       pic: '<svg viewBox="0 0 200 120"><rect x="30" y="24" width="140" height="72" rx="16" fill="#ff9f1c" stroke="rgba(0,0,0,.2)" stroke-width="3"/>' +
         '<circle cx="100" cy="60" r="24" fill="#fff"/><text x="100" y="74" font-size="40" font-weight="900" text-anchor="middle" fill="#ff7a00">∞</text></svg>'
     },
@@ -82,6 +82,30 @@
       title: 'Turn all the way around',
       text: 'Two Turn Rights make Robo face backwards!',
       pic: '<svg viewBox="0 0 200 120">' + bot(40, 60, 0) + bot(100, 60, 90) + bot(160, 60, 180) + '</svg>'
+    },
+    debug: {
+      title: 'Fix the bug!',
+      text: 'A bug is a mistake in a program. Press Play, watch Robo, then change the block that is wrong.',
+      pic: '<svg viewBox="0 0 200 120">' + block(14, 62, '#33b864', '⬆') + block(74, 62, '#ff9f1c', '4') + block(134, 62, '#3d8bff', '↻') +
+        '<circle cx="100" cy="82" r="30" fill="none" stroke="#ffe14d" stroke-width="5"/><path d="M121 103 L132 114" stroke="#ffe14d" stroke-width="7" stroke-linecap="round"/>' +
+        '<g transform="translate(100,28)"><ellipse rx="14" ry="11" fill="#e8434f" stroke="#7a1520" stroke-width="3"/><path d="M0 -11 V11" stroke="#7a1520" stroke-width="2.5"/>' +
+        '<circle cx="-5" cy="-3" r="2.5" fill="#1b2a4a"/><circle cx="5" cy="4" r="2.5" fill="#1b2a4a"/>' +
+        '<path d="M-14 -4 h-8 M-14 4 h-8 M14 -4 h8 M14 4 h8 M-5 -11 l-4 -7 M5 -11 l4 -7" stroke="#1b2a4a" stroke-width="2.5" stroke-linecap="round"/></g></svg>'
+    },
+    manyWays: {
+      title: 'Many ways',
+      text: 'There is often more than one way to the flag. Pick the way that grabs every gear!',
+      pic: '<svg viewBox="0 0 200 120"><path d="M40 98 H160 V30" fill="none" stroke="#ffe14d" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="3 12"/>' +
+        '<path d="M40 82 V30 H146" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="2 10" opacity=".6"/>' +
+        bot(40, 98, 0) + at(160, 98, gear) + at(152, 34, flag) + '</svg>'
+    },
+    beforeLoop: {
+      title: 'Get ready, then loop',
+      text: 'Blocks before a Repeat happen first. Turn Robo the right way, then start the loop!',
+      pic: '<svg viewBox="0 0 200 120">' + block(14, 40, '#3d8bff', '↺') +
+        '<path d="M74 60 h12" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M84 52 l8 8 l-8 8" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<rect x="100" y="24" width="88" height="72" rx="16" fill="#ff9f1c" stroke="rgba(0,0,0,.2)" stroke-width="3"/>' +
+        '<circle cx="144" cy="60" r="24" fill="#fff"/><text x="144" y="74" font-size="40" font-weight="900" text-anchor="middle" fill="#ff7a00">∞</text></svg>'
     }
   };
 
@@ -89,7 +113,7 @@
     'Robots follow programs step by step, just like Robo!',
     'The first computer programmer was a woman named Ada Lovelace, almost 200 years ago!',
     'Robots on Mars drive themselves around rocks.',
-    'A "bug" is a mistake in a program. Fixing it is called "debugging"!',
+    'A bug is a mistake in a program. Fixing it is called debugging!',
     'Some robot vacuums use sensors to check for walls, like your "If wall" block.',
     'Loops help programmers write less and do more!',
     'Factory robots can build cars all day without getting tired.',
@@ -102,8 +126,18 @@
     'Some robots are smaller than a grain of rice!',
     'Traffic lights use simple programs to change colors.',
     'Robots can help doctors with very careful work.',
-    'Self-driving cars use cameras to “see” the road.',
-    'Every app you use started with someone writing code.'
+    'Self-driving cars use cameras to see the road.',
+    'Every app you use started with someone writing code.',
+    'Long ago, a real moth got stuck inside a computer. People called it a bug!',
+    'Coders test their programs again and again to find bugs.',
+    'Maze robots can find their way by following a wall.',
+    'There is often more than one way to write a program that works.',
+    'Some robots deliver food and packages right to your door!',
+    'Robot dogs can walk on four legs and climb stairs.',
+    'Coders try to use as few steps as they can. Short programs are easier to fix!',
+    'Some farm robots help pick fruit and water plants.',
+    'Lots of robots have a computer inside that works like a tiny brain.',
+    'You are a coder now! Every coder started as a beginner, just like you.'
   ];
 
   return { tips: tips, facts: facts };

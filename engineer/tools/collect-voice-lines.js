@@ -1,0 +1,283 @@
+/* Collects EVERY line the buddy can speak → audio/voice/lines.json ([{ id, text }], normalized, sorted, unique)
+ * and audio/voice/groups.json ({ common: [ids], '<world>:<index>': [ids], practice: [ids] }) used for prefetching
+ * and service-worker precaching.
+ *
+ * 1. Static extraction: level data + content modules (goals, hints, tutorial steps, tips, facts, practice
+ *    challenges), the shell's VOICE-LINES block in js/core/app.js, and spoken string literals in js/views/*.js.
+ * 2. Runtime capture (Playwright, iPhone 13, ?fast=1): hooks LE.speak and drives the menu, settings, every world
+ *    map, every level (tip card, guided tutorial, Show me → Go → win screen + fact, failing attempts) and the
+ *    Practice Room challenges, recording every text passed.
+ *
+ * Usage: node tools/collect-voice-lines.js [--static]   (--static skips the browser run) */
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const VK = require('../js/core/voice-key.js');
+
+const ROOT = path.resolve(__dirname, '..');
+const OUT = path.join(ROOT, 'audio', 'voice');
+const WORLDS = ['bridges', 'machines', 'circuits', 'robot', 'construction'];
+
+/* ---------- static ---------- */
+function shellLines() {
+  const src = fs.readFileSync(path.join(ROOT, 'js/core/app.js'), 'utf8');
+  const m = /\/\* VOICE-LINES:START \*\/\s*var LINES = ([\s\S]*?);\s*\/\* VOICE-LINES:END \*\//.exec(src);
+  if (!m) throw new Error('VOICE-LINES block not found in app.js');
+  const LINES = vm.runInNewContext('(' + m[1] + ')');
+  const out = [];
+  (function walk(v) {
+    if (typeof v === 'string') out.push(v);
+    else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') Object.keys(v).forEach((k) => walk(v[k]));
+  })(LINES);
+  return { LINES, lines: out.filter((t) => t !== LINES.didYouKnow) };
+}
+
+function worldData(w) {
+  const levels = require(path.join(ROOT, 'js/data', w + '-levels.js')).levels || [];
+  const content = require(path.join(ROOT, 'js/data', w + '-content.js'));
+  return { levels, content };
+}
+
+/** Per-level static lines (goal, hint, tutorial says, tip card, the win fact). */
+function levelLines(w, level, index, content, LINES) {
+  const out = [level.goal, level.hint];
+  (level.tutorial || []).forEach((s) => { if (s.say) out.push(s.say); });
+  const tip = level.tip && content.tips && content.tips[level.tip];
+  if (tip) out.push(VK.tipLine(tip.title, tip.text));
+  const facts = content.facts || [];
+  if (facts.length) out.push(LINES.didYouKnow + facts[index % facts.length]);
+  return out.filter(Boolean);
+}
+
+/** String literals the views speak: say: '…', ctx.say('…'), message: '…', intro: '…' (incl. ternaries). */
+function viewLiterals() {
+  const out = [];
+  const dir = path.join(ROOT, 'js/views');
+  fs.readdirSync(dir).filter((f) => f.endsWith('.js')).forEach((f) => {
+    const src = fs.readFileSync(path.join(dir, f), 'utf8');
+    src.split('\n').forEach((line) => {
+      if (!/\b(say|message|intro)\b/.test(line)) return;
+      const re = /(['"])((?:\\.|(?!\1).)*)\1/g;
+      let m;
+      while ((m = re.exec(line))) {
+        const before = line.slice(Math.max(0, m.index - 14), m.index);
+        if (/(label|cls|okLabel|class|data-\w+)\s*:\s*$/.test(before) || /===?\s*$/.test(before)) continue;
+        const text = m[2].replace(/\\(['"\\])/g, '$1');
+        // spoken sentences: start with a capital letter (or digit), contain a space or end like a sentence
+        if (text !== text.trim()) continue;   // fragment of a composed line (enumerated in dynamicLines)
+        if (!/^[A-Z0-9]/.test(text) || !/[a-z]/.test(text)) continue;
+        if (!/\s/.test(text) && !/[.!?]$/.test(text)) continue;
+        if (/\.(js|css|png|mp3|json)$/.test(text)) continue;
+        out.push({ file: f, text });
+      }
+    });
+  });
+  return out;
+}
+
+/** Dynamic-but-finite lines composed in views: every variant enumerated here. */
+function dynamicLines() {
+  const out = [];
+  const robotView = fs.readFileSync(path.join(ROOT, 'js/views/robot-view.js'), 'utf8');
+  if (/'Repeat ' \+ b\.n \+ ' times!'/.test(robotView)) for (let n = 2; n <= 9; n++) out.push('Repeat ' + n + ' times!');
+  return out;
+}
+
+function staticCollect() {
+  const { LINES, lines: shell } = shellLines();
+  const groups = { common: new Set(), practice: new Set() };
+  const all = new Set();
+  const add = (g, t) => { const n = VK.normalize(t); if (!n) return; all.add(n); if (g) g.add(n); };
+  shell.forEach((t) => add(groups.common, t));
+  WORLDS.forEach((w) => {
+    const { levels, content } = worldData(w);
+    levels.forEach((lv, i) => {
+      const g = groups[w + ':' + i] = new Set();
+      levelLines(w, lv, i, content, LINES).forEach((t) => add(g, t));
+    });
+    Object.values(content.tips || {}).forEach((t) => add(null, VK.tipLine(t.title, t.text)));
+    (content.facts || []).forEach((f) => add(null, LINES.didYouKnow + f));
+  });
+  const robot = require(path.join(ROOT, 'js/data/robot-levels.js'));
+  (robot.practice || []).forEach((c) => add(groups.practice, c.goal));
+  viewLiterals().forEach((v) => add(null, v.text));
+  dynamicLines().forEach((t) => add(null, t));
+  return { all, groups, LINES };
+}
+
+/* ---------- runtime capture ---------- */
+async function runtimeCollect() {
+  const { start } = require('../e2e/server.js');
+  const pw = require('playwright');
+  const browser = await pw.chromium.launch();
+  const { server, url } = await start(0);
+  const captured = {};          // group -> Set of raw texts
+  const errors = [];
+  const note = (g, list) => { captured[g] = captured[g] || new Set(); list.forEach((t) => captured[g].add(t)); };
+
+  async function newPage() {
+    const context = await browser.newContext({ ...pw.devices['iPhone 13'] });
+    const page = await context.newPage();
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.addInitScript(() => {
+      window.__spoken = [];
+      const hook = () => {
+        if (!window.LE || !LE.speak || LE.speak.__hooked) return;
+        const orig = LE.speak;
+        LE.speak = function (t) { (Array.isArray(t) ? t : [t]).forEach((x) => window.__spoken.push(String(x))); return orig.apply(this, arguments); };
+        LE.speak.__hooked = true;
+      };
+      document.addEventListener('DOMContentLoaded', hook);
+      window.addEventListener('load', hook);
+    });
+    await page.goto(url + '?fast=1&menu=1&nosw=1');
+    await page.waitForSelector('.menu-screen');
+    await page.evaluate(() => { if (!LE.speak.__hooked) { const o = LE.speak; LE.speak = function (t) { (Array.isArray(t) ? t : [t]).forEach((x) => window.__spoken.push(String(x))); return o.apply(this, arguments); }; LE.speak.__hooked = true; } });
+    return page;
+  }
+  const take = (page) => page.evaluate(() => window.__spoken.splice(0));
+
+  // DOM clicks (the buddy bubble may overlap buttons; we only need the code paths to run).
+  async function clickIf(page, sel) {
+    return page.evaluate((s) => { const el = [...document.querySelectorAll(s)].find((e) => e.offsetParent !== null) || document.querySelector(s); if (!el) return false; el.click(); return true; }, sel);
+  }
+
+  // Menu, settings
+  {
+    const page = await newPage();
+    for (let i = 0; i < 25; i++) await clickIf(page, '.menu-buddy');
+    await clickIf(page, '.settings-btn');
+    await clickIf(page, '.overlay.settings .btn.purple');   // read aloud off
+    await clickIf(page, '.overlay.settings .btn.purple');   // on → "Hi Salah!"
+    await page.evaluate(() => LE.closeOverlay());
+    for (const w of WORLDS) { await page.evaluate((id) => LE.app.showMap(id), w); await page.waitForTimeout(100); }
+    note('common', await take(page));
+    // Practice Room: every challenge, Show me → Play → cheer; free play; a miss.
+    await page.evaluate(() => LE.app.showPractice());
+    await page.waitForSelector('.practice-wrap');
+    await page.waitForTimeout(300);
+    const chips = await page.evaluate(() => LE.levels.practice.map((c) => c.id));
+    for (const id of chips) {
+      await clickIf(page, `[data-chip="${id}"]`);
+      await page.waitForTimeout(150);
+      await page.evaluate(() => LE.activeLevel.showMe());
+      await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 30000 });
+      await clickIf(page, '.go-btn');
+      await page.waitForSelector('.next-challenge, .bubble.show', { timeout: 20000 }).catch(() => {});
+      await page.waitForTimeout(1200);
+    }
+    await clickIf(page, '[data-chip="free"]');
+    await page.waitForTimeout(200);
+    await clickIf(page, '.go-btn');
+    await page.waitForTimeout(800);
+    await clickIf(page, '.tray-blk[data-type="F"]');
+    await clickIf(page, '.go-btn');
+    await page.waitForTimeout(1500);
+    await clickIf(page, '.buddy-char');
+    note('practice', await take(page));
+    await page.context().close();
+  }
+
+  // Every level of every world, one page per world in parallel.
+  await Promise.all(WORLDS.map(async (w) => {
+    const page = await newPage();
+    const n = await page.evaluate((id) => (LE.levels[id] || []).length, w);
+    for (let i = 0; i < n; i++) {
+      const g = w + ':' + i;
+      try {
+        // fresh level (tutorial runs, tip card shows)
+        await page.evaluate(([id, idx]) => {
+          const s = LE.app.store;
+          s.data.seenTips = {};
+          for (let k = 0; k <= idx + 1; k++) { s.data.stars[id] = s.data.stars[id] || []; s.data.stars[id][k] = 0; }
+          for (let k = 0; k < idx; k++) s.setStars(id, k, 1);
+          s.clearInProgress(id, idx);
+          LE.app.openLevel(id, idx);
+        }, [w, i]);
+        await page.waitForSelector('.level-screen .play-host');
+        await page.waitForTimeout(300);
+        await clickIf(page, '.overlay.tip .btn');
+        await page.waitForTimeout(200);
+        // walk the guided tutorial: OK buttons + the events each step waits for
+        const tut = await page.evaluate(() => (LE.activeLevel && LE.world(LE.activeLevel.world).levels[LE.activeLevel.index].tutorial) || null);
+        if (tut) {
+          await clickIf(page, '.bubble.show .btn');      // "Let's go!"
+          for (const s of tut) {
+            await page.waitForTimeout(150);
+            if (s.wait) await page.evaluate(([ev, times]) => { for (let k = 0; k < times; k++) LE.activeLevel.ctx.emit(ev); }, [s.wait, s.times || 1]);
+            else await clickIf(page, '.bubble.show .btn');
+          }
+          await page.waitForTimeout(200);
+          await page.evaluate(() => LE.activeLevel.inst.reset && LE.activeLevel.inst.reset());
+        }
+        // tap the buddy (goal + Show me / Let me try), then fail attempts with an empty board
+        await clickIf(page, '.buddy-char');
+        const noGo = await page.evaluate(() => !!LE.activeLevel.inst.noGo);
+        if (!noGo) {
+          for (let k = 0; k < 3; k++) {
+            if (await page.locator('.overlay.win').count()) break;
+            await clickIf(page, '.go-btn');
+            await page.waitForFunction(() => !LE.activeLevel.inst.busy, null, { timeout: 20000 }).catch(() => {});
+            await page.waitForTimeout(250);
+          }
+        }
+        // resume path ("Welcome back!") — reopen with saved state
+        await page.evaluate(() => LE.activeLevel.ctx.saveState && 0);
+        // Show me → Go → win → fact
+        if (!(await page.locator('.overlay.win').count())) {
+          await page.evaluate(([id, idx]) => { LE.app.store.clearInProgress(id, idx); LE.app.openLevel(id, idx, { fresh: true }); }, [w, i]);
+          await page.waitForSelector('.level-screen .play-host');
+          await page.waitForTimeout(250);
+          await clickIf(page, '.overlay.tip .btn');
+          await page.evaluate(() => LE.activeLevel.showMe());
+          await page.waitForTimeout(200);
+          await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 60000 });
+          await page.waitForTimeout(200);
+          const wonLive = await page.waitForSelector('.overlay.win', { timeout: 1200 }).then(() => true, () => false);
+          if (!noGo && !wonLive) await clickIf(page, '.go-btn');
+          await page.waitForSelector('.overlay.win', { timeout: 60000 });
+          await page.waitForTimeout(700);
+        }
+      } catch (e) {
+        errors.push(`${g}: ${String(e.message || e).split('\n')[0]}`);
+      }
+      note(g, await take(page));
+    }
+    await page.context().close();
+  }));
+  await browser.close();
+  server.close();
+  return { captured, errors };
+}
+
+async function main() {
+  const staticOnly = process.argv.includes('--static');
+  const { all, groups } = staticCollect();
+  let errors = [];
+  if (!staticOnly) {
+    const r = await runtimeCollect();
+    errors = r.errors;
+    Object.keys(r.captured).forEach((g) => {
+      groups[g] = groups[g] || new Set();
+      r.captured[g].forEach((t) => { const n = VK.normalize(t); if (n) { all.add(n); groups[g].add(n); } });
+    });
+  }
+  // unique by clip key (texts that differ only in case share a clip)
+  const byId = new Map();
+  [...all].sort((a, b) => a.localeCompare(b)).forEach((t) => { const id = VK.key(t); if (!byId.has(id)) byId.set(id, t); });
+  const lines = [...byId.entries()].map(([id, text]) => ({ id, text })).sort((a, b) => a.text.localeCompare(b.text) || a.id.localeCompare(b.id));
+  const groupsOut = {};
+  Object.keys(groups).sort().forEach((g) => { groupsOut[g] = [...new Set([...groups[g]].map((t) => VK.key(t)))].sort(); });
+  fs.mkdirSync(OUT, { recursive: true });
+  fs.writeFileSync(path.join(OUT, 'lines.json'), JSON.stringify(lines, null, 1) + '\n');
+  fs.writeFileSync(path.join(OUT, 'groups.json'), JSON.stringify(groupsOut) + '\n');
+  const chars = lines.reduce((a, l) => a + l.text.length, 0);
+  console.log(`lines.json: ${lines.length} lines, ${chars} characters${staticOnly ? ' (static only)' : ''}`);
+  console.log(`groups.json: ${Object.keys(groupsOut).length} groups`);
+  if (errors.length) { console.log('capture problems:\n  ' + errors.join('\n  ')); process.exitCode = 1; }
+}
+
+module.exports = { staticCollect, viewLiterals, shellLines, levelLines, dynamicLines, WORLDS };
+if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });

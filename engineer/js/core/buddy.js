@@ -69,20 +69,56 @@
   if (window.speechSynthesis && 'onvoiceschanged' in speechSynthesis) {
     speechSynthesis.addEventListener('voiceschanged', function () { voice = pickVoice(); });
   }
+  /** Old robot-ish fallback: the browser's local speech synthesis. Resolves when the line ends. */
+  function synthSpeak(clean) {
+    return new Promise(function (resolve) {
+      if (!window.speechSynthesis || !clean) { resolve(); return; }
+      var finished = false;
+      function done() { if (!finished) { finished = true; clearTimeout(t); resolve(); } }
+      // Safety net: some engines never fire 'end' (or speak nothing at all).
+      var t = setTimeout(done, 1500 + clean.split(' ').length * 450);
+      try {
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(clean);
+        voice = voice || pickVoice();
+        if (voice) u.voice = voice;
+        u.lang = 'en-US'; u.rate = 0.92; u.pitch = 1.25; u.volume = 1;
+        u.onend = done; u.onerror = done;
+        speechSynthesis.speak(u);
+      } catch (e) { done(); }
+    });
+  }
+
+  var speakToken = 0;
+  /** Say a line (or a list of lines, played one after another).
+   *  Uses the pre-generated human voice clip when there is one, else speech synthesis.
+   *  Returns a Promise that resolves when the narration finished (immediately when muted / fast / off). */
   LE.speak = function (text) {
-    if (!window.speechSynthesis || !LE.voiceOn || LE.sound.isMuted() || LE.FAST) return;
-    try {
-      speechSynthesis.cancel();
-      var clean = String(text).replace(/[^\w\s.,!?'’\-:;]/g, ' ').replace(/\s+/g, ' ').trim();
-      if (!clean) return;
-      var u = new SpeechSynthesisUtterance(clean);
-      voice = voice || pickVoice();
-      if (voice) u.voice = voice;
-      u.lang = 'en-US'; u.rate = 0.92; u.pitch = 1.25; u.volume = 1;
-      speechSynthesis.speak(u);
-    } catch (e) {}
+    var parts = (Array.isArray(text) ? text : [text]).map(LE.voiceKey.normalize).filter(Boolean);
+    if (!LE.voiceOn || LE.sound.isMuted() || LE.FAST || !parts.length) return Promise.resolve();
+    var token = ++speakToken;
+    LE.stopSpeaking(true);
+    var i = 0;
+    return (function next() {
+      if (token !== speakToken || i >= parts.length) return Promise.resolve();
+      var line = parts[i++];
+      // Known to have no clip → speak right away (keeps iOS's gesture link for speech synthesis).
+      if (LE.voice.loaded && !LE.voice.has(line)) return synthSpeak(line).then(next);
+      return LE.voice.play(line).catch(function () {
+        if (token !== speakToken) return;
+        return synthSpeak(line);
+      }).then(next);
+    })();
   };
-  LE.stopSpeaking = function () { try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {} };
+  /** True while a line is being spoken. */
+  LE.isSpeaking = function () {
+    return LE.voice.playing || !!(window.speechSynthesis && speechSynthesis.speaking);
+  };
+  LE.stopSpeaking = function (keepToken) {
+    if (!keepToken) speakToken++;
+    if (LE.voice) LE.voice.stop();
+    try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
+  };
 
   /* ---------- Pointing hand ---------- */
   var handEl = null, handPos = { x: -100, y: -100 }, loopToken = 0;
@@ -184,7 +220,7 @@
     this.el.append(this.bubble, this.char);
     parent.appendChild(this.el);
     this.lastText = '';
-    this.speakBtn.addEventListener('click', function (e) { e.stopPropagation(); LE.voiceOnce = true; LE.speakForce(self.lastText); });
+    this.speakBtn.addEventListener('click', function (e) { e.stopPropagation(); self.spoken = LE.speakForce(self.lastSpoken || self.lastText); });
     this.char.addEventListener('click', function () { LE.sound.play('pop'); self.wave(); if (self.onTap) self.onTap(); });
     this._blink = setInterval(function () { self.blink(); }, 3200 + Math.random() * 1500);
   }
@@ -213,7 +249,9 @@
     this.bubble.classList.remove('show'); void this.bubble.offsetWidth;
     this.bubble.classList.add('show');
     this.wave();
-    if (opts.speak !== false) LE.speak(text);
+    var spoken = opts.speak !== false ? LE.speak(opts.speakParts || text) : Promise.resolve();
+    this.lastSpoken = opts.speakParts || text;
+    this.spoken = spoken;
     var promise = null;
     if (opts.ok) {
       promise = new Promise(function (resolve) {
@@ -223,13 +261,27 @@
     (opts.buttons || []).forEach(function (b) {
       self.actions.appendChild(LE.button('small ' + (b.cls || ''), b.label, b.onTap));
     });
-    if (opts.time) this._hideT = setTimeout(function () { self.hide(); }, opts.time / LE.speed);
+    if (opts.time) {
+      // Never hide before the narration is over: max(time, clip end + ~1s).
+      var t0 = Date.now(), gen = this._gen = (this._gen || 0) + 1;
+      spoken.then(function () {
+        if (self._gen !== gen) return;
+        var left = Math.max(opts.time / LE.speed - (Date.now() - t0), LE.FAST ? 0 : 1000);
+        self._hideT = setTimeout(function () { if (self._gen === gen) self.hide(); }, left);
+      });
+    }
     return promise || Promise.resolve();
   };
-  Buddy.prototype.hide = function () { this.bubble.classList.remove('show'); };
+  /** Resolves when the current line has finished playing, plus a small breath (skipped in fast mode). */
+  Buddy.prototype.afterSpeech = function (pause) {
+    var p = this.spoken || Promise.resolve();
+    return p.then(function () { return LE.FAST ? null : LE.wait(pause === undefined ? 350 : pause); });
+  };
+  Buddy.prototype.hide = function () { this._gen = (this._gen || 0) + 1; this.bubble.classList.remove('show'); };
   Buddy.prototype.destroy = function () { clearInterval(this._blink); clearTimeout(this._hideT); this.el.remove(); };
 
   LE.Buddy = Buddy;
   LE.voiceOn = true;
-  LE.speakForce = function (text) { var was = LE.voiceOn; LE.voiceOn = true; LE.speak(text); LE.voiceOn = was; };
+  /** Speak even when "Read aloud" is off (the 🔊 replay button). */
+  LE.speakForce = function (text) { var was = LE.voiceOn; LE.voiceOn = true; var p = LE.speak(text); LE.voiceOn = was; return p; };
 })();

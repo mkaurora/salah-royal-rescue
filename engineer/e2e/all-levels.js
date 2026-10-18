@@ -9,7 +9,7 @@ const pw = require('playwright');
 
 const SHOTS = path.join(process.env.SHOTS_DIR || '/workspace/little-engineer-shots', 'levels');
 const DEVICE = process.env.DEVICE || 'iPhone 13';
-const worlds = process.argv.slice(2).length ? process.argv.slice(2) : ['bridges', 'machines', 'circuits', 'robot'];
+const worlds = process.argv.slice(2).length ? process.argv.slice(2) : ['bridges', 'machines', 'circuits', 'robot', 'construction'];
 
 (async () => {
   fs.mkdirSync(SHOTS, { recursive: true });
