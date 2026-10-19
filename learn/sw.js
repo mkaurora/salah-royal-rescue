@@ -1,7 +1,7 @@
 /* Service worker (scope: this folder): precaches the app shell + common voice clips so the game works fully
  * offline; other clips are cached the first time they play. Only touches caches named learn-*. */
 'use strict';
-var CACHE = 'learn-v1';
+var CACHE = 'learn-v2';
 var PRECACHE = [
   /* PRECACHE:START */
   './',

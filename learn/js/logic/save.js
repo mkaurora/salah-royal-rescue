@@ -22,7 +22,7 @@
       countdownOn: false, countdownSecs: 45,
       perLevel: 6,
       subjects: { math: true, english: true, science: true },
-      pin: '1234'
+      pin: '1994'
     };
   }
 
