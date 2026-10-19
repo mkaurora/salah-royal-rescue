@@ -5,7 +5,9 @@
 const fs = require('fs');
 const path = require('path');
 const pw = require('playwright');
-const { start } = require('./server.js');
+const { start, setTestBuild } = require('./server.js');
+const UPSHOTS = '/workspace/update-button-shots';
+fs.mkdirSync(UPSHOTS, { recursive: true });
 
 const SHOTS = process.env.SHOTS_DIR || '/workspace/salah-learn-shots';
 fs.mkdirSync(SHOTS, { recursive: true });
@@ -292,7 +294,7 @@ async function adminFlow(browser, base, dev) {
     await page.click('.menu .gear-btn');
     await page.waitForSelector('.kid-settings');
     assert(await page.locator('.kid-settings input[type=range]').count() === 2, 'two sliders');
-    await page.click('.kid-settings .btn');
+    await page.click('.kid-settings .btn.green');
     assert(!(await page.locator('.kid-settings').count()), 'closed');
   });
 
@@ -311,7 +313,7 @@ async function adminFlow(browser, base, dev) {
     await page.mouse.move(g.x + 20, g.y + 20); await page.mouse.down(); await page.waitForTimeout(1200); await page.mouse.up();
     await page.waitForTimeout(2200);
     assert(!(await page.locator('.pin-overlay').count()), 'no PIN pad');
-    if (await page.locator('.kid-settings').count()) await page.click('.kid-settings .btn');
+    if (await page.locator('.kid-settings').count()) await page.click('.kid-settings .btn.green');
   });
 
   await check('PIN 1994 → admin panel', async () => {
@@ -508,7 +510,7 @@ async function offlineFlow(browser, base, dev) {
     await page.reload();
     await page.waitForFunction(() => !!navigator.serviceWorker.controller);
     const keys = await page.evaluate(() => caches.keys());
-    assert(keys.includes('learn-v2') && keys.every((k) => k.startsWith('learn-')), 'cache ' + keys);
+    assert(keys.includes('learn-v3') && keys.every((k) => k.startsWith('learn-')), 'cache ' + keys);
     await ctx.setOffline(true);
     await page.reload();
     await page.waitForSelector('.menu .world-card');
@@ -519,6 +521,70 @@ async function offlineFlow(browser, base, dev) {
     await ctx.setOffline(false);
   });
   await check('no console errors (offline run)', async () => { assert(!page.errors.length, page.errors.slice(0, 3).join(' | ')); });
+  await ctx.close();
+}
+
+
+async function updateFlow(browser, base, dev) {
+  setTestBuild(0);
+  const { ctx, page } = await newPage(browser, dev.name, { sw: true });
+  const build = () => page.evaluate(() => { const m = document.querySelector('meta[name=test-build]'); return m ? m.content : '0'; });
+  const swBuild = () => page.evaluate(() => new Promise((res) => { const ch = new MessageChannel(); ch.port1.onmessage = (e) => res(e.data); navigator.serviceWorker.controller.postMessage({ type: 'VERSION' }, [ch.port2]); }));
+  const stars = () => page.evaluate(() => SQ.save.totals(SQ.state).stars);
+  const openSettings = async () => { await page.click('.gear-btn'); await page.waitForSelector('.kid-settings .update-btn'); };
+  await check('SW registered with updateViaCache none and controls the page', async () => {
+    await page.goto(base + '?fast=1'); await page.waitForSelector('.menu');
+    await page.evaluate(() => navigator.serviceWorker.ready); await page.reload(); await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+    assert((await page.evaluate(async () => (await navigator.serviceWorker.getRegistration()).updateViaCache)) === 'none');
+    const v = await swBuild(); assert(v.cache === 'learn-v3', JSON.stringify(v));
+    await page.evaluate(() => { SQ.save.setStars(SQ.state, 'math', 0, 3); SQ.save.setStars(SQ.state, 'english', 0, 2); SQ.persist(); });
+    assert((await stars()) === 5);
+  });
+  await check('Update game button: "You have the latest version" when nothing is new', async () => {
+    await openSettings(); await page.click('.update-btn');
+    await page.waitForFunction(() => /latest version/.test(document.querySelector('.update-msg').textContent));
+    await page.screenshot({ path: `${UPSHOTS}/lq-update-button${dev.tag}.png` });
+    await page.click('.kid-settings .btn.green');
+  });
+  await check('new sw.js on the server → found on visibilitychange, banner waits while in a level', async () => {
+    setTestBuild(1);
+    await page.evaluate(() => SQ.go.play('math', 0)); await page.waitForSelector('.screen.play');
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+    await page.waitForFunction(() => SQ.updater.hasUpdate(), null, { timeout: 30000 });
+    await page.waitForTimeout(1500);
+    assert(!(await page.locator('.update-banner').count()), 'banner shown mid-level');
+    assert((await build()) === '0', 'reloaded mid-level');
+    await page.evaluate(() => SQ.go.menu()); await page.waitForSelector('.update-banner', { timeout: 5000 });
+    assert(/New version! Tap to update/.test(await page.textContent('.update-banner')));
+    await page.waitForTimeout(600); await page.screenshot({ path: `${UPSHOTS}/lq-banner${dev.tag}.png` });
+  });
+  await check('tapping the banner reloads into the new version; progress kept', async () => {
+    await Promise.all([page.waitForEvent('load', { timeout: 20000 }), page.click('.update-banner')]);
+    await page.waitForSelector('.menu');
+    assert((await build()) === '1', 'build ' + (await build()));
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+    assert((await swBuild()).build === 'test1');
+    assert((await stars()) === 5, 'stars lost');
+    assert(!(await page.locator('.update-banner').count()));
+  });
+  await check('Update game button picks up the next version itself and reloads', async () => {
+    setTestBuild(2);
+    await openSettings();
+    await Promise.all([page.waitForEvent('load', { timeout: 30000 }), page.click('.update-btn')]);
+    await page.waitForSelector('.menu');
+    assert((await build()) === '2'); assert((await swBuild()).build === 'test2'); assert((await stars()) === 5);
+  });
+  await check('offline: game still opens; button says you are offline', async () => {
+    await ctx.setOffline(true);
+    await page.reload(); await page.waitForSelector('.menu .world-card');
+    assert((await stars()) === 5);
+    await openSettings(); await page.click('.update-btn');
+    await page.waitForFunction(() => /offline, try again later/.test(document.querySelector('.update-msg').textContent));
+    await page.screenshot({ path: `${UPSHOTS}/lq-offline${dev.tag}.png` });
+    await ctx.setOffline(false);
+  });
+  await check('no console errors (update run)', async () => { assert(!page.errors.length, page.errors.slice(0, 3).join(' | ')); });
+  setTestBuild(0);
   await ctx.close();
 }
 
@@ -553,6 +619,7 @@ async function winShot(browser, base) {
       await stuckFlow(browser, url, dev);
       await adminFlow(browser, url, dev);
       await offlineFlow(browser, url, dev);
+      await updateFlow(browser, url, dev);
     }
     await winShot(browser, url);
   } finally {

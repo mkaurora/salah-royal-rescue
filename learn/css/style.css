@@ -500,3 +500,16 @@ svg { display: block; }
   .win-stars { height: 100px; } .wstar { width: 76px; height: 76px; } .wstar:nth-child(2) { width: 92px; height: 92px; }
   .win-title { font-size: 34px; }
 }
+
+/* ---------- updates ---------- */
+.update-row { margin: 14px 0 4px; text-align: center; }
+.update-msg { min-height: 22px; margin-top: 8px; font-size: 17px; font-weight: 800; color: var(--ink); }
+.update-btn.busy { opacity: .7; }
+.update-banner {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); z-index: 80; transform: translateX(-50%);
+  max-width: calc(100vw - 24px); padding: 12px 22px; border: 3px solid #fff; border-radius: 26px; cursor: pointer;
+  background: linear-gradient(180deg, #ffe680, #ffb81f); color: #5a3a00; font: inherit; font-size: 19px; font-weight: 900; white-space: nowrap;
+  box-shadow: 0 5px 0 #c98a00, 0 12px 26px rgba(0,0,0,.3); animation: bannerIn .5s cubic-bezier(.3,1.6,.5,1) both;
+}
+.update-banner.busy { opacity: .85; }
+@keyframes bannerIn { from { transform: translate(-50%, 140%); } to { transform: translate(-50%, 0); } }

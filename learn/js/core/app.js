@@ -156,6 +156,11 @@
     sv.addEventListener('change', function () { SQ.sound.play('pop'); SQ.persist(); });
     vv.addEventListener('input', function () { s.voiceVol = +vv.value; SQ.applySettings(); });
     vv.addEventListener('change', function () { SQ.persist(); SQ.speak(SQ.LINES.praise[0]); });
+    var up = SQ.h('div', 'update-row');
+    var ub = SQ.btn('🔄 Update game', 'blue small update-btn', function () { SQ.updateGame(ub); });
+    up.appendChild(ub);
+    up.appendChild(SQ.h('div', 'update-msg'));
+    c.appendChild(up);
     var row = SQ.h('div', 'row');
     var ov;
     row.appendChild(SQ.btn('OK', 'green', function () { ov.close(); }));
@@ -163,6 +168,39 @@
     ov = SQ.overlay(c, { dismiss: true, onClose: function () { SQ.persist(); if (onClose) onClose(); } });
     return ov;
   };
+
+  /* ---------- updates: "Update game" button + "New version!" banner (never mid-level) ---------- */
+  SQ.updater = GameUpdate.createUpdater({
+    navigator: navigator,
+    reload: function () { SQ.persist(); location.reload(); },
+    ping: function () { return fetch('index.html', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(); }); },
+    onUpdate: function () { SQ.showUpdateBanner(); }
+  });
+  function inLevel() { return !!document.querySelector('#app .screen.play'); }
+  var bannerTimer = 0;
+  SQ.showUpdateBanner = function () {
+    clearInterval(bannerTimer);
+    var place = function () {
+      if (inLevel() || document.querySelector('.update-banner')) return !inLevel();
+      var b = SQ.h('button', 'update-banner', '✨ ' + SQ.esc(GameUpdate.TEXT.banner));
+      b.setAttribute('aria-label', GameUpdate.TEXT.banner);
+      SQ.tap(b, function () { b.classList.add('busy'); b.textContent = GameUpdate.TEXT.updating; SQ.updater.apply(); });
+      document.body.appendChild(b);
+      return true;
+    };
+    if (!place()) bannerTimer = setInterval(function () { if (place()) clearInterval(bannerTimer); }, 1000);
+  };
+  SQ.updateGame = function (btn) {
+    if (btn) { btn.disabled = true; btn.classList.add('busy'); }
+    return SQ.updater.check().then(function (r) {
+      if (btn) { btn.disabled = false; btn.classList.remove('busy'); }
+      if (r === 'updating') { if (btn) btn.textContent = GameUpdate.TEXT.updating; return r; }
+      var msg = btn && btn.parentNode && btn.parentNode.querySelector('.update-msg');
+      if (msg) msg.textContent = GameUpdate.TEXT[r];
+      return r;
+    });
+  };
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') SQ.updater.poll(); });
 
   /* ---------- star svg ---------- */
   SQ.starSVG = function (full) {
@@ -200,7 +238,7 @@
       lastTouch = now;
     }, { passive: false });
     if ('serviceWorker' in navigator && location.protocol !== 'file:' && params.get('nosw') !== '1') {
-      navigator.serviceWorker.register('sw.js').catch(function () {});
+      SQ.updater.register('sw.js').then(function () { SQ.updater.poll(); });
     }
     var start = params.get('start');
     var m = start && /^(math|english|science)(?::(\d+))?$/.exec(start);
