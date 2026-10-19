@@ -789,11 +789,13 @@
       if (!c) return null;
       return '<img class="ci-hand-ghost" src="' + c.toDataURL() + '" width="56" height="56" alt="">';
     }
-    function showMeSteps() {
+    /** opts.fromCurrent (Ask Helper demo): keep the right tiles on the board, take away wrong ones, add the rest. */
+    function showMeSteps(opts) {
       var steps = [];
       var sol = level.solution;
-      var init = CL.initialState(level);
-      if (JSON.stringify(CL.cloneState(state)) !== JSON.stringify(init) || won) {
+      var fromCurrent = !!(opts && opts.fromCurrent) && !won;
+      var init = fromCurrent ? CL.cloneState(state) : CL.initialState(level);
+      if (!fromCurrent && (JSON.stringify(CL.cloneState(state)) !== JSON.stringify(init) || won)) {
         steps.push({ from: 'board', say: 'Let\'s start fresh.', apply: function () { resetBoard(); }, pause: 400 });
       }
       // simulate placement to know auto-rotations
