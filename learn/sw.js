@@ -5,8 +5,8 @@
  * "Update"), so nothing ever reloads in the middle of a level. Only touches caches named learn-*.
  * BUILD changes whenever any app file changes (node tools/build-sw.js), so every deploy is a new SW version. */
 'use strict';
-var BUILD = '8d5a096f';
-var CACHE = 'learn-v3';
+var BUILD = '13bf610b';
+var CACHE = 'learn-v4';
 var LEGACY = ['learn-v1', 'learn-v2']; // builds without the update banner: take over at once, they cannot ask
 var PRECACHE = [
   /* PRECACHE:START */
