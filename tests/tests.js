@@ -9,7 +9,7 @@ const ctx=vm.createContext({console,Math,JSON});
 vm.runInContext(m[1],ctx);
 const L=vm.runInContext(`({N,findMatches,groupRuns,specialFor,areaOf,resolveStep,applyGravity,resolveAll,planMove,planTap,doMove,hasMove,hasMatchMove,findHint,
   shuffleBoard,genBoard,spreadFire,countFixed,parseGoal,goalState,levelWon,starsFor,CITIES,LEVELS,LEVEL_DEFS,endlessLevel,migrateV1,freshSave,sanitizeSave,
-  loadSave,validateCur,cleanCell,mulberry32,cloneBoard,isGem,isTile,isSpecial,nid,musicPlan,degFreq,musicStyleOf,MAQAMS})`,ctx);
+  loadSave,validateCur,loadAdmin,checkPin,setPin,mathGate,checkGate,endlessOpen,adminUnlockTo,adminSetStars,adminUnlockEndless,adminReset,encodeTransfer,decodeTransfer,mergeTransfer,cleanCell,mulberry32,cloneBoard,isGem,isTile,isSpecial,nid,musicPlan,degFreq,musicStyleOf,MAQAMS})`,ctx);
 
 let pass=0,fail=0;const fails=[];
 function test(name,fn){try{fn();pass++}catch(e){fail++;fails.push(name+'\n    '+(e&&e.message||e))}}
@@ -216,6 +216,44 @@ test('Kuwait tunes use maqam quarter tones, scale degrees map to pitches',()=>{
   ok(new Set(L.CITIES.map((c,i)=>L.musicPlan(i).maqam)).size>=3,'several maqams in use');
   const p=L.musicPlan(1);ok(Math.abs(L.degFreq(p,0)-p.tonic)<1e-9);ok(Math.abs(L.degFreq(p,7)-2*p.tonic)<1e-9);ok(Math.abs(L.degFreq(p,-7)-p.tonic/2)<1e-9);
   const bay={scale:L.MAQAMS.bayati,tonic:293.66};ok(Math.abs(L.degFreq(bay,1)/293.66-Math.pow(2,1.5/12))<1e-9)});
+
+
+// ---------- parent mode ----------
+test('admin PIN defaults to 1994, ignores bad stored values, can be changed',()=>{
+  eq(L.loadAdmin(()=>null).pin,'1994');eq(L.loadAdmin(()=>'{bad').pin,'1994');eq(L.loadAdmin(()=>'{"pin":"12a4"}').pin,'1994');eq(L.loadAdmin(()=>'{"pin":"4321"}').pin,'4321');
+  const a=L.loadAdmin(()=>null);ok(L.checkPin(a,'1994'));ok(!L.checkPin(a,'0000'));ok(!L.checkPin(a,'1234'),'old default refused');ok(!L.setPin(a,'123'));ok(!L.setPin(a,'19945'));ok(L.setPin(a,'9876'));ok(L.checkPin(a,'9876'));ok(!L.checkPin(a,'1994'))});
+test('math gate is an adult multiplication and checks answers',()=>{for(let i=0;i<50;i++){const g=L.mathGate();ok(g.a>=12&&g.a<=19&&g.b>=6&&g.b<=9);ok(L.checkGate(g,String(g.answer)));ok(!L.checkGate(g,String(g.answer+1)));ok(!L.checkGate(g,''))}});
+test('unlock to level 26 marks 1-25 done, keeps earned stars, never lowers anything',()=>{
+  const s=L.freshSave();s.done[3]=1;s.done[25]=2;L.adminUnlockTo(s,26,3);
+  for(let i=0;i<25;i++)eq(s.done[i],i===3?1:3,'level '+(i+1));eq(s.done[25],2);
+  const s2=L.freshSave();L.adminUnlockTo(s2,26,3);eq(Object.keys(s2.done).length,25);ok(!L.endlessOpen(s2));
+  const s3=L.freshSave();L.adminUnlockTo(s3,999);eq(Object.keys(s3.done).length,L.LEVELS.length-1);L.adminUnlockTo(s3,-5);eq(Object.keys(s3.done).length,L.LEVELS.length-1)});
+test('set stars, endless unlock, reset keeps settings',()=>{
+  const s=L.freshSave();L.adminSetStars(s,4,2);eq(s.done[4],2);L.adminSetStars(s,4,0);ok(!(4 in s.done));L.adminSetStars(s,99,3);eq(Object.keys(s.done).length,0);
+  ok(!L.endlessOpen(s));L.adminUnlockEndless(s);ok(L.endlessOpen(s));
+  const t=L.freshSave();t.done[25]=1;ok(L.endlessOpen(t),'finishing level 26 still opens endless');
+  s.sound=false;s.done[1]=3;s.endless={lv:9,best:8};const r=L.adminReset(s);eq(r.sound,false);eq(r.done,{});eq(r.endless,{lv:1,best:0});ok(!L.endlessOpen(r))});
+test('eOpen survives save sanitize; old saves load unchanged',()=>{
+  const s=L.sanitizeSave(JSON.parse(JSON.stringify(Object.assign(L.freshSave(),{eOpen:1}))));eq(s.eOpen,1);
+  const old={v:2,done:{0:3,1:2,24:1},best:{0:100},endless:{lv:4,best:3},sound:true,music:false,lastCity:2,tut:{a:1},cur:null,mig:0};
+  const l=L.loadSave(k=>k==='salahSave2'?JSON.stringify(old):null);eq(l.done,{0:3,1:2,24:1});eq(l.endless,{lv:4,best:3});eq(l.music,false);eq(l.eOpen,0)});
+test('transfer code round-trips and is short',()=>{
+  const s=L.freshSave();for(let i=0;i<25;i++)s.done[i]=(i%3)+1;s.endless={lv:7,best:12};
+  const c=L.encodeTransfer(s);ok(c.length<=30,c);ok(/^RR-/.test(c));
+  const d=L.decodeTransfer(c);ok(d.ok);eq(d.done,s.done);eq(d.endless,{lv:7,best:12});eq(d.eOpen,0);
+  const e=L.decodeTransfer(' '+c.toLowerCase()+' ');ok(e.ok,'case/space tolerant');
+  s.eOpen=1;ok(L.decodeTransfer(L.encodeTransfer(s)).eOpen);
+  const f=L.freshSave();eq(L.decodeTransfer(L.encodeTransfer(f)).done,{})});
+test('bad or typo transfer codes are rejected',()=>{
+  const s=L.freshSave();L.adminUnlockTo(s,26);const c=L.encodeTransfer(s);
+  ok(!L.decodeTransfer('').ok);ok(!L.decodeTransfer('hello').ok);ok(!L.decodeTransfer('SQ1-D-00000000-abc').ok);
+  const bad=c.slice(0,4)+(c[4]==='F'?'E':'F')+c.slice(5);ok(!L.decodeTransfer(bad).ok,'checksum catches a typo');
+  ok(!L.decodeTransfer(c.slice(0,-1)).ok)});
+test('loading a code only adds progress',()=>{
+  const a=L.freshSave();L.adminUnlockTo(a,26,2);a.endless={lv:3,best:5};
+  const b=L.freshSave();b.done[0]=3;b.done[25]=1;b.endless={lv:1,best:9};
+  L.mergeTransfer(b,L.decodeTransfer(L.encodeTransfer(a)));
+  eq(b.done[0],3);eq(b.done[1],2);eq(b.done[25],1);eq(b.endless,{lv:3,best:9})});
 
 // ---------- playability (seeded greedy bot) ----------
 function botPlay(lv,seed){
