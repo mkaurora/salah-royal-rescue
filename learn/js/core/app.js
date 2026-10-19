@@ -1,4 +1,5 @@
-/* App shell: state, screen router, overlays, toasts, the parent gear (tap = kid settings, hold 3 s = PIN). */
+/* App shell: state, screen router, overlays, toasts, the parent gear (tap = kid settings, hold 3 s = PIN;
+ * kid settings also has a visible 🔒 Parents button that opens the same PIN pad). */
 (function () {
   'use strict';
   var SQ = window.SQ = window.SQ || {};
@@ -12,6 +13,7 @@
     science: { name: 'Discovery Lab', sub: 'Science', icon: '🔬', deco: ['🔬', '🧪', '🪐', '🌋', '🦋', '🧲', '🌱', '☀️', '🚀', '💡'] }
   };
   SQ.go = {};
+  SQ.APP_VERSION = '4'; // shown in kid settings; bump together with the SW cache (learn-v4)
 
   /* ---------- state ---------- */
   SQ.persist = function () { SQ.save.persist(window.localStorage, SQ.state); };
@@ -161,6 +163,13 @@
     up.appendChild(ub);
     up.appendChild(SQ.h('div', 'update-msg'));
     c.appendChild(up);
+    // a clearly visible way into parent mode (the 3-second hold on the gear still works too)
+    var pb = SQ.btn('🔒 Parents', 'white small parents-btn', function () { if (ov) ov.close(); SQ.openPin(); });
+    pb.setAttribute('aria-label', 'Parents');
+    var prow = SQ.h('div', 'parents-row');
+    prow.appendChild(pb);
+    c.appendChild(prow);
+    c.appendChild(SQ.h('div', 'app-version', 'Version ' + SQ.esc(SQ.APP_VERSION)));
     var row = SQ.h('div', 'row');
     var ov;
     row.appendChild(SQ.btn('OK', 'green', function () { ov.close(); }));
@@ -229,12 +238,15 @@
     SQ.reload();
     if (!SQ.state.created) { SQ.state.created = Date.now(); }
     SQ.persist();
-    // block pinch / double-tap zoom on iOS
+    // block pinch / double-tap zoom on iOS. Buttons and form fields are never blocked (CSS touch-action: manipulation
+    // already stops double-tap zoom on them): cancelling a touchend there swallows the tap, so quick PIN digits
+    // like 1-9-9-4 or "11" on the numpad got lost. Never touch touchmove, so every panel scrolls by finger.
     document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
     var lastTouch = 0;
     document.addEventListener('touchend', function (e) {
       var now = Date.now();
-      if (now - lastTouch < 350 && !(e.target.closest && e.target.closest('input, textarea, select'))) e.preventDefault();
+      var safe = e.target.closest && e.target.closest('button, a, input, textarea, select, label, [role=button], .admin-body, .map-scroll, .overlay');
+      if (now - lastTouch < 350 && !safe && e.cancelable) e.preventDefault();
       lastTouch = now;
     }, { passive: false });
     if ('serviceWorker' in navigator && location.protocol !== 'file:' && params.get('nosw') !== '1') {
