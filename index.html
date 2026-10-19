@@ -1203,7 +1203,7 @@ window.addEventListener('pageshow',()=>{if(!document.hidden)music.show()});
 function homeCity(){return save.lastCity!=null?save.lastCity:LEVELS[Math.min(currentLevel(),LEVELS.length-1)].city}
 
 // ---------- iOS: no page scroll / zoom ----------
-document.addEventListener('touchmove',e=>{if(!(e.target.closest&&e.target.closest('#mapScroll,#howScroll')))e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',e=>{if(!(e.target.closest&&e.target.closest('#mapScroll,#howScroll,#admScroll')))e.preventDefault()},{passive:false});
 ['gesturestart','gesturechange','dblclick'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
 
 // ---------- helpers ----------
@@ -1635,7 +1635,7 @@ function howHTML(){
    <style>#musicCredits a{color:#ffe27a}</style><div class="how" id="musicCredits" style="display:block;font-size:13px;line-height:1.4"><b>🎵 Music credits / حقوق الموسيقى</b><br>
    Kuwait levels: “Traditional Qatari Wedding Ceremony” by Noah Scalin, <a href="https://commons.wikimedia.org/wiki/File:Traditional_Qatari_Wedding_Ceremony.webm" target="_blank" rel="noopener">Wikimedia Commons</a>, licensed <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Excerpt (80 s), looped and volume-adjusted.<br>
    Morocco levels: “وصلة من فن كناوة باب الاحد الرباط” (Gnawa, Bab El Had, Rabat) by RACHID BAYA, <a href="https://commons.wikimedia.org/wiki/File:%D9%88%D8%B5%D9%84%D8%A9_%D9%85%D9%86_%D9%81%D9%86_%D9%83%D9%86%D8%A7%D9%88%D8%A9_%D8%A8%D8%A7%D8%A8_%D8%A7%D9%84%D8%A7%D8%AD%D8%AF_%D8%A7%D9%84%D8%B1%D8%A8%D8%A7%D8%B7.webm" target="_blank" rel="noopener">Wikimedia Commons</a>, licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. This clip is adapted (120 s excerpt, looped, volume-adjusted) and the adapted clip (music/morocco.m4a) is shared under CC BY-SA 4.0.</div>
-   </div><div id="updRow"><button class="btn blue" id="updBtn">🔄 Update game<small class="ar">حدّث اللعبة</small></button><div id="updMsg"></div><button class="btn purple" id="parBtn" style="margin-top:10px">🔒 Parents<small class="ar">للوالدين</small></button><div id="verTag" style="font-size:12px;opacity:.6;margin-top:6px">Version 7.3</div></div>
+   </div><div id="updRow"><button class="btn blue" id="updBtn">🔄 Update game<small class="ar">حدّث اللعبة</small></button><div id="updMsg"></div><button class="btn purple" id="parBtn" style="margin-top:10px">🔒 Parents<small class="ar">للوالدين</small></button><div id="verTag" style="font-size:12px;opacity:.6;margin-top:6px">Version 7.4</div></div>
    <button class="btn big wide" id="howOk" style="margin-top:12px">OK! 👍<small class="ar">حسنًا</small></button></div>`}
 function showHow(back){openOv(howHTML());$('howOk').onclick=()=>{sfx.click();closeOv();back&&back()};$('updBtn').onclick=()=>{sfx.click();updateGame()};$('parBtn').onclick=()=>{sfx.click();openPin()}}
 function showPause(){if(!g||g.over)return;g.busy=true;
