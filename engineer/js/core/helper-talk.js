@@ -15,7 +15,7 @@
   'use strict';
 
   /** The one place the agent id lives. */
-  var HELPER_AGENT_ID = 'agent_9001m5ahkqp5fk9vnyheash2fpfb';
+  var HELPER_AGENT_ID = 'agent_6201m5ax0meveq1t431c3wmgamsr';
   var MAX_SECONDS = 180;                           // the agent also enforces max_duration_seconds = 180
   var SDK_PATH = 'js/vendor/elevenlabs-client.js';
   var LIBSAMPLERATE_PATH = 'js/vendor/libsamplerate.worklet.js';

@@ -438,7 +438,7 @@ async function main() {
           await noOverflow(page, 'helper panel');
           await shot(page, 'ask-helper-talking.png');
           const call = await page.evaluate(() => window.__helperCalls[0]);
-          if (call.agentId !== 'agent_9001m5ahkqp5fk9vnyheash2fpfb' || call.connectionType !== 'webrtc') throw new Error(JSON.stringify(call));
+          if (call.agentId !== 'agent_6201m5ax0meveq1t431c3wmgamsr' || call.connectionType !== 'webrtc') throw new Error(JSON.stringify(call));
           if (call.vars.world !== 'Machines' || call.vars.level_name !== 'Seesaw' || !call.vars.goal || !call.vars.hint || !call.vars.step) throw new Error(JSON.stringify(call.vars));
           if (!/^js\/vendor\//.test(call.lib)) throw new Error('libsamplerate not local: ' + call.lib);
           await page.tap('.helper-end');

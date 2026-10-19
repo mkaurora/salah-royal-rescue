@@ -33,7 +33,7 @@ shows a "Did you know?" fact. Progress, settings and the in-progress level are s
   (pointing hand + slow narration, Pause / ↻ Again / 👍 Let me try) is built from each level's stored solution, solves the level, then
   resets it — no stars for a demo.
 - **Ask Helper** (🎤): push-to-talk voice chat with an ElevenLabs Conversational AI agent (public agent
-  `agent_9001m5ahkqp5fk9vnyheash2fpfb`, allowlisted to mkaurora.github.io + localhost, 3 min max, hints only). No API key in the
+  `agent_6201m5ax0meveq1t431c3wmgamsr`, allowlisted to mkaurora.github.io + localhost, 3 min max, hints only). No API key in the
   client; the SDK is vendored in `js/vendor/` and loaded on first use. Offline / failure → the buddy says the level hint.
 - **Update game**: Settings → 🔄 *Update game* checks for a new version (offline → "You're offline, try again later";
   nothing new → "You have the latest version"; new → updates and reloads). The game also checks on load and when it becomes visible;
