@@ -10,7 +10,7 @@ const { appFiles, precacheList } = require('../tools/build-sw.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const AGENT = 'agent_9001m5ahkqp5fk9vnyheash2fpfb';
+const AGENT = 'agent_6201m5ax0meveq1t431c3wmgamsr';
 
 test('the agent id is defined once (LE.HELPER_AGENT_ID in js/core/helper-talk.js)', () => {
   assert.strictEqual(HT.HELPER_AGENT_ID, AGENT);
