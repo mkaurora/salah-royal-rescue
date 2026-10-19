@@ -77,3 +77,16 @@ Player: Salah, age 7, attends an American school, English UI, COMPLETE BEGINNER 
   house building in order (foundation → walls → windows/door → roof; triangle roofs; wide foundations for tall houses),
   crane (move the hook, grab/drop, stack towers with big blocks at the bottom), and combined stages ending with a "Dream
   House". Guided tutorials, tip cards, facts, Show me / Let me try, par-based stars, undo, saved progress + resume.
+
+## v3 (October 2026, approved by Mohammed)
+- Weekly Big Project: ≥12 weeks prepared, 4–6 connected steps each reusing world mechanics; unlocks by date; menu card with countdown;
+  Kokoro am_michael 0.8 clips for all narration; parent mode can unlock any week early.
+- Parent mode: hold the gear 3 s (touch events, 40 px tolerance) or 5 taps within 3 s on the title / star counter → PIN (default 1994).
+- Ask Helper: ElevenLabs public agent (LLM claude-haiku-4-5 billed by ElevenLabs), kind/slow/short, English + Kuwaiti Arabic,
+  hints only, refuses off-topic/unsafe, level/world dynamic variables, allowlist mkaurora.github.io + localhost, 3 min max,
+  no key in the client, offline → hint.
+- Read, then Go: wait for Go after narration; 🔊 replays.
+- Show me: voice hint first; lights after ~2 min or 2 failed tries (always from parent mode); guided demo with pointing hand,
+  pause / replay step; level resets after, no stars; generated from solution data for all 128 levels + weekly steps.
+- Update game: settings button + automatic check (load, visibilitychange) via registration.update(); waiting worker → banner →
+  SKIP_WAITING on tap → reload on controllerchange; never auto-reload mid-level; updateViaCache 'none'; offline and progress safe.

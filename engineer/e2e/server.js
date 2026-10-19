@@ -12,7 +12,9 @@ const TYPES = {
   '.ico': 'image/x-icon', '.txt': 'text/plain', '.mp3': 'audio/mpeg'
 };
 
-function createServer() {
+/** opts.transform(rel, buffer) -> buffer|string lets a test change a file as served (e.g. a new sw.js release). */
+function createServer(opts) {
+  opts = opts || {};
   return http.createServer((req, res) => {
     let url = decodeURIComponent(req.url.split('?')[0]);
     if (url === '/' || url === '/salah-royal-rescue/engineer') { res.writeHead(302, { Location: BASE }); return res.end(); }
@@ -23,15 +25,16 @@ function createServer() {
     if (!file.startsWith(ROOT) || /(^|\/)(node_modules|\.git)(\/|$)/.test(rel)) { res.writeHead(403); return res.end(); }
     fs.readFile(file, (err, data) => {
       if (err) { res.writeHead(404); return res.end('Not found'); }
+      if (opts.transform) data = opts.transform(rel, data);
       res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
       res.end(data);
     });
   });
 }
 
-function start(port) {
+function start(port, opts) {
   return new Promise((resolve) => {
-    const srv = createServer();
+    const srv = createServer(opts);
     srv.listen(port || 0, '127.0.0.1', () => resolve({ server: srv, port: srv.address().port, url: 'http://127.0.0.1:' + srv.address().port + BASE }));
   });
 }

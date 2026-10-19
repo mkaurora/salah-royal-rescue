@@ -1,0 +1,71 @@
+/* v3: "This Week's Project" menu card + the weekly project hub. */
+
+/* menu card — distinct from the world cards: a wide teal "ticket" with a gold edge */
+.weekly-card {
+  --c1: #4fe0c9; --c2: #12a99a; --c3: #0b6f66;
+  width: 100%; max-width: 440px; flex: none; z-index: 2; min-height: 74px; padding: 6px 12px 6px 8px; gap: 10px;
+  justify-content: flex-start; text-align: left; border-radius: 22px; animation: popIn .5s .05s both;
+  outline: 3px solid #ffd21f; outline-offset: -3px;
+}
+.weekly-card.locked { --c1: #b9c3d6; --c2: #8a96ad; --c3: #5d6880; outline-color: #d6dbe6; }
+.weekly-card.done { --c1: #ffd76a; --c2: #f5a300; --c3: #a86400; }
+.wc-icon { flex: none; width: 56px; height: 56px; display: grid; place-items: center; font-size: 36px; background: rgba(255,255,255,.28); border-radius: 16px; text-shadow: none; }
+.wc-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; line-height: 1.1; }
+.wc-kicker { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .6px; opacity: .92; }
+.wc-title { font-size: 21px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wc-status { font-size: 13px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .97; }
+.wc-count { font-weight: 700; opacity: .9; }
+.wc-go { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: #0b6f66; font-size: 20px; text-shadow: none; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.weekly-card.locked .wc-go { color: #5d6880; font-size: 18px; }
+@media (max-height: 700px) { .weekly-card { min-height: 64px; } .wc-icon { width: 48px; height: 48px; font-size: 30px; } .wc-title { font-size: 19px; } }
+@media (max-height: 600px) {
+  .weekly-card { min-height: 54px; padding: 4px 10px 4px 6px; border-radius: 18px; }
+  .wc-icon { width: 42px; height: 42px; font-size: 26px; border-radius: 12px; }
+  .wc-kicker { font-size: 10px; } .wc-title { font-size: 17px; } .wc-status { font-size: 11px; }
+  .wc-go { width: 36px; height: 36px; font-size: 16px; }
+}
+
+/* hub */
+.weekly-screen { background: linear-gradient(180deg, #2ec4b6 0%, #8de8dc 55%, #fff3c4 100%); gap: 8px; }
+.weekly-screen .buddy-bar { flex: none; height: 92px; }
+.weekly-screen .bubble { font-size: 17px; }
+.wk-chips { display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; flex: none; padding: 4px 2px 8px; margin: 0 -8px; padding-left: 8px; padding-right: 8px;
+  -webkit-overflow-scrolling: touch; touch-action: pan-x; scrollbar-width: none; }
+.wk-chips::-webkit-scrollbar { display: none; }
+.wk-chip { appearance: none; border: 0; flex: none; width: 56px; height: 56px; border-radius: 16px; background: rgba(255,255,255,.75); font-size: 22px; font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; gap: 2px; box-shadow: 0 3px 0 rgba(0,0,0,.15); cursor: pointer; color: var(--ink); }
+.wk-chip span { font-size: 12px; font-weight: 900; }
+.wk-chip.on { background: #fff; outline: 3px solid #ffd21f; }
+.wk-chip.locked { background: rgba(255,255,255,.35); color: rgba(35,38,74,.6); font-size: 18px; }
+.wk-chip.done { background: #fff6c9; }
+.wk-chip.now span::after { content: " ★"; color: #f59f00; }
+.wk-head { flex: none; background: rgba(255,255,255,.92); border-radius: 20px; padding: 10px 14px; box-shadow: 0 4px 0 rgba(0,0,0,.1); display: flex; flex-direction: column; gap: 6px; }
+.wk-blurb { font-size: 17px; font-weight: 800; line-height: 1.25; }
+.wk-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; color: #0b6f66; }
+.wk-stars { display: inline-flex; align-items: center; gap: 4px; }
+.wk-stars .star-svg { width: 18px; height: 18px; }
+.wk-path { position: relative; flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; display: flex; flex-direction: column; gap: 10px; padding: 4px 2px 8px; }
+.wk-node { --c1: #ffd35c; --c2: #ff9f1c; --c3: #b56a00; width: 100%; min-height: 64px; flex: none; justify-content: flex-start; gap: 12px; padding: 6px 12px 6px 8px; text-align: left; border-radius: 20px; }
+.wk-node.done { --c1: #7ff08f; --c2: #2cbf55; --c3: #178a3a; }
+.wk-node.locked { --c1: #d5dbe6; --c2: #a9b3c6; --c3: #7b869c; }
+.wk-node.current { animation: nodePulse 1.4s ease-in-out infinite; }
+.wn-num { flex: none; width: 46px; height: 46px; border-radius: 50%; background: #fff; color: var(--ink); text-shadow: none; display: grid; place-items: center; font-size: 22px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
+.wk-node.locked .wn-num { font-size: 18px; background: rgba(255,255,255,.7); }
+.wn-text { flex: 1; min-width: 0; line-height: 1.1; }
+.wn-title { font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wn-world { font-size: 13px; font-weight: 800; opacity: .95; }
+.wn-stars { flex: none; background: #fff; border-radius: 12px; padding: 3px 5px; }
+.wn-stars .star-svg { width: 16px; height: 16px; }
+.wn-arrow { flex: none; font-size: 18px; width: 20px; text-align: center; }
+.wk-start { flex: none; width: 100%; max-width: 440px; align-self: center; }
+@media (max-height: 600px) {
+  .weekly-screen { gap: 6px; }
+  .weekly-screen .buddy-bar { height: 80px; }
+  .weekly-screen .bubble { font-size: 15px; padding: 7px 44px 7px 12px; }
+  .wk-chip { width: 48px; height: 48px; font-size: 19px; }
+  .wk-head { padding: 6px 10px; gap: 2px; } .wk-blurb { font-size: 14px; } .wk-meta { font-size: 12px; }
+  .wk-node { min-height: 54px; } .wn-num { width: 38px; height: 38px; font-size: 18px; } .wn-title { font-size: 17px; }
+  .wk-start.btn.huge { min-height: 58px; font-size: 24px; }
+}
+/* level screen of a weekly step: a little teal badge on the level number */
+.weekly-level .lvl-num { min-width: 48px; padding: 0 6px; background: #d6fff7; }

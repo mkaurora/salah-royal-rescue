@@ -70,3 +70,11 @@ The Practice Room is unchanged apart from voice: 10 challenges plus free play.
 - After adding clips, run `node tools/build-voice-manifest.js` and `node tools/build-sw.js`, then bump the `sw.js` cache name before shipping.
 - On a few levels, the Robot program strip still scrolls on iPhone SE when the program is long (same behaviour as v1).
 - Construction level 5's tutorial walks through the foundation and walls, then lets Salah finish the house himself. This is by design.
+
+## Voice clip generation (post-build, run by the CodeLab watch routine)
+- [ ] Generate ElevenLabs clips for all 614 lines in `audio/voice/lines.json` -> `audio/voice/<id>.mp3` (0 of 614 done)
+- [ ] build-voice-manifest + build-sw, 0 missing, tests + e2e rerun, commit
+- [ ] 3 samples copied to /workspace/little-engineer-voice-samples/
+- STATUS: BLOCKED (2026-10-18 13:55 Morocco time). There aren't enough ElevenLabs credits. On 18 Oct 13:55 the connector said: "This request exceeds your quota of 10000. You have 213 credits remaining, while 310 credits are required for this request." eleven_v4 costs 1 credit per character, tags included. All 614 lines come to about 33,400 credits as plain text, or about 44,500 with a `[warmly] [slowly]` prefix on each line. Nothing was generated and no credits were spent. No worker is running and the lock was deleted.
+- Planned settings for when credits are available: model eleven_v4, one voice for every line (candidate: "W. Oxley Kids' Storyteller", id kAXSxs17BYwCxcleeuLV, a gentle American voice in the style of Mr. Rogers), generations_count 1. The connector has no speed setting for tts, so slow the speech with a `[warmly] [slowly]` tag prefix, or use plain text plus ffmpeg `atempo=0.88` (pitch is kept), then save as mono 64 kbps mp3.
+- Note: /workspace/little-engineer-v2/tts/clips/ holds 72 clips from this morning's attempt. They use the voice "Nikki" (yhFUAoS32gPDJFQHbH68) on eleven_multilingual_v2 at normal speed, and 70 of them match current ids. They were NOT used, because mixing them in would break the one-voice, slower requirement.

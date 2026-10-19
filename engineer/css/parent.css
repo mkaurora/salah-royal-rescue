@@ -1,0 +1,79 @@
+/* v3: menu gear hold ring, PIN pad + adult gate, parent panel (plain grown-up style, not the kid look). */
+
+/* gear: tap = kid settings, hold 3 s = parents */
+.gear { position: relative; width: 52px; height: 52px; flex: none; }
+.gear .btn { position: relative; z-index: 1; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; }
+.tap5 { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.gear-ring { position: absolute; inset: -7px; width: 66px; height: 66px; pointer-events: none; transform: rotate(-90deg); opacity: 0; transition: opacity .2s; z-index: 2; }
+.gear-ring circle { fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 220; stroke-dashoffset: 220; filter: drop-shadow(0 0 2px rgba(0,0,0,.35)); }
+.gear.holding .gear-ring { opacity: 1; }
+.gear.holding .gear-ring circle { stroke-dashoffset: 0; transition: stroke-dashoffset 3s linear; }
+@media (max-height: 600px) { .gear { width: 46px; height: 46px; } .gear-ring { inset: -7px; width: 60px; height: 60px; } }
+
+/* PIN pad + gate (inside the normal overlay card) */
+.pin-overlay .overlay-card { max-width: 330px; gap: 8px; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.pin-overlay h2 { font-size: 22px; }
+.pin-dots { display: flex; justify-content: center; gap: 16px; margin: 6px 0 2px; }
+.pin-dots i { width: 18px; height: 18px; border-radius: 50%; border: 3px solid #3b5bdb; }
+.pin-dots i.on { background: #3b5bdb; }
+.pin-dots.shake { animation: pinShake .35s; }
+@keyframes pinShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.pin-msg { min-height: 20px; font-size: 15px; font-weight: 700; color: #c22348; }
+.pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pin-pad button { appearance: none; border: 0; min-height: 56px; border-radius: 14px; background: #eef1fb; font-size: 24px; font-weight: 800; color: #1f2333; box-shadow: 0 3px 0 #cfd6ee; cursor: pointer; }
+.pin-pad button:active { transform: translateY(2px); box-shadow: none; }
+.gate-q { font-size: 26px; font-weight: 900; margin: 6px 0; }
+.gate-input { width: 100%; height: 56px; border-radius: 14px; border: 2px solid #c5cdea; font-size: 26px; text-align: center; font-weight: 800; font-family: inherit; -webkit-user-select: text; user-select: text; }
+
+/* shared adult controls */
+.a-btn { appearance: none; border: 0; min-height: 44px; padding: 0 14px; border-radius: 10px; background: #eef1fb; color: #2c3a8c; font-size: 15px; font-weight: 700; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; cursor: pointer; }
+.a-btn.primary { background: #3b5bdb; color: #fff; }
+.a-btn.danger { background: #ffe8ec; color: #c22348; }
+.a-btn.link { background: none; color: #3b5bdb; text-decoration: underline; min-height: 44px; }
+.a-btn.small { min-height: 38px; padding: 0 10px; font-size: 14px; }
+.a-btn:active { filter: brightness(.92); }
+.a-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.a-row.center { justify-content: center; }
+.a-note { font-size: 13px; color: #6b7088; margin: 2px 0 6px; line-height: 1.35; }
+
+/* panel screen */
+.parent-screen { background: #f4f5f9; color: #1f2333; padding-left: 0; padding-right: 0; padding-bottom: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.parent-screen input, .parent-screen textarea { -webkit-user-select: text; user-select: text; }
+.admin-head { display: flex; align-items: center; gap: 10px; padding: 4px calc(var(--sar) + 14px) 8px calc(var(--sal) + 14px); flex: none; }
+.admin-head h1 { flex: 1; margin: 0; font-size: 20px; font-weight: 800; }
+.admin-tabs { display: flex; gap: 4px; padding: 0 calc(var(--sar) + 10px) 0 calc(var(--sal) + 10px); border-bottom: 1px solid #dde0ea; flex: none; }
+.admin-tabs button { appearance: none; background: none; border: 0; border-bottom: 3px solid transparent; flex: 1 0 auto; padding: 10px 6px; min-height: 46px; font-size: 15px; font-weight: 700; color: #5b6075; font-family: inherit; cursor: pointer; }
+.admin-tabs button.on { color: #3b5bdb; border-bottom-color: #3b5bdb; }
+.admin-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y;
+  padding: 12px calc(var(--sar) + 12px) calc(var(--sab) + 28px) calc(var(--sal) + 12px); }
+.a-card { background: #fff; border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(20,30,60,.08); }
+.a-card h3 { margin: 0 0 6px; font-size: 16px; }
+.a-sub { margin: 14px 0 6px !important; font-size: 15px !important; }
+.a-ok { background: #e7f7ec; color: #17693a; font-weight: 700; }
+.a-seg { display: flex; background: #eef1fb; border-radius: 10px; padding: 3px; gap: 2px; }
+.a-seg button { appearance: none; border: 0; background: none; flex: 1; min-height: 40px; padding: 0 6px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #4b5170; font-family: inherit; cursor: pointer; }
+.a-seg button.on { background: #fff; color: #3b5bdb; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.world-seg { margin-bottom: 12px; flex-wrap: wrap; }
+.world-seg button { flex: 1 0 30%; }
+.lv-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "name open" "stars stars"; gap: 6px 8px; align-items: center; padding: 8px 0; border-top: 1px solid #eef0f6; }
+.lv-row:first-of-type { border-top: 0; }
+.lv-name { grid-area: name; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-name b { display: inline-block; min-width: 24px; color: #3b5bdb; }
+.lv-row.locked .lv-name { color: #8a8fa3; }
+.lv-open { grid-area: open; font-size: 12px; font-weight: 700; color: #17693a; background: #e7f7ec; border-radius: 8px; padding: 3px 8px; }
+.lv-row .unlock-level { grid-area: open; }
+.star-seg { grid-area: stars; }
+.star-seg button { min-height: 38px; font-size: 14px; }
+.wk-steps { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.wk-step { appearance: none; border: 1px solid #dde0ea; background: #fff; border-radius: 10px; min-height: 40px; padding: 0 10px; font-size: 13px; font-weight: 600; color: #4b5170; font-family: inherit; cursor: pointer; }
+.wk-step.on { background: #e7f7ec; border-color: #9fd9b2; color: #17693a; }
+.a-input { width: 96px; height: 44px; border-radius: 10px; border: 1px solid #c5cdea; font-size: 18px; text-align: center; font-family: inherit; }
+.a-code { width: 100%; border-radius: 10px; border: 1px solid #c5cdea; padding: 8px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; word-break: break-all; resize: none; margin-bottom: 8px; }
+.a-foot { text-align: center; font-size: 12px; color: #9aa0b5; padding: 8px 0 16px; }
+.a-confirm { position: fixed; inset: 0; z-index: 90; background: rgba(10,15,40,.45); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1f2333; }
+.a-confirm .a-card { max-width: 340px; width: 100%; }
+.a-toast { position: fixed; left: 50%; bottom: calc(var(--sab) + 24px); transform: translateX(-50%); z-index: 95; background: #1f2333; color: #fff; padding: 10px 16px; border-radius: 12px; font: 600 14px system-ui, -apple-system, sans-serif; box-shadow: 0 6px 20px rgba(0,0,0,.3); max-width: 90vw; text-align: center; }
+
+/* Settings panel: dedicated Parents button (works when hold / 5 taps don't) + version label */
+.overlay.settings .parents-btn { font-size: 19px; }
+.app-version { margin-top: 2px; font-size: 13px; font-weight: 700; color: #8a93a8; text-align: center; }

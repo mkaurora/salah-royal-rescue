@@ -118,12 +118,18 @@ async function runBrowser(browserType, name, device) {
           await shot(w.shot);
           await page.tap('.go-btn');
         } else {
-          // Ask the buddy: "Show me" demonstrates the solution through the real UI code path.
+          // Ask the buddy: "Show me" demonstrates the solution (no stars, then the level goes back to the start),
+          // then the stored solution is built through the same UI code paths and Go is pressed.
           await page.tap('.buddy-char');
           await page.waitForSelector('.showme-btn', { state: 'visible' });
           await page.tap('.showme-btn');
           await page.waitForTimeout(300);
           await waitDemoDone(page);
+          const demo = await page.evaluate(() => LE.activeLevel.lastDemo);
+          if (!demo || !demo.solved) throw new Error('demo did not solve: ' + JSON.stringify(demo));
+          const demoStars = await page.evaluate((id) => (JSON.parse(localStorage.getItem('littleEngineerSave')).stars[id] || [])[0] || 0, w.id);
+          if (demoStars) throw new Error('the demo gave stars');
+          await page.evaluate(() => LE.activeLevel.solve());
           await page.waitForTimeout(400);
           const noGo = await page.evaluate(() => !!(LE.activeLevel.inst && LE.activeLevel.inst.noGo));
           if (noGo) {
@@ -247,11 +253,11 @@ async function runBrowser(browserType, name, device) {
     });
 
     if (name === 'chromium') {
-      await check('service worker caches engineer-v2 and the game works offline', async () => {
+      await check('service worker caches engineer-v3 and the game works offline', async () => {
         await page.evaluate(() => navigator.serviceWorker.ready);
-        await page.waitForFunction(async () => (await caches.keys()).includes('engineer-v2'), null, { timeout: 15000 });
+        await page.waitForFunction(async () => (await caches.keys()).some((k) => k.indexOf('engineer-v3-') === 0), null, { timeout: 15000 });
         await page.waitForFunction(async () => {
-          const c = await caches.open('engineer-v2');
+          const c = await caches.open((await caches.keys()).find((k) => k.indexOf('engineer-v3-') === 0));
           return (await c.keys()).length > 20;
         }, null, { timeout: 15000 });
         await context.setOffline(true);
@@ -362,9 +368,9 @@ async function voiceCheck() {
         LE.app.openLevel('bridges', 2, { fresh: true });
       });
       await page.waitForSelector('.bubble.show', { timeout: 8000 });
-      await page.evaluate(() => { window.__overlap = []; window.__lines = []; LE.activeLevel.showMe(); });
-      await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 90000 });
-      await page.waitForFunction(() => /Tap Go/.test(document.querySelector('.bubble-text').textContent), null, { timeout: 15000 });
+      await page.evaluate(() => { window.__overlap = []; window.__lines = []; LE.showMeForce = true; LE.activeLevel.showMe(); });
+      await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 120000 });
+      await page.waitForFunction(() => /your turn/i.test(document.querySelector('.bubble-text').textContent), null, { timeout: 15000 });
       const r = await page.evaluate(() => ({ overlap: window.__overlap, lines: window.__lines }));
       if (r.lines.length < 3) throw new Error('too few lines: ' + r.lines.join(' / '));
       if (r.overlap.length) throw new Error('started while a clip was playing: ' + r.overlap.join(' / '));

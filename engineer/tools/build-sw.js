@@ -3,11 +3,15 @@
  * for the menu / common lines and the first 3 levels of each world. All other clips are cached at runtime. */
 'use strict';
 const fs = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const SKIP = new Set(['node_modules', '.git', 'test', 'e2e', 'tools', 'docs']);
 const SKIP_FILES = new Set(['package.json', 'package-lock.json', 'README.md', 'SPEC.md', 'V2_PROGRESS.md', '.gitignore', 'sw.js',
   'audio/voice/lines.json']);
+// js/vendor/ (the Ask Helper SDK, ~3 MB) is loaded only when the helper is used and needs the network anyway:
+// not precached (the service worker caches it at runtime after the first use).
+const SKIP_DIRS = /^js\/vendor\//;
 const WORLDS = ['bridges', 'machines', 'circuits', 'robot', 'construction'];
 const PRECACHE_LEVELS = 3;
 
@@ -18,7 +22,7 @@ function appFiles() {
     fs.readdirSync(dir, { withFileTypes: true }).forEach((d) => {
       const r = rel ? rel + '/' + d.name : d.name;
       if (d.isDirectory()) { if (!SKIP.has(d.name)) walk(path.join(dir, d.name), r); }
-      else if (!SKIP_FILES.has(r) && !d.name.startsWith('.') && !/^audio\/voice\/.*\.mp3$/.test(r)) out.push(r);
+      else if (!SKIP_FILES.has(r) && !SKIP_DIRS.test(r) && !d.name.startsWith('.') && !/\.md$/.test(r) && !/^audio\/voice\/.*\.mp3$/.test(r)) out.push(r);
     });
   })(ROOT, '');
   return out.sort();
@@ -39,15 +43,29 @@ function precacheList() {
   return ['./'].concat(appFiles().map((f) => './' + f), precacheClips().map((f) => './' + f));
 }
 
+function buildStamp(list) {
+  const h = crypto.createHash('sha256');
+  list.forEach((f) => {
+    const rel = f === './' ? 'index.html' : f.slice(2);
+    h.update(rel + '\0'); h.update(fs.readFileSync(path.join(ROOT, rel))); h.update('\0');
+  });
+  return h.digest('hex').slice(0, 10);
+}
+
 function build() {
   const list = precacheList();
   const swPath = path.join(ROOT, 'sw.js');
   const src = fs.readFileSync(swPath, 'utf8');
   const next = src.replace(/\/\* PRECACHE:START \*\/[\s\S]*?\/\* PRECACHE:END \*\//,
     '/* PRECACHE:START */\n' + list.map((f) => "  '" + f + "'").join(',\n') + '\n  /* PRECACHE:END */');
-  fs.writeFileSync(swPath, next);
+  // Build stamp = hash of every precached file: any change to the game changes sw.js, so phones see a new version.
+  const stamp = buildStamp(list);
+  const stamped = next.replace(/var BUILD = '[^']*';/, "var BUILD = '" + stamp + "';");
+  if (stamped === next && !/var BUILD = '/.test(next)) throw new Error('sw.js has no BUILD line');
+  fs.writeFileSync(swPath, stamped);
+  build.stamp = stamp;
   return list;
 }
 
-module.exports = { appFiles, precacheClips, precacheList, WORLDS };
-if (require.main === module) console.log('precache entries:', build().length, '(voice clips: ' + precacheClips().length + ')');
+module.exports = { appFiles, precacheClips, precacheList, buildStamp, WORLDS };
+if (require.main === module) { const n = build().length; console.log('precache entries:', n, '(voice clips: ' + precacheClips().length + '), build', build.stamp); }

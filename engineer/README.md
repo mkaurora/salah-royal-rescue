@@ -1,7 +1,7 @@
 # Salah's Little Engineer
 
 An iPhone-first, installable, fully offline kids' game (age ~7) about engineering and coding.
-Plain HTML/CSS/JS — no build step, no frameworks, no CDN, no network calls.
+Plain HTML/CSS/JS — no build step, no frameworks, no CDN. The only network use is the optional *Ask Helper* voice chat (v3).
 
 **Worlds**
 
@@ -21,6 +21,24 @@ Every level has the robot buddy **Bolt** (speech bubble + read-aloud with pre-re
 shows a "Did you know?" fact. Progress, settings and the in-progress level are saved in `localStorage`
 (`littleEngineerSave`), so reopening the app resumes where Salah left off.
 
+## v3 (October 2026)
+
+- **This Week's Project**: 12 weekly Big Projects (59 steps, 4–6 each, built from the world mechanics) in `js/data/weekly-projects.js`.
+  Week n opens automatically on Monday 2026-10-19 (00:00 UTC) + n weeks (`js/logic/weekly.js`); the menu card shows the project and a countdown.
+- **Parent mode**: hold the menu gear for 3 s (touchstart / touchend, 40 px move tolerance; mouse hold on a computer), or tap the
+  title or a map star counter 5 times within 3 s → PIN pad (default **1994**, "Forgot PIN?" math gate). Progress / Weekly / Settings tabs:
+  unlock levels or weeks early, set stars, reset, Show Me always on, Ask Helper on/off, change PIN, transfer code.
+- **Read, then Go**: after the narration the board waits for a big **Go ▶**; 🔊 replays the lines.
+- **Show me**: hint first; the button lights up after 2 failed tries or ~2 minutes (or always, from parent mode). The guided demo
+  (pointing hand + slow narration, Pause / ↻ Again / 👍 Let me try) is built from each level's stored solution, solves the level, then
+  resets it — no stars for a demo.
+- **Ask Helper** (🎤): push-to-talk voice chat with an ElevenLabs Conversational AI agent (public agent
+  `agent_9001m5ahkqp5fk9vnyheash2fpfb`, allowlisted to mkaurora.github.io + localhost, 3 min max, hints only). No API key in the
+  client; the SDK is vendored in `js/vendor/` and loaded on first use. Offline / failure → the buddy says the level hint.
+- **Update game**: Settings → 🔄 *Update game* checks for a new version (offline → "You're offline, try again later";
+  nothing new → "You have the latest version"; new → updates and reloads). The game also checks on load and when it becomes visible;
+  a new version waits and shows a small "New version! Tap to update" banner, and only that tap activates it (never mid-level).
+
 ## Run locally
 
 ```bash
@@ -29,7 +47,8 @@ npm run serve            # http://127.0.0.1:8080/salah-royal-rescue/engineer/
 (Any static server works; the app uses relative paths. The service worker needs http(s) or localhost.)
 
 Useful URL flags: `?menu=1` (start at the menu instead of resuming), `?fast=1` (fast animations, used by tests),
-`?nosw=1` (don't register the service worker while developing).
+`?nosw=1` (don't register the service worker while developing). v3 test flags: `?now=2026-10-28T10:00:00Z` (fake clock),
+`?showmegate=1` (Show me gating under `?fast=1`), `?readgo=1` (Read-then-Go gate under `?fast=1`).
 
 ## Tests
 
@@ -41,6 +60,9 @@ npm run e2e              # headless iPhone 13 emulation; screenshots -> /workspa
 npm run e2e:levels       # plays EVERY level of every world via "Show me" + Go (DEVICE="iPhone SE" for small screen); shots -> .../levels/
 E2E_ONLY=voice node e2e/run.js   # just the voice-clip checks (WebAudio clip vs speechSynthesis fallback, pacing)
 node e2e/shots-v2.js     # v2 screenshots -> /workspace/little-engineer-shots/v2/
+node e2e/v3.js           # v3: parent mode, weekly (fake clock), Read-then-Go, Ask Helper fallbacks, Show me, Update game
+                         #   (DEVICE="iPhone SE", E2E_ONLY=parent|weekly|readgo|helper|showme|update); shots -> /workspace/little-engineer-v3-shots/
+node tools/helper-smoke.js q.wav   # one real Ask Helper session (needs internet + ElevenLabs credits)
 ```
 
 ## Voice clips
@@ -53,11 +75,12 @@ The buddy speaks with pre-generated human-voice mp3 clips: `audio/voice/<key>.mp
 ```bash
 node tools/collect-voice-lines.js     # writes audio/voice/lines.json ([{id, text}] — every spoken line) + groups.json
                                       # (static extraction + a Playwright run that plays every level and records LE.speak)
-# … generate <id>.mp3 for every lines.json entry with your TTS tool, copy them into audio/voice/ …
+# generate missing clips (Kokoro am_michael, speed 0.8; skips existing): python tools/voice-tts/genall.py <shard> <nshards>
 node tools/build-voice-manifest.js    # writes manifest.json, reports missing clips and orphaned clips
 node tools/build-sw.js                # refreshes the service-worker precache list (shell + early clips)
 ```
-Bump the cache name in `sw.js` (`engineer-v2` → `engineer-v3`) when shipping new clips or code.
+`tools/build-sw.js` also writes a build stamp (hash of every precached file) into `sw.js` (cache `engineer-v3-<stamp>`), so any
+change to the game makes phones see a new version. Always run it before shipping.
 
 `npm test` verifies that **every level in every world has a stored solution that solves it through the real
 logic** (bridge truss solver, machine simulation, circuit solver, robot interpreter) and earns 3 stars, that
