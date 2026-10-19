@@ -1,4 +1,4 @@
-/* Parent area: PIN pad (default 1234), "Forgot PIN?" adult math gate, and the tabbed admin panel
+/* Parent area: PIN pad (default 1994), "Forgot PIN?" adult math gate, and the tabbed admin panel
  * (Levels · Questions · Settings · Report · Transfer). Adult styling, works on iPhone SE. */
 (function () {
   'use strict';
