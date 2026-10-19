@@ -1705,11 +1705,21 @@ let admin=loadAdmin(k=>localStorage.getItem(k));
 function persistAdmin(){try{localStorage.setItem(ADMIN_KEY,JSON.stringify(admin))}catch(e){}}
 let lpSwallow=false;
 document.addEventListener('click',e=>{if(lpSwallow){lpSwallow=false;e.stopPropagation();e.preventDefault()}},true);
-function longPress(el,ms,fn){let t=0;
+function longPress(el,ms,fn){let t=0,sx=0,sy=0;
   const stop=()=>{if(t){clearTimeout(t);t=0}};
-  el.addEventListener('pointerdown',()=>{stop();lpSwallow=false;t=setTimeout(()=>{t=0;lpSwallow=true;setTimeout(()=>{lpSwallow=false},800);fn()},ms)});
-  ['pointerup','pointercancel','pointerleave'].forEach(k=>el.addEventListener(k,stop));
+  const begin=(x,y)=>{stop();sx=x;sy=y;lpSwallow=false;t=setTimeout(()=>{t=0;lpSwallow=true;setTimeout(()=>{lpSwallow=false},800);fn()},ms)};
+  const moved=(x,y)=>{if(Math.hypot(x-sx,y-sy)>40)stop()};
+  el.style.webkitTouchCallout='none';el.style.webkitUserSelect='none';el.style.userSelect='none';
+  // iPhone: use touch events (pointerleave/pointercancel fire spuriously while the pressed button scales)
+  el.addEventListener('touchstart',e=>{const p=e.touches[0];begin(p.clientX,p.clientY)},{passive:true});
+  el.addEventListener('touchmove',e=>{const p=e.touches[0];moved(p.clientX,p.clientY)},{passive:true});
+  el.addEventListener('touchend',stop);
+  el.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')begin(e.clientX,e.clientY)});
+  el.addEventListener('pointermove',e=>{if(e.pointerType!=='touch'&&t)moved(e.clientX,e.clientY)});
+  el.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')stop()});
   el.addEventListener('contextmenu',e=>e.preventDefault())}
+// Backup way in: tap the star counter 5 times within 3 seconds
+function multiTap(el,n,fn){let c=0,first=0;el.style.cursor='default';el.addEventListener('click',()=>{const now=Date.now();if(now-first>3000){c=0;first=now}if(++c>=n){c=0;first=0;fn()}})}
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function openPin(){let val='';
   openOv(`<div class="panel" style="margin-top:40px" id="pinPanel"><div class="ribbon ttl">Grown-ups<span class="ar">للكبار فقط</span></div>
@@ -1787,6 +1797,7 @@ function drawAdmin(keepScroll){
 }
 longPress($('mHow'),3000,openPin);
 longPress($('tHow'),3000,openPin);
+multiTap(document.querySelector('#mapTop .stars'),5,openPin);
 
 addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(()=>{if($('game').classList.contains('on')&&g)layoutGame();if($('map').classList.contains('on')){const st=$('mapScroll').scrollTop;buildMap();$('mapScroll').scrollTop=st}},150)});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&g&&!g.busy&&!g.over)saveCur()});
