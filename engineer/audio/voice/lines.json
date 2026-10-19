@@ -1,5 +1,13 @@
 [
  {
+  "id": "b1885305",
+  "text": "A battery goes here."
+ },
+ {
+  "id": "0641a7b2",
+  "text": "A beam from bolt to bolt."
+ },
+ {
   "id": "3223d211",
   "text": "A belt can carry a box! Turn the belt on."
  },
@@ -16,6 +24,10 @@
   "text": "A big gear turns slowly. Put the BIG gear on the belt."
  },
  {
+  "id": "fbc11a9f",
+  "text": "A big rock is in the way!"
+ },
+ {
   "id": "b866e859",
   "text": "A big spiral full of gears. Grab them all!"
  },
@@ -24,8 +36,16 @@
   "text": "A boat sails under! Build up high, not down low."
  },
  {
+  "id": "ffd859b4",
+  "text": "A corner wire goes here."
+ },
+ {
   "id": "a1b57993",
   "text": "A corner wire turns the power round a bend. Drag one here!"
+ },
+ {
+  "id": "43ff499d",
+  "text": "A cross wire goes here."
  },
  {
   "id": "30f3d78c",
@@ -34,6 +54,10 @@
  {
   "id": "1bc73333",
   "text": "A heavy truck! Make a super strong bridge."
+ },
+ {
+  "id": "0e67b48c",
+  "text": "A lamp goes here."
  },
  {
   "id": "139bae76",
@@ -88,8 +112,16 @@
   "text": "A small gear spins faster than a big gear!"
  },
  {
+  "id": "9bff803f",
+  "text": "A straight wire goes here."
+ },
+ {
   "id": "1ec06751",
   "text": "A support from the low bolt. Then a triangle on top near the other side."
+ },
+ {
+  "id": "54b805e1",
+  "text": "A T wire goes here."
  },
  {
   "id": "f86f2ffc",
@@ -126,6 +158,10 @@
  {
   "id": "9a32258f",
   "text": "A wider gap! Build the road and hold it up."
+ },
+ {
+  "id": "c2ebe542",
+  "text": "A window."
  },
  {
   "id": "e7e4375a",
@@ -196,6 +232,10 @@
   "text": "Big blocks go at the bottom!"
  },
  {
+  "id": "42e173b9",
+  "text": "Big blocks must go at the bottom."
+ },
+ {
   "id": "d75493f6",
   "text": "Big city! Fan FAST, house BRIGHT. Shh, one house sleeps!"
  },
@@ -210,6 +250,10 @@
  {
   "id": "0499b9f2",
   "text": "Biggest at the bottom, smallest on top."
+ },
+ {
+  "id": "4fe2cd00",
+  "text": "Boats sail under this bridge."
  },
  {
   "id": "bbfa02b6",
@@ -236,6 +280,10 @@
   "text": "Build a bridge first! Drag from a bolt."
  },
  {
+  "id": "67d06e9a",
+  "text": "Build a bridge with few coins!"
+ },
+ {
   "id": "2b1f23b3",
   "text": "Build a little house!"
  },
@@ -260,6 +308,10 @@
   "text": "Build a tower of three blocks on the X!"
  },
  {
+  "id": "ed1e977d",
+  "text": "Build a tower of three on the X. Biggest at the bottom!"
+ },
+ {
   "id": "9d22a064",
   "text": "Build in Order. First the foundation, then the walls, then the door and windows. The roof goes on last!"
  },
@@ -270,6 +322,14 @@
  {
   "id": "4fcc33e7",
   "text": "Build the house with a strong roof!"
+ },
+ {
+  "id": "92ce1e1a",
+  "text": "Build the house with two windows!"
+ },
+ {
+  "id": "306b4ba5",
+  "text": "Build the road and hold it up!"
  },
  {
   "id": "fbdad239",
@@ -284,12 +344,24 @@
   "text": "Build the road. Then one support from each low bolt."
  },
  {
+  "id": "a4d55ed3",
+  "text": "Build the tower on the far X. Big, middle, small!"
+ },
+ {
   "id": "ecaf1e9a",
   "text": "Build the tower on the X. Big block at the bottom!"
  },
  {
   "id": "6ac74f26",
   "text": "Build the walls first!"
+ },
+ {
+  "id": "681ab868",
+  "text": "Build the workshop with one window!"
+ },
+ {
+  "id": "b2fc95ac",
+  "text": "Build up high, so the boat can pass below!"
  },
  {
   "id": "f95bd939",
@@ -300,8 +372,16 @@
   "text": "Bump the ball into the bucket to lift the box!"
  },
  {
+  "id": "ecbef17d",
+  "text": "Bye, helper! Back to building!"
+ },
+ {
   "id": "d35707ea",
   "text": "Cables pull. Tall towers hold the road up with beams that pull, like a swing on a tree."
+ },
+ {
+  "id": "787ff331",
+  "text": "Carry the yellow block first. Then red, then blue."
  },
  {
   "id": "d8357f2a",
@@ -314,6 +394,10 @@
  {
   "id": "08abc81d",
   "text": "Clear the road! Dirt in the hole, rock in the truck."
+ },
+ {
+  "id": "6e2dcbe0",
+  "text": "Climb the stairs to the flag!"
  },
  {
   "id": "2afadbff",
@@ -332,6 +416,10 @@
   "text": "Come back down to the other bolt. A triangle!"
  },
  {
+  "id": "48a46155",
+  "text": "Connect the motor to the belt with a gear!"
+ },
+ {
   "id": "cf30aad7",
   "text": "Corner wires. A corner wire turns the power round a bend."
  },
@@ -340,8 +428,20 @@
   "text": "Count the squares to the flag. 1, 2, 3, 4!"
  },
  {
+  "id": "8fd18ef3",
+  "text": "Count the squares. Six Forward blocks!"
+ },
+ {
   "id": "a77465c9",
   "text": "Count the steps to the flag: 1, 2, 3, 4!"
+ },
+ {
+  "id": "d8f289a6",
+  "text": "Count the steps to the flag. Four Forward blocks!"
+ },
+ {
+  "id": "09ce96bc",
+  "text": "Crane first. A tall house needs the wide foundation."
  },
  {
   "id": "9477d470",
@@ -868,6 +968,10 @@
   "text": "Dirt goes in the holes!"
  },
  {
+  "id": "5f5e8cdc",
+  "text": "Down!"
+ },
+ {
   "id": "130f9b70",
   "text": "Drag a Forward block into the program!"
  },
@@ -916,6 +1020,10 @@
   "text": "Drag the wire into the empty square."
  },
  {
+  "id": "addf99ac",
+  "text": "Drive all the way across the long bridge!"
+ },
+ {
   "id": "70ea334a",
   "text": "Drive Anywhere. The arrows drive the bulldozer up, down, left and right. It pushes whatever is in front!"
  },
@@ -926,6 +1034,18 @@
  {
   "id": "4a0c5807",
   "text": "Drive right one step. Then tap down."
+ },
+ {
+  "id": "d90dc1d6",
+  "text": "Drive Robo into the workshop to the flag!"
+ },
+ {
+  "id": "5ffee72e",
+  "text": "Drive round the pond and grab the gears!"
+ },
+ {
+  "id": "87f5850e",
+  "text": "Drive, turn left, and climb to the flag!"
  },
  {
   "id": "2e5b3027",
@@ -956,6 +1076,10 @@
   "text": "Erase and swap. Tap Erase, then tap a beam to take it away. Now you can build a better one!"
  },
  {
+  "id": "84d951f3",
+  "text": "Every package is delivered! Robo says thank you!"
+ },
+ {
   "id": "165dff7e",
   "text": "Fill both empty pegs so the gears all touch."
  },
@@ -966,6 +1090,10 @@
  {
   "id": "3d0bbba0",
   "text": "Fill both holes with the bulldozer. Then build from the bottom up."
+ },
+ {
+  "id": "2f7e46ff",
+  "text": "Fill the gap in the wire to light the house!"
  },
  {
   "id": "9825459f",
@@ -1000,6 +1128,10 @@
   "text": "Find the pattern. Look for a part that happens again. Put that part inside a Repeat!"
  },
  {
+  "id": "79b22305",
+  "text": "Finish the step before this one first!"
+ },
+ {
   "id": "821cbb5c",
   "text": "Finish the wire on the right. Then turn on only the right switch."
  },
@@ -1016,12 +1148,20 @@
   "text": "First the road. Drag to the middle dot!"
  },
  {
+  "id": "1c6763df",
+  "text": "First, a flat plot for the workshop."
+ },
+ {
   "id": "a08d4b8c",
   "text": "First, drag the wire into the gap."
  },
  {
   "id": "c2b5ef56",
   "text": "First, let's start fresh."
+ },
+ {
+  "id": "8b14a572",
+  "text": "First, the little house at the edge of town."
  },
  {
   "id": "97c541f1",
@@ -1048,8 +1188,20 @@
   "text": "Forward, Left, Forward, Right inside a forever Repeat."
  },
  {
+  "id": "2d95d4e1",
+  "text": "Forward!"
+ },
+ {
   "id": "354e9cf1",
   "text": "Foundation first. Then walls, then the door. Roof last!"
+ },
+ {
+  "id": "9765f98e",
+  "text": "Foundation, walls, door and window. Then the roof."
+ },
+ {
+  "id": "2cb2054b",
+  "text": "Foundation, walls, door, windows. The roof goes on last!"
  },
  {
   "id": "0fde1235",
@@ -1096,8 +1248,20 @@
   "text": "Go all the way along the bottom first. Then Turn Left and go up."
  },
  {
+  "id": "eb998df2",
+  "text": "Go around the rock to push the dirt first. Then push the rock right."
+ },
+ {
   "id": "9356e05f",
   "text": "Go down from the battery, then turn the corner."
+ },
+ {
+  "id": "f7018d4c",
+  "text": "Go down with Turn Right. At the bottom, Turn Right again."
+ },
+ {
+  "id": "4fddcac3",
+  "text": "Go round three sides of the track to the flag!"
  },
  {
   "id": "816c00c4",
@@ -1106,6 +1270,10 @@
  {
   "id": "105d34e1",
   "text": "Good try! Let's fix it together."
+ },
+ {
+  "id": "e58cf60f",
+  "text": "Grab both packages on the way to the flag!"
  },
  {
   "id": "5ce70953",
@@ -1126,6 +1294,22 @@
  {
   "id": "2eb89c6e",
   "text": "Grab the gears! Walk over a gear to grab it. Grab them all for an extra star!"
+ },
+ {
+  "id": "767538c8",
+  "text": "Grab the kit, cross the bridge and reach the flag!"
+ },
+ {
+  "id": "19fdfbe8",
+  "text": "Grab the package and drive to the flag!"
+ },
+ {
+  "id": "7a6ccb71",
+  "text": "Grab the package, then turn to the flag!"
+ },
+ {
+  "id": "3e9957f2",
+  "text": "Grab, move right two times, then drop."
  },
  {
   "id": "f5b754be",
@@ -1152,6 +1336,10 @@
   "text": "Hang the pulley wheel on the hook."
  },
  {
+  "id": "d793e532",
+  "text": "Hang the road from the towers!"
+ },
+ {
   "id": "5a025d1d",
   "text": "Heavy loads. Green is easy. Red is working too hard! Add more beams to share the load."
  },
@@ -1168,6 +1356,14 @@
   "text": "Help the car cross the gap! Build a road."
  },
  {
+  "id": "5e099ae7",
+  "text": "Help! The rescue team must cross the river. This week we build strong bridges."
+ },
+ {
+  "id": "03ac3dff",
+  "text": "Here comes a big U-turn!"
+ },
+ {
   "id": "18d6e84a",
   "text": "Here is a hint!"
  },
@@ -1182,6 +1378,14 @@
  {
   "id": "7cc69d74",
   "text": "Hooray! You did it!"
+ },
+ {
+  "id": "d5f62d3a",
+  "text": "Houses need light switches."
+ },
+ {
+  "id": "8054ce7c",
+  "text": "I can't reach the helper right now. Here is a hint!"
  },
  {
   "id": "be705010",
@@ -1204,12 +1408,20 @@
   "text": "Inside a Repeat 8: put If wall Turn Right, then Forward."
  },
  {
+  "id": "ff064b98",
+  "text": "It is hot in the park. Let's add a fan!"
+ },
+ {
   "id": "158efe2f",
   "text": "It slopes the wrong way! Tap the ramp to flip it."
  },
  {
   "id": "3b7b6883",
   "text": "It stopped before the goal. Almost! Try again!"
+ },
+ {
+  "id": "723002d9",
+  "text": "Launch the box up to the star with the seesaw!"
  },
  {
   "id": "a89fb1d2",
@@ -1220,12 +1432,36 @@
   "text": "Launch the box, then help it roll to the star!"
  },
  {
+  "id": "1cf20383",
+  "text": "Left!"
+ },
+ {
+  "id": "5eaa9dda",
+  "text": "Let's learn the crane."
+ },
+ {
+  "id": "86a714a7",
+  "text": "Let's make the tower taller!"
+ },
+ {
   "id": "05a3ba86",
   "text": "Let's start fresh."
  },
  {
+  "id": "b35fde24",
+  "text": "Let's try a hint first!"
+ },
+ {
   "id": "080299a0",
   "text": "Levers. A lever is a plank on a pivot. Push one end down and the other end goes UP!"
+ },
+ {
+  "id": "0e758dc9",
+  "text": "Lift the big bricks first. Then put the little box on top."
+ },
+ {
+  "id": "1bb162d8",
+  "text": "Lift the box up to the star with a pulley!"
  },
  {
   "id": "6d2b1aac",
@@ -1236,8 +1472,16 @@
   "text": "Lift the bricks to the plot. Then build!"
  },
  {
+  "id": "90b5f918",
+  "text": "Lift the bricks, then build a tall dream house!"
+ },
+ {
   "id": "69674859",
   "text": "Lift the steel beam onto the X!"
+ },
+ {
+  "id": "0c83dafa",
+  "text": "Lift the yellow block onto the X!"
  },
  {
   "id": "2b6e3c32",
@@ -1284,6 +1528,14 @@
   "text": "Make a loop! Power goes out of the battery, round the wires, and back again. No gaps allowed!"
  },
  {
+  "id": "0760ed5f",
+  "text": "Make a super strong bridge for the truck!"
+ },
+ {
+  "id": "1a96cf91",
+  "text": "Make a triangle on top of the road!"
+ },
+ {
   "id": "720c3db2",
   "text": "Make all three houses BRIGHT!"
  },
@@ -1300,12 +1552,24 @@
   "text": "Make one high point. Connect it to both bolts and to the road dots."
  },
  {
+  "id": "8ae9b626",
+  "text": "Make the belt go fast so the ball can jump!"
+ },
+ {
   "id": "59f637f6",
   "text": "Make the belt go left AND fast!"
  },
  {
+  "id": "75a023b5",
+  "text": "Make the belt go LEFT!"
+ },
+ {
   "id": "f75397af",
   "text": "Make the fan FAST and both houses BRIGHT!"
+ },
+ {
+  "id": "3dc048ee",
+  "text": "Make the fan in the park spin!"
  },
  {
   "id": "c9d47186",
@@ -1340,6 +1604,10 @@
   "text": "Move it to the X. Tap right three times!"
  },
  {
+  "id": "581eccc4",
+  "text": "Move the little blue block out of the way. Then lift the big one."
+ },
+ {
   "id": "281e4611",
   "text": "Move the little box off the X first. Then lift the bricks."
  },
@@ -1360,8 +1628,16 @@
   "text": "Nice try! Change one thing and try again."
  },
  {
+  "id": "79d06310",
+  "text": "Night is falling on the city. This week we light it up the clever way."
+ },
+ {
   "id": "8ddc05ee",
   "text": "No low bolts here! Make a triangle on top."
+ },
+ {
+  "id": "65940ca6",
+  "text": "No low bolts here. We need a roof!"
  },
  {
   "id": "6512154e",
@@ -1370,6 +1646,14 @@
  {
   "id": "9995e362",
   "text": "Nothing to grab here!"
+ },
+ {
+  "id": "f1e4a078",
+  "text": "Now a lap round the pond!"
+ },
+ {
+  "id": "5740a578",
+  "text": "Now build the workshop!"
  },
  {
   "id": "140ac680",
@@ -1386,6 +1670,10 @@
  {
   "id": "8acd2f16",
   "text": "Now go up! Drag from the bolt to the high dot."
+ },
+ {
+  "id": "0937347d",
+  "text": "Now it is your turn. Build it yourself!"
  },
  {
   "id": "a3dadcef",
@@ -1408,8 +1696,36 @@
   "text": "Now tap Play to run it!"
  },
  {
+  "id": "46ab476f",
+  "text": "Now the belt carries boxes."
+ },
+ {
   "id": "4a670737",
   "text": "Now the gears touch. Tap Go!"
+ },
+ {
+  "id": "cabbe0f7",
+  "text": "Now the street lamps, so people can see at night."
+ },
+ {
+  "id": "ae8b6475",
+  "text": "Now the walls."
+ },
+ {
+  "id": "85b591cc",
+  "text": "Now two blocks!"
+ },
+ {
+  "id": "32612016",
+  "text": "Now we build! Remember the order."
+ },
+ {
+  "id": "28706c4f",
+  "text": "Now we press Go!"
+ },
+ {
+  "id": "6adb92bb",
+  "text": "Now we press Play!"
  },
  {
   "id": "6e43df62",
@@ -1456,16 +1772,32 @@
   "text": "One more corner on the other side!"
  },
  {
+  "id": "bc3b2db4",
+  "text": "One more ship to load!"
+ },
+ {
   "id": "2b06d991",
   "text": "One more to take away!"
+ },
+ {
+  "id": "8e891da5",
+  "text": "One path made them dim. Let's make them bright!"
  },
  {
   "id": "4c663885",
   "text": "One rock in the middle. Keep the bridge balanced!"
  },
  {
+  "id": "eadd5b4e",
+  "text": "One side is: Forward, Forward, Forward, Turn Right. Repeat it 3 times!"
+ },
+ {
   "id": "bba41215",
   "text": "One stair is: Forward, Left, Forward, Right. Repeat it 3 times!"
+ },
+ {
+  "id": "ec6ec350",
+  "text": "One stair is: Forward, Turn Left, Forward, Turn Right. Repeat it!"
  },
  {
   "id": "e103f6e0",
@@ -1516,6 +1848,10 @@
   "text": "Pick the triangle roof. Triangles are strong!"
  },
  {
+  "id": "fb3e66c9",
+  "text": "Pick wood."
+ },
+ {
   "id": "3a5a704e",
   "text": "Pillars. A pillar is a strong rock or post in the river. It holds up the middle of the bridge."
  },
@@ -1540,12 +1876,36 @@
   "text": "Push each dirt pile down into a hole."
  },
  {
+  "id": "b14dd7b0",
+  "text": "Push the bottom dirt to the right first. Then go up and push the top dirt."
+ },
+ {
+  "id": "212a81fc",
+  "text": "Push the dirt into both holes!"
+ },
+ {
   "id": "b537e555",
   "text": "Push the dirt into the hole!"
  },
  {
+  "id": "6bf5b960",
+  "text": "Push the first dirt down. Then go round and push the other one down."
+ },
+ {
+  "id": "cadf4e91",
+  "text": "Push the rock into the truck and fill the hole!"
+ },
+ {
   "id": "b0cde172",
   "text": "Push the rock into the truck. Fill the hole!"
+ },
+ {
+  "id": "e1e1a81d",
+  "text": "Push the rock into the truck. Then fill the hole!"
+ },
+ {
+  "id": "d8985dc0",
+  "text": "Push the rock right, into the truck. Then push the dirt down."
  },
  {
   "id": "a41391f3",
@@ -1568,6 +1928,10 @@
   "text": "Put a T wire under each of the first two houses, and a corner at the end."
  },
  {
+  "id": "0668e5d9",
+  "text": "Put Forward inside a Repeat. Make it repeat 6 times."
+ },
+ {
   "id": "f91ced66",
   "text": "Put one corner in each top corner square."
  },
@@ -1584,8 +1948,16 @@
   "text": "Put the battery under the other battery, plus side up."
  },
  {
+  "id": "9d8c9bf7",
+  "text": "Put the big block down first, then the little one!"
+ },
+ {
   "id": "5e20fd82",
   "text": "Put the big yellow block down first. The red one goes on top."
+ },
+ {
+  "id": "099710ea",
+  "text": "Put the bricks on the X. The little box goes on top!"
  },
  {
   "id": "9c800fea",
@@ -1604,8 +1976,28 @@
   "text": "Put the seesaw under the box. The ball pushes the other end down."
  },
  {
+  "id": "0b9d5072",
+  "text": "Put the steel beam on the X, then the red box on top!"
+ },
+ {
   "id": "2b74f82b",
   "text": "Put the wedge right in front of the log, pointy side first."
+ },
+ {
+  "id": "fda2775f",
+  "text": "Put wheels on the box so it rolls to the star!"
+ },
+ {
+  "id": "16705ade",
+  "text": "Race along, turn round, and race back to the flag!"
+ },
+ {
+  "id": "2e084cf5",
+  "text": "Race day! This week Robo races. Repeat blocks make long programs short."
+ },
+ {
+  "id": "925ce756",
+  "text": "Race to the flag with a Repeat block!"
  },
  {
   "id": "8d901c10",
@@ -1622,6 +2014,10 @@
  {
   "id": "20813bc1",
   "text": "Repeat 2 times!"
+ },
+ {
+  "id": "f406b1fd",
+  "text": "Repeat 3 times: four Forward and Turn Right. Then two more Forward."
  },
  {
   "id": "f42362ac",
@@ -1672,12 +2068,32 @@
   "text": "Repeat forever. Tap the number until you see the infinity sign. Robo keeps going until it finds the flag!"
  },
  {
+  "id": "ccf8a99b",
+  "text": "Repeat Forward 5 times. Turn Right, two Forward, Turn Right. Then repeat Forward 5 times again."
+ },
+ {
   "id": "055fdbcd",
   "text": "Repeat. Repeat does the blocks inside it again and again. Tap the number to change it!"
  },
  {
+  "id": "11a10b8c",
+  "text": "Right!"
+ },
+ {
   "id": "6024f78b",
   "text": "Robo can check for walls! Turn only when a wall is ahead."
+ },
+ {
+  "id": "8d3878d6",
+  "text": "Robo can move in!"
+ },
+ {
+  "id": "6dd0a3ae",
+  "text": "Robo drives the rescue kit over the bridge."
+ },
+ {
+  "id": "a4c6c044",
+  "text": "Robo is a delivery robot this week! Grab each package and bring it to the flag."
  },
  {
   "id": "d489a68b",
@@ -1702,6 +2118,10 @@
  {
   "id": "308ce830",
   "text": "Robo walks too far at the start. Tap the first number and make it 3."
+ },
+ {
+  "id": "4f413390",
+  "text": "Robo won the race! You are a coding champion!"
  },
  {
   "id": "67f7e096",
@@ -1736,6 +2156,10 @@
   "text": "See the bolts? Drag a beam from bolt to bolt!"
  },
  {
+  "id": "d2323623",
+  "text": "See? It works!"
+ },
+ {
   "id": "ac556a7a",
   "text": "See? Now you try!"
  },
@@ -1748,8 +2172,16 @@
   "text": "Sharing the power. When two lights are on ONE path, they share the power. Both glow dim."
  },
  {
+  "id": "16d99cfd",
+  "text": "Shh! Someone is going to bed."
+ },
+ {
   "id": "e31eb9c2",
   "text": "Shh! The sleepy house woke up! Keep it dark."
+ },
+ {
+  "id": "4db7879b",
+  "text": "Ships are coming to the harbor! This week we load cargo and build bridges."
  },
  {
   "id": "410cb454",
@@ -1780,6 +2212,10 @@
   "text": "Stack both blocks on the X!"
  },
  {
+  "id": "2ccecb23",
+  "text": "Stack the cargo on the X. Biggest at the bottom!"
+ },
+ {
   "id": "d3a41bae",
   "text": "Start a chain reaction! Bump the balls to the basket."
  },
@@ -1792,6 +2228,10 @@
   "text": "Start the belt. Point the wedge at the log. Hang the pulley."
  },
  {
+  "id": "b521e1cc",
+  "text": "Steel beam first, it is the biggest. Then the red box."
+ },
+ {
   "id": "fec91557",
   "text": "Steel beams are extra strong. Try them!"
  },
@@ -1802,6 +2242,10 @@
  {
   "id": "5f2a2194",
   "text": "Steel for the strong parts!"
+ },
+ {
+  "id": "50bac815",
+  "text": "Steel is extra strong. Let's use it!"
  },
  {
   "id": "234c8c05",
@@ -1822,6 +2266,10 @@
  {
   "id": "4715a5f1",
   "text": "Strong! Tap Go!"
+ },
+ {
+  "id": "f15241ca",
+  "text": "Stuck? Now I can show you how!"
  },
  {
   "id": "a558e030",
@@ -1900,6 +2348,10 @@
   "text": "Tap the hook button to grab the beam!"
  },
  {
+  "id": "fee3e64f",
+  "text": "Tap the hook button!"
+ },
+ {
   "id": "532408b6",
   "text": "Tap the number"
  },
@@ -1964,12 +2416,20 @@
   "text": "The ball falls down here. Add the second ramp!"
  },
  {
+  "id": "fcac0140",
+  "text": "The ball has to jump a gap!"
+ },
+ {
   "id": "8682b8c4",
   "text": "The ball must jump the gap! Make the belt go fast."
  },
  {
   "id": "f308102b",
   "text": "The ball will drop here. Drag the ramp to the glowing spot!"
+ },
+ {
+  "id": "7d92a67d",
+  "text": "The barn is too hot. It needs a fan!"
  },
  {
   "id": "5ff61d2c",
@@ -1988,6 +2448,14 @@
   "text": "The belt must go LEFT. Which pegs need gears?"
  },
  {
+  "id": "d674186c",
+  "text": "The big finale! This week we build a super workshop for Robo."
+ },
+ {
+  "id": "93c728c6",
+  "text": "The big machine needs a whole gear train!"
+ },
+ {
   "id": "f59507ce",
   "text": "The biggest bridge of all! A truck is coming."
  },
@@ -2004,6 +2472,10 @@
   "text": "The bolts are deep down. Build an arch!"
  },
  {
+  "id": "27b1702d",
+  "text": "The box car has no wheels!"
+ },
+ {
   "id": "7ea5917f",
   "text": "The box is stuck. Help it roll to the star!"
  },
@@ -2012,12 +2484,36 @@
   "text": "The box is too heavy to slide. What helps things roll?"
  },
  {
+  "id": "92620b0b",
+  "text": "The bricks are here. Let's lift them with the crane!"
+ },
+ {
   "id": "8c22885b",
   "text": "The Bulldozer. A bulldozer pushes dirt with its big blade. Push dirt into holes to make the ground flat!"
  },
  {
   "id": "2ce6a769",
   "text": "The bus is back! Use the low bolts and the rock."
+ },
+ {
+  "id": "462b565a",
+  "text": "The car made it all the way! Beep beep! Great job!"
+ },
+ {
+  "id": "166947a8",
+  "text": "The car needs to cross the river!"
+ },
+ {
+  "id": "9c4b3f94",
+  "text": "The car rolled to the workshop. Now let's test a ramp!"
+ },
+ {
+  "id": "dd79b22f",
+  "text": "The city sparkles at night! Beautiful work!"
+ },
+ {
+  "id": "709790e7",
+  "text": "The crane loads the ship."
  },
  {
   "id": "9b0b889a",
@@ -2032,16 +2528,72 @@
   "text": "The cross wire. A cross wire joins all four sides. Power can go every way!"
  },
  {
+  "id": "8850dfd0",
+  "text": "The dock is messy."
+ },
+ {
+  "id": "f963db76",
+  "text": "The door."
+ },
+ {
+  "id": "95f85fc4",
+  "text": "The dream house is finished! You are a real builder!"
+ },
+ {
+  "id": "b3218ca8",
+  "text": "The factory belt is still. Let's start it!"
+ },
+ {
+  "id": "f823d015",
+  "text": "The factory is running! Gears are spinning everywhere!"
+ },
+ {
   "id": "1f728f7c",
   "text": "The fan is slow! Give it its own path."
+ },
+ {
+  "id": "fbb6ff5e",
+  "text": "The farm has two fans now."
+ },
+ {
+  "id": "a1b4a564",
+  "text": "The farm is buzzing with machines! Great farming!"
+ },
+ {
+  "id": "79b44252",
+  "text": "The final lap! Grab every gear."
  },
  {
   "id": "e9a409f5",
   "text": "The final maze! Turn Robo first, then use the wall trick."
  },
  {
+  "id": "460d60bf",
+  "text": "The final tower. Think before you lift!"
+ },
+ {
+  "id": "09b250e7",
+  "text": "The first part of the track is long and straight."
+ },
+ {
   "id": "8db31306",
   "text": "The Forward block. Forward makes Robo walk one square. Put blocks in a row to make a program!"
+ },
+ {
+  "id": "055bfeae",
+  "text": "The foundation first!"
+ },
+ {
+  "id": "19c13c7b",
+  "text": "The grain box is too heavy to carry."
+ },
+ {
+  "id": "28a0fe33",
+  "text": "The hay goes up to the loft!"
+ },
+ {
+  "id": "92e297a1",
+  "text": "The helper needs the microphone to hear you. Here is a hint!"
  },
  {
   "id": "159c975f",
@@ -2052,8 +2604,24 @@
   "text": "The lamp is in the wrong spot! Move it into the gap."
  },
  {
+  "id": "9d24836c",
+  "text": "The last bridge is very long!"
+ },
+ {
   "id": "8d8f3ed4",
   "text": "The last bridge! A bus parade is coming!"
+ },
+ {
+  "id": "b42aede1",
+  "text": "The last step! A big house with two floors."
+ },
+ {
+  "id": "89d08886",
+  "text": "The last stop has two packages!"
+ },
+ {
+  "id": "6580b203",
+  "text": "The last street has three houses by the tower."
  },
  {
   "id": "43ee4edc",
@@ -2062,6 +2630,14 @@
  {
   "id": "554cba6a",
   "text": "The middle is wobbly! Add a support from the low bolt."
+ },
+ {
+  "id": "8012d6be",
+  "text": "The package is on the road."
+ },
+ {
+  "id": "fc5bf216",
+  "text": "The plot is bumpy. Let's make it flat!"
  },
  {
   "id": "211375a6",
@@ -2076,6 +2652,18 @@
   "text": "The red motor turns a gear. Drag a gear onto the empty peg!"
  },
  {
+  "id": "cf656849",
+  "text": "The rescue team made it! You saved the day!"
+ },
+ {
+  "id": "223eb4c1",
+  "text": "The rescue truck is very heavy."
+ },
+ {
+  "id": "89469816",
+  "text": "The roof goes on last!"
+ },
+ {
   "id": "75f46a76",
   "text": "The rope needs a wheel to hang on!"
  },
@@ -2086,6 +2674,18 @@
  {
   "id": "b2ab33b6",
   "text": "The seesaw throws the box up. Wheels make it roll."
+ },
+ {
+  "id": "448bcd78",
+  "text": "The ship sails away, full of cargo! Ahoy, engineer!"
+ },
+ {
+  "id": "50fb5fe6",
+  "text": "The shop is round the corner."
+ },
+ {
+  "id": "f45d3109",
+  "text": "The shop wire goes round a bend."
  },
  {
   "id": "c0a3619b",
@@ -2100,12 +2700,28 @@
   "text": "The star is behind Robo!"
  },
  {
+  "id": "a324f798",
+  "text": "The steel beams arrive."
+ },
+ {
+  "id": "88330dbe",
+  "text": "The super workshop is done and Robo is home! You are a super engineer!"
+ },
+ {
   "id": "8e465586",
   "text": "The switch is OFF. Tap it to turn it ON!"
  },
  {
   "id": "a2cb2869",
   "text": "The T wire splits the path in two. Put it under the middle house."
+ },
+ {
+  "id": "8433c731",
+  "text": "The town is dark! This week we bring the power, one place at a time."
+ },
+ {
+  "id": "a60d9c18",
+  "text": "The track climbs up some stairs."
  },
  {
   "id": "04164e78",
@@ -2120,8 +2736,28 @@
   "text": "The wedge goes by the log!"
  },
  {
+  "id": "462e638c",
+  "text": "The whole city at night!"
+ },
+ {
+  "id": "083edf0a",
+  "text": "The whole town is glowing! You lit it up!"
+ },
+ {
+  "id": "3e916079",
+  "text": "The workshop needs lights."
+ },
+ {
   "id": "d9d02d07",
   "text": "There are many ways to the flag. Pick the way with the gears!"
+ },
+ {
+  "id": "3d790036",
+  "text": "There is a rock in the river. Use it!"
+ },
+ {
+  "id": "07fcbdcd",
+  "text": "This belt must go the other way."
  },
  {
   "id": "b5648b63",
@@ -2132,8 +2768,16 @@
   "text": "This bridge has a square. Squares squish! Fix it."
  },
  {
+  "id": "43e0ed4d",
+  "text": "This bridge has tall towers."
+ },
+ {
   "id": "792e2aed",
   "text": "This hole is down below. Push the dirt down!"
+ },
+ {
+  "id": "0038a784",
+  "text": "This house is up the hill."
  },
  {
   "id": "a18b2aae",
@@ -2160,12 +2804,40 @@
   "text": "This one is not needed."
  },
  {
+  "id": "0a787e78",
+  "text": "This project is not open yet. Come back next week!"
+ },
+ {
   "id": "e43f26fd",
   "text": "This spiral turns LEFT at every wall."
  },
  {
   "id": "5928dbb5",
   "text": "This time the path turns the other way!"
+ },
+ {
+  "id": "be6982b6",
+  "text": "This week the little car needs a road! Let's build bridges for it."
+ },
+ {
+  "id": "0bb66ecb",
+  "text": "This week we build a dream house! First we get the plot ready."
+ },
+ {
+  "id": "c2be6c49",
+  "text": "This week you drive the big crane! We will stack blocks into a tower."
+ },
+ {
+  "id": "d8e65005",
+  "text": "This wire has to go round the barn."
+ },
+ {
+  "id": "78fd715b",
+  "text": "Three Forward, Turn Left, Forward, Turn Right, Forward."
+ },
+ {
+  "id": "6005fd37",
+  "text": "Three Forward, Turn Right, then two Forward."
  },
  {
   "id": "71f15266",
@@ -2224,6 +2896,10 @@
   "text": "Turn Left first. Then Repeat forever: If wall Turn Right, Forward."
  },
  {
+  "id": "acd5b4ae",
+  "text": "Turn left!"
+ },
+ {
   "id": "6c16a045",
   "text": "Turn Left. Turn Left spins Robo the other way. Hold up your left hand to check!"
  },
@@ -2244,8 +2920,16 @@
   "text": "Turn Right first to go down. Then go along the bottom."
  },
  {
+  "id": "1f3dccff",
+  "text": "Turn right!"
+ },
+ {
   "id": "deeefbdd",
   "text": "Turn Right. Turn Right spins Robo to face a new way. Robo stays on the same square."
+ },
+ {
+  "id": "1ab7f15c",
+  "text": "Turn the belt on to carry the box!"
  },
  {
   "id": "f70dc8d6",
@@ -2272,8 +2956,20 @@
   "text": "Two fans in a row! Add a battery to make them spin FAST."
  },
  {
+  "id": "1fd04a98",
+  "text": "Two Forward, Turn Left, then three Forward."
+ },
+ {
+  "id": "46c74fcf",
+  "text": "Two Forward, Turn Left, two Forward."
+ },
+ {
   "id": "81caf853",
   "text": "Two holes! Fill them both."
+ },
+ {
+  "id": "e188fb12",
+  "text": "Two houses on one wire."
  },
  {
   "id": "bf21f427",
@@ -2292,6 +2988,10 @@
   "text": "Two switches! Turn BOTH on to light the house."
  },
  {
+  "id": "aa6f89a4",
+  "text": "Two switches! Turn BOTH on to light the workshop."
+ },
+ {
   "id": "f378957f",
   "text": "Two triangles! Tap Go!"
  },
@@ -2300,12 +3000,24 @@
   "text": "Two Turn Rights make Robo face the other way!"
  },
  {
+  "id": "e38a5293",
+  "text": "Up!"
+ },
+ {
   "id": "8aaadd1b",
   "text": "Use corner wires to go round the bend!"
  },
  {
+  "id": "70e5f72c",
+  "text": "Use corner wires to light the shop!"
+ },
+ {
   "id": "b273a11f",
   "text": "Use If wall to follow the path."
+ },
+ {
+  "id": "f36b6354",
+  "text": "Use steel beams to hold the truck!"
  },
  {
   "id": "2b8d7084",
@@ -2314,6 +3026,10 @@
  {
   "id": "b6d9a914",
   "text": "Use the lowest bolts too. More supports share the load."
+ },
+ {
+  "id": "b2fb659d",
+  "text": "Use the rock to hold the road up!"
  },
  {
   "id": "990fd6ca",
@@ -2372,6 +3088,10 @@
   "text": "Watch me!"
  },
  {
+  "id": "b5b97c27",
+  "text": "We are low on coins!"
+ },
+ {
   "id": "4b012bae",
   "text": "Wedges. A wedge has a sharp point. Push it into a log and the log splits!"
  },
@@ -2380,8 +3100,20 @@
   "text": "Welcome back!"
  },
  {
+  "id": "25beba7f",
+  "text": "Welcome to the farm! This week we power the fans and build farm machines."
+ },
+ {
+  "id": "cd775f76",
+  "text": "Welcome to the gear factory! Gears and belts make everything move."
+ },
+ {
   "id": "e3a6af0f",
   "text": "Welcome to the Practice Room! Play as much as you like. Try a challenge, or just have fun!"
+ },
+ {
+  "id": "7f4fe75c",
+  "text": "What a tall tower! You are a crane champion!"
  },
  {
   "id": "0f7d21ee",
@@ -2434,6 +3166,18 @@
  {
   "id": "d77c2f37",
   "text": "Yay! You did it!"
+ },
+ {
+  "id": "985e7c8b",
+  "text": "Yellow first, then red, then the little green box."
+ },
+ {
+  "id": "c234093b",
+  "text": "Yellow first. The red one goes on top."
+ },
+ {
+  "id": "90e9d706",
+  "text": "Yellow, then red, then blue on top."
  },
  {
   "id": "a991c6e0",

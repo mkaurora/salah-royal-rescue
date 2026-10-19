@@ -4,7 +4,11 @@
   var LE = window.LE = window.LE || {};
 
   LE.FAST = /[?&]fast=1/.test(location.search);
-  LE.speed = LE.FAST ? 6 : 1;               // animation speed multiplier (tests run faster)
+  LE.speed = LE.FAST ? 6 : 1;
+  /** Read-then-Go gate after the intro / Show me (skipped in fast tests unless ?readgo=1). */
+  LE.READ_GO = !LE.FAST || /[?&]readgo=1/.test(location.search);
+  /** Show me waits for 2 tries / ~2 minutes (open at once in fast tests unless ?showmegate=1). */
+  LE.SHOWME_GATE = !LE.FAST || /[?&]showmegate=1/.test(location.search);               // animation speed multiplier (tests run faster)
   LE.wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms / LE.speed); }); };
 
   /** h('div.cls#id', {attrs}, children...) */

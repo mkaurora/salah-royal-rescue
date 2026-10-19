@@ -8,6 +8,11 @@
   LE.sound.setMuted(!store.getSound());
   LE.voiceOn = store.data.settings.voice !== false;
 
+  /** The game clock (weekly projects). Tests: ?now=2026-10-26T09:00:00Z or replace LE.now. */
+  var NOW_PARAM = /[?&]now=([^&]+)/.exec(location.search);
+  var NOW_OFFSET = NOW_PARAM && !isNaN(Date.parse(decodeURIComponent(NOW_PARAM[1]))) ? Date.parse(decodeURIComponent(NOW_PARAM[1])) - Date.now() : 0;
+  LE.now = LE.now || function () { return new Date(Date.now() + NOW_OFFSET); };
+
   /* ---------- Everything the shell says (static, so every line has a pre-recorded voice clip) ---------- */
   /* VOICE-LINES:START */
   var LINES = {
@@ -24,7 +29,27 @@
     tapGo: { Go: 'Your turn! Tap Go! ▶', Play: 'Your turn! Tap Play! ▶' },
     praise: ['Hooray! You did it!', 'Awesome job, Salah!', 'Wow! Super engineer!', 'You are amazing!'],
     didYouKnow: 'Did you know? ',
-    practiceWelcome: 'Welcome to the Practice Room! Play as much as you like. Try a challenge, or just have fun!'
+    practiceWelcome: 'Welcome to the Practice Room! Play as much as you like. Try a challenge, or just have fun!',
+    weeklyLocked: 'This project is not open yet. Come back next week!',
+    weeklyStepLocked: 'Finish the step before this one first!',
+    helperOffline: 'I can\'t reach the helper right now. Here is a hint!',
+    helperMic: 'The helper needs the microphone to hear you. Here is a hint!',
+    helperBye: 'Bye, helper! Back to building!',
+    showMeReady: 'Stuck? Now I can show you how!',
+    showMeLater: 'Let\'s try a hint first!',
+    demoGo: { Go: 'Now we press Go!', Play: 'Now we press Play!' },
+    demoWorks: 'See? It works!',
+    demoYourTurn: 'Now it is your turn. Build it yourself!',
+    /* one short line per demo step (only when the line changes), by world and pointer key */
+    demo: {
+      robot: { 'tray:F': 'Forward!', 'tray:L': 'Turn left!', 'tray:R': 'Turn right!' },
+      bridges: { node: 'A beam from bolt to bolt.', 'tool:wood': 'Pick wood.' },
+      circuits: { 'tray:I': 'A straight wire goes here.', 'tray:C': 'A corner wire goes here.', 'tray:T': 'A T wire goes here.',
+        'tray:X': 'A cross wire goes here.', 'tray:P': 'A lamp goes here.', 'tray:B': 'A battery goes here.' },
+      construction: { 'btn:U': 'Up!', 'btn:D': 'Down!', 'btn:L': 'Left!', 'btn:R': 'Right!', 'btn:G': 'Tap the hook button!',
+        'tray:found': 'The foundation first!', 'tray:walls': 'Now the walls.', 'tray:window': 'A window.', 'tray:door': 'The door.',
+        'tray:roof': 'The roof goes on last!' }
+    }
   };
   /* VOICE-LINES:END */
   LE.LINES = LINES;
@@ -147,6 +172,125 @@
     ], 'confirm');
   }
 
+  /** Short friendly message at the bottom of the screen. */
+  function toast(text) {
+    var t = h('div.kid-toast', text);
+    document.body.appendChild(t);
+    requestAnimationFrame(function () { t.classList.add('show'); });
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 300); }, LE.FAST ? 900 : 3200);
+  }
+  LE.toast = toast;
+
+  /* ---------- Ask Helper: talk to the helper by voice (ElevenLabs agent; hints only) ---------- */
+  var MIC_SVG = '<svg viewBox="0 0 24 24"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5v3M8.5 21.5h7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  /** opts: { world, level, weekly, buddy, onClose } */
+  function askHelper(opts) {
+    var level = opts.level, buddy = opts.buddy;
+    function fallback(reason) {
+      closeOverlay();
+      var line = reason === 'mic' ? LINES.helperMic : LINES.helperOffline;
+      toast(reason === 'mic' ? '🎤 The microphone is off — here is a hint instead!'
+        : reason === 'blocked' ? '🙈 The helper is not allowed here — here is a hint!'
+        : reason === 'busy' ? '😴 The helper is resting — here is a hint instead!'
+        : '📶 No helper right now — here is a hint instead!');
+      if (level.hint) buddy.say(line + ' ' + level.hint, { speakParts: [line, level.hint] });
+      else buddy.say(level.goal);
+    }
+    if (!store.getHelper()) return;
+    if (!navigator.onLine || !LE.helperTalk) { fallback('offline'); return; }
+    LE.stopSpeaking();
+    LE.hand.hide();
+    var status = h('div.helper-status', 'Calling the helper… 📞');
+    var timer = h('div.helper-timer', '');
+    var face = h('div.helper-face.connecting', { html: LE.buddySVG() });
+    var session = null, t0 = 0, tick = 0, closed = false;
+    var endBtn = LE.button('red huge helper-end', 'End ⏹', function () { finish(true); }, { label: 'End talking' });
+    openOverlay([h('h2', '🎤 Ask Helper'), face, status, timer, endBtn, h('div.helper-note', 'Ask about this level. The helper gives hints, not answers!')], 'helper');
+    function onHidden() { if (document.hidden) finish(false); }
+    document.addEventListener('visibilitychange', onHidden);
+    function finish(byKid) {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener('visibilitychange', onHidden);
+      clearInterval(tick);
+      if (session) session.end('kid'); else LE.helperTalk.stop();
+      closeOverlay();
+      if (byKid || session) buddy.say(LINES.helperBye, { time: 2500 });
+      if (opts.onClose) opts.onClose();
+    }
+    LE.helperTalk.start({
+      vars: LE.helperTalk.buildVars({ world: opts.world, level: level, weekly: opts.weekly }),
+      onState: function (st) {
+        if (closed) return;
+        face.className = 'helper-face ' + st;
+        status.textContent = st === 'speaking' ? 'Helper is talking… 🗣️' : st === 'listening' ? 'Listening… 👂 Talk to me!' : 'Calling the helper… 📞';
+        if ((st === 'listening' || st === 'speaking') && !t0) {
+          t0 = Date.now();
+          tick = setInterval(function () {
+            var left = Math.max(0, LE.helperTalk.MAX_SECONDS - Math.floor((Date.now() - t0) / 1000));
+            timer.textContent = Math.floor(left / 60) + ':' + ('0' + (left % 60)).slice(-2) + ' left';
+          }, 500);
+        }
+      },
+      onEnd: function (reason) {
+        if (closed) return;
+        if (reason === 'dropped') {                 // the agent hung up without a word → hint instead
+          closed = true; clearInterval(tick);
+          document.removeEventListener('visibilitychange', onHidden);
+          fallback('busy');
+          if (opts.onClose) opts.onClose();
+          return;
+        }
+        finish(false);
+      }
+    }).then(function (s) {
+      session = s;
+      if (closed) s.end('kid');
+    }).catch(function (e) {
+      if (closed || e.reason === 'cancelled') return;
+      closed = true;
+      document.removeEventListener('visibilitychange', onHidden);
+      clearInterval(tick);
+      console.warn('Ask Helper unavailable:', e.reason, e.error && (e.error.message || e.error));
+      fallback(e.reason);
+      if (opts.onClose) opts.onClose();
+    });
+    return { end: function () { finish(false); } };
+  }
+  LE.askHelper = askHelper;
+
+  /* ---------- Game updates (js/core/updater.js) ---------- */
+  var updateBanner = null;
+  function showUpdateBanner() {
+    if (updateBanner) return;
+    var close = h('button.update-x', { 'aria-label': 'Later' }, '✕');
+    updateBanner = h('div.update-banner', { role: 'button' }, h('span', '✨ ' + LE.UPDATE_MSG.banner), close);
+    updateBanner.addEventListener('click', function (e) {
+      if (e.target === close) { updateBanner.remove(); updateBanner = null; return; }
+      LE.sound.play('pop');
+      updateBanner.querySelector('span').textContent = LE.UPDATE_MSG.updating;
+      if (!LE.updater.applyUpdate()) { updateBanner.remove(); updateBanner = null; }
+    });
+    document.body.appendChild(updateBanner);
+  }
+  LE.updater = LE.createUpdater({
+    navigator: navigator, document: document,
+    reload: function () { location.reload(); },
+    beforeReload: function () { try { store.save(); } catch (e) { /* already saved */ } },
+    onBanner: showUpdateBanner
+  });
+  LE.showUpdateBanner = showUpdateBanner;
+  function updateGame() {
+    var btn = document.querySelector('.update-btn');
+    if (btn) btn.classList.add('busy');
+    return LE.updater.manualUpdate().then(function (r) {
+      if (btn) btn.classList.remove('busy');
+      toast(LE.UPDATE_MSG[r] || LE.UPDATE_MSG.latest);
+      return r;
+    });
+  }
+  LE.updateGame = updateGame;
+
   function openSettings() {
     var soundBtn, voiceBtn;
     function refresh() {
@@ -166,13 +310,89 @@
     openOverlay([
       h('h2', '⚙️ Settings'),
       soundBtn, voiceBtn,
+      LE.button('blue wide update-btn', '🔄 Update game', function () { updateGame(); }, { label: 'Update game' }),
       LE.button('red wide', '🗑️ Reset progress', function () {
         confirmDialog('Start over? All stars will be erased.', 'Yes, reset', function () {
           store.reset(); LE.sound.play('whoosh'); showMenu();
         });
       }),
-      LE.button('blue big wide', 'Done', closeOverlay)
+      LE.button('white wide parents-btn', '🔒 Parents', function () { LE.sound.play('open'); LE.parent.openPin(); }, { label: 'Parents', sound: false }),
+      LE.button('blue big wide', 'Done', closeOverlay),
+      h('div.app-version', 'Version ' + LE.APP_VERSION)
     ], 'settings');
+  }
+
+  /** The menu gear: short tap = kid settings; hold 3 s (a ring fills up) = parent PIN pad. */
+  LE.APP_VERSION = '3.0';
+  LE.HOLD_MS = 3000;
+  LE.HOLD_MOVE_PX = 40;
+  /** Backup way into parent mode: tap a plain visible element (menu title, star counter) 5 times within 3 s. */
+  LE.TAP5_MS = 3000;
+  function fiveTaps(el) {
+    var taps = [];
+    el.addEventListener('click', function () {
+      var t = Date.now();
+      taps = taps.filter(function (x) { return t - x < LE.TAP5_MS; });
+      taps.push(t);
+      if (taps.length >= 5) { taps = []; LE.sound.play('open'); LE.parent.openPin(); }
+    });
+    el.classList.add('tap5');
+    return el;
+  }
+  LE.fiveTaps = fiveTaps;
+  function gearButton() {
+    var fired = false, timer = 0, holding = false;
+    var b = LE.button('icon settings-btn', '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>', function () {
+      if (fired) { fired = false; return; }
+      LE.sound.play('tap');
+      openSettings();
+    }, { label: 'Settings', sound: false });
+    var wrap = h('div.gear', b);
+    wrap.insertAdjacentHTML('beforeend', '<svg class="gear-ring" viewBox="0 0 76 76"><circle cx="38" cy="38" r="35"/></svg>');
+    // Real iPhones cancel a pointer-event long-press (pointercancel / pointerleave while the pressed button scales),
+    // so touch uses touchstart / touchmove (40 px tolerance) / touchend; the mouse keeps pointer events.
+    var sx = 0, sy = 0, lastTouch = 0;
+    function start() {
+      holding = true; fired = false;
+      wrap.classList.add('holding');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fired = true; holding = false;
+        wrap.classList.remove('holding');
+        LE.sound.play('open');
+        LE.parent.openPin();
+      }, LE.HOLD_MS);
+    }
+    function cancel() {
+      if (!holding) return;
+      holding = false;
+      clearTimeout(timer);
+      wrap.classList.remove('holding');
+    }
+    b.addEventListener('touchstart', function (e) {
+      lastTouch = Date.now();
+      var t = e.touches[0]; sx = t.clientX; sy = t.clientY;
+      start();
+    }, { passive: true });
+    b.addEventListener('touchmove', function (e) {
+      var t = e.touches[0];
+      if (t && Math.hypot(t.clientX - sx, t.clientY - sy) > LE.HOLD_MOVE_PX) cancel();
+    }, { passive: true });
+    b.addEventListener('touchend', function (e) {
+      lastTouch = Date.now();
+      if (fired && e.cancelable) e.preventDefault();   // no kid-settings click after a long press
+      cancel();
+    });
+    b.addEventListener('touchcancel', cancel);
+    b.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || Date.now() - lastTouch < 800) return;
+      if (e.button !== 0) return;
+      start();
+    });
+    ['pointerup', 'pointerleave'].forEach(function (ev) {
+      b.addEventListener(ev, function (e) { if (e.pointerType === 'mouse') cancel(); });
+    });
+    return wrap;
   }
 
   function topbar(title, onBack, extra) {
@@ -201,14 +421,16 @@
       card.dataset.world = m.id;
       grid.appendChild(card);
     });
+    var weeklyCard = LE.weeklyHub ? LE.weeklyHub.menuCard() : null;
     var practice = LE.button('practice-btn', '', function () { showPractice(); }, { label: 'Practice Room' });
     practice.append(h('div.practice-icon', { html: LE.worldIcon('practice') }), h('div', h('div.practice-title', 'Practice Room'), h('div.practice-sub', 'Play with Robo — no stars, just fun!')));
-    var settings = LE.button('icon settings-btn', '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>', openSettings, { label: 'Settings' });
+    var settings = gearButton();
     el.append(
       h('div.menu-sky', h('div.cloud.c1'), h('div.cloud.c2'), h('div.cloud.c3')),
       h('div.menu-top', h('div.icon-spacer'), settings),
-      h('div.menu-title', h('div.t1', "Salah's"), h('div.t2', 'Little Engineer')),
+      fiveTaps(h('div.menu-title', h('div.t1', "Salah's"), h('div.t2', 'Little Engineer'))),
       h('div.menu-hero', buddyWrap, hello),
+      weeklyCard,
       grid,
       practice
     );
@@ -235,7 +457,7 @@
     scroller.appendChild(inner);
     var got = store.totalStars(worldId);
     el.append(
-      topbar(h('span', h('span', w.name), h('span.topbar-stars', { html: LE.starSVG(true) + got + '/' + (w.levels.length * 3) })), showMenu, extra),
+      topbar(h('span', h('span', w.name), fiveTaps(h('span.topbar-stars', { html: LE.starSVG(true) + got + '/' + (w.levels.length * 3) }))), showMenu, extra),
       scroller
     );
     if (worldId === 'robot') {
@@ -320,36 +542,119 @@
   var ENCOURAGE = LINES.encourage;
 
   /** Fetch/decode the voice clips this level will need (runtime-captured group + the level's own lines). */
-  function prefetchLevel(w, level, index) {
+  function prefetchLevel(w, spec) {
+    var level = spec.level;
     var lines = [level.goal, level.hint, LINES.watch, LINES.welcomeBack].concat(LINES.praise, LINES.encourage);
+    if (spec.story) lines.push(spec.story);
     (level.tutorial || []).forEach(function (s) { if (s.say) lines.push(s.say); });
     var tip = level.tip && w.content.tips && w.content.tips[level.tip];
     if (tip) lines.push(tipLine(tip));
     var facts = w.content.facts || [];
-    if (facts.length) lines.push(factLine(facts[index % facts.length]));
+    if (facts.length) lines.push(factLine(facts[spec.factIndex % facts.length]));
     LE.voice.prefetch(lines);
-    LE.voice.prefetchGroup(w.id + ':' + index);
+    if (spec.group) LE.voice.prefetchGroup(spec.group);
   }
 
+  /** Open level `index` of a world (map levels). */
   function openLevel(worldId, index, opts) {
     opts = opts || {};
     var w = world(worldId);
     var level = w.levels[index];
     if (!level || !w.view) { showMap(worldId); return; }
-    store.setLast({ screen: 'level', world: worldId, level: index });
+    var hasNext = index + 1 < w.levels.length;
+    playLevel({
+      worldId: worldId, index: index, level: level, num: String(index + 1),
+      best: store.getStars(worldId, index), factIndex: index, group: worldId + ':' + index,
+      saved: opts.fresh ? null : store.getInProgress(worldId, index),
+      saveState: function (st) { store.setInProgress(worldId, index, st); },
+      setLast: function () { store.setLast({ screen: 'level', world: worldId, level: index }); },
+      back: function () { showMap(worldId); },
+      replay: function () { openLevel(worldId, index, { fresh: true }); },
+      record: function (stars) {
+        store.setStars(worldId, index, stars);
+        store.clearInProgress(worldId, index);
+        store.setLast(hasNext ? { screen: 'level', world: worldId, level: index + 1 } : { screen: 'map', world: worldId });
+        return {
+          hasNext: hasNext, title: hasNext ? null : 'World complete!',
+          nextLabel: hasNext ? 'Next ▶' : 'Map 🗺️',
+          next: function () { if (hasNext) openLevel(worldId, index + 1); else showMap(worldId); },
+          map: hasNext ? { label: '🗺️ Map', go: function () { showMap(worldId); } } : null
+        };
+      }
+    });
+  }
+  LE.openLevel = openLevel;
 
-    var el = h('div.level-screen.theme-' + worldId);
-    var best = store.getStars(worldId, index);
-    var title = h('span.lvl-title', h('span.lvl-num', String(index + 1)), h('span', level.name));
+  /* ---------- Weekly Big Project ---------- */
+  function weeklyProject(pid) { return (LE.weeklyProjects || []).filter(function (p) { return p.id === pid; })[0] || null; }
+  function showWeeklyHub(pid, opts) { LE.weeklyHub.show(pid, opts); }
+  function showWeekly() { LE.weeklyHub.show(null); }
+
+  /** Open step k of a weekly project (a normal level of its world, with the project's story). */
+  function openWeeklyStep(pid, k, opts) {
+    opts = opts || {};
+    var p = weeklyProject(pid), W = LE.logic.weekly;
+    if (!p || !p.steps[k]) { showWeekly(); return; }
+    var step = p.steps[k], w = world(step.world);
+    var level;
+    try { level = W.resolveStep(p, k, LE.levels); } catch (e) { console.warn(e); showWeeklyHub(pid); return; }
+    var ids = p.steps.map(function (s) { return s.id; });
+    var key = 'wk-' + p.id;
+    playLevel({
+      worldId: step.world, index: k, level: level, num: p.icon + (k + 1), weekly: { project: p.id, step: step.id, index: k, title: p.title, count: p.steps.length },
+      best: store.getStepStars(p.id, step.id), factIndex: p.weekIndex * 7 + k * 3, group: 'weekly:' + p.id + ':' + k,
+      story: step.say,
+      saved: opts.fresh ? null : store.getInProgress(key, k),
+      saveState: function (st) { store.setInProgress(key, k, st); },
+      setLast: function () { store.setLast({ screen: 'weekly-step', project: p.id, step: k }); },
+      back: function () { showWeeklyHub(p.id); },
+      replay: function () { openWeeklyStep(p.id, k, { fresh: true }); },
+      record: function (stars) {
+        var wasDone = store.projectProgress(p.id).done;
+        var prog = store.setStepStars(p.id, step.id, stars, ids);
+        store.clearInProgress(key, k);
+        var finished = prog.done && !wasDone;
+        var hasNext = k + 1 < p.steps.length;
+        store.setLast(hasNext && !prog.done ? { screen: 'weekly-step', project: p.id, step: k + 1 } : { screen: 'weekly', project: p.id });
+        return {
+          hasNext: hasNext && !finished, title: finished ? 'Project complete!' : null, finished: finished,
+          nextLabel: hasNext && !finished ? 'Next step ▶' : '🏆 Project',
+          next: function () { if (hasNext && !finished) openWeeklyStep(p.id, k + 1); else showWeeklyHub(p.id, { celebrate: finished }); },
+          map: hasNext && !finished ? { label: '📋 Project', go: function () { showWeeklyHub(p.id); } } : null
+        };
+      }
+    });
+  }
+
+  /* spec: { worldId, index, level, num, best, factIndex, group, story?, weekly?, saved, saveState(st), setLast(), back(),
+   *         replay(), record(stars) -> { hasNext, title, nextLabel, next(), map: { label, go } | null } } */
+  function playLevel(spec) {
+    var worldId = spec.worldId, index = spec.index, level = spec.level;
+    var w = world(worldId);
+    spec.setLast();
+
+    var el = h('div.level-screen.theme-' + worldId + (spec.weekly ? '.weekly-level' : ''));
+    var best = spec.best;
+    var title = h('span.lvl-title', h('span.lvl-num', spec.num), h('span', level.name));
     var restartBtn = LE.button('icon restart', '<svg viewBox="0 0 24 24"><path d="M5 12 a7 7 0 1 0 2.2 -5.1" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M4 3 v5 h5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>', function () {
       confirmDialog('Start this level again?', 'Yes', function () { inst.reset(); attempts = 0; });
     }, { label: 'Restart level' });
-    var bar = topbar(title, function () { showMap(worldId); }, restartBtn);
+    var helperOn = store.getHelper() && !!LE.helperTalk;
+    var helperSession = null;
+    function openHelper() {
+      if (demoRunning || helperSession) return;
+      helperSession = askHelper({ world: worldId, level: level, buddy: buddy,
+        weekly: spec.weekly ? { title: spec.weekly.title, stepTitle: level.name, index: spec.weekly.index, count: spec.weekly.count } : null,
+        onClose: function () { helperSession = null; lastActivity = Date.now(); } }) || null;
+    }
+    var askBtn = helperOn ? LE.button('icon ask-helper', MIC_SVG + '<span>Ask</span>', openHelper, { label: 'Ask Helper' }) : null;
+    var bar = topbar(title, function () { spec.back(); }, h('div.top-actions', askBtn, restartBtn));
     var buddyBar = h('div.buddy-bar');
     var host = h('div.play-host');
     el.append(bar, buddyBar, host);
     var buddy = new LE.Buddy(buddyBar);
-    prefetchLevel(w, level, index);
+    prefetchLevel(w, spec);
+    LE.voice.prefetch([LINES.helperOffline, LINES.helperMic, LINES.helperBye]);
     var won = false, alive = true, attempts = 0, listeners = {}, tutorialToken = 0, demoRunning = false, lastActivity = Date.now();
 
     function emit(name, data) {
@@ -366,31 +671,48 @@
     }
 
     var ctx = {
-      world: worldId, levelIndex: index, level: level,
+      world: worldId, levelIndex: index, level: level, weekly: spec.weekly || null,
       sfx: function (n) { LE.sound.play(n); },
       say: function (t, o) { return buddy.say(t, o); },
       buddy: buddy,
       emit: emit,
-      savedState: opts.fresh ? null : store.getInProgress(worldId, index),
-      saveState: function (s) { if (alive) store.setInProgress(worldId, index, s); },
+      savedState: spec.saved,
+      saveState: function (s) { if (alive) spec.saveState(s); },
       fast: LE.FAST,
       fx: LE.fx,
-      win: function (r) { if (alive) onWin(r || {}); },
-      fail: function (r) { if (alive) onFail(r || {}); },
-      isDemo: function () { return demoRunning; }
+      win: function (r) { if (!alive) return; if (demo) { demo.solved = true; if (demo.onResult) demo.onResult('win'); return; } onWin(r || {}); },
+      fail: function (r) { if (!alive) return; if (demo) { if (demo.onResult) demo.onResult('fail'); return; } onFail(r || {}); },
+      isDemo: function () { return demoRunning && !(demo && demo.going); }
     };
 
-    show({ el: el, destroy: function () { alive = false; tutorialToken++; clearInterval(idleT); buddy.destroy(); if (inst && inst.destroy) inst.destroy(); LE.hand.hide(); } });
+    show({ el: el, destroy: function () { alive = false; tutorialToken++; clearInterval(idleT); clearInterval(showMeT); document.removeEventListener('visibilitychange', onVis); if (helperSession) helperSession.end(); if (LE.helperTalk) LE.helperTalk.stop(); buddy.destroy(); if (inst && inst.destroy) inst.destroy(); LE.hand.hide(); } });
     var inst = w.view.create(host, level, ctx);
-    LE.activeLevel = { world: worldId, index: index, inst: inst, ctx: ctx, showMe: function () { return showMe(); }, buddy: buddy };
+    LE.activeLevel = { world: worldId, index: index, weekly: spec.weekly || null, level: level, inst: inst, ctx: ctx, showMe: function () { return showMe(); }, buddy: buddy,
+      lastDemo: null, askHelper: openHelper, showMeOpen: function () { return showMeOpen(); }, demo: function () { return demo; },
+      solve: function () { return solve(); } };
+
+    /** Test hook: build the stored solution through the same code paths as Show me (no hand, not a demo, so a
+     *  win counts like a real one). The caller presses Go (worlds without Go win live). */
+    async function solve() {
+      if (inst.busy && inst.stop) inst.stop();
+      closeGate();
+      tutorialToken++;
+      LE.hand.hide();
+      var steps = inst.showMe() || [];
+      for (var i = 0; i < steps.length && alive; i++) {
+        if (steps[i].apply) steps[i].apply();
+        await LE.wait(steps[i].pause || 120);
+      }
+    }
 
     buddy.onTap = function () {
       if (demoRunning) return;
       buddy.say(level.goal, {
         buttons: [
-          { label: '👉 Show me', cls: 'orange showme-btn', onTap: function () { showMe(); } },
-          { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); LE.hand.hide(); } }
-        ]
+          showMeBtn(),
+          helperOn ? { label: '🎤 Ask Helper', cls: 'purple askhelper-btn', onTap: function () { buddy.hide(); openHelper(); } } : null,
+          { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); LE.hand.hide(); closeGate(); } }
+        ].filter(Boolean)
       });
     };
 
@@ -398,17 +720,17 @@
     el.addEventListener('pointerdown', onActivity, true);
     var idleNudged = 0;
     var idleT = setInterval(function () {
-      if (!alive || demoRunning || LE.hasOverlay() || (inst && inst.busy)) return;
+      if (!alive || demoRunning || helperSession || LE.hasOverlay() || (inst && inst.busy)) return;
       if (Date.now() - lastActivity > 35000 && idleNudged < 3) {
         idleNudged++;
         lastActivity = Date.now();
         buddy.say(idleNudged === 1 ? LINES.idle : level.hint || LINES.tapMe, {
-          buttons: [{ label: '👉 Show me', cls: 'orange showme-btn', onTap: function () { showMe(); } }]
+          buttons: [showMeBtn()]
         });
       }
     }, 3000);
 
-    // Start sequence: tip card (first time) → goal → guided tutorial.
+    // Start sequence: tip card (first time) → (weekly story) goal → guided tutorial.
     (async function start() {
       await LE.wait(350);
       if (!alive) return;
@@ -422,13 +744,34 @@
       if (level.tutorial && level.tutorial.length && best === 0 && !resumed) {
         runTutorial(level.tutorial);
       } else {
-        buddy.say((resumed ? LINES.welcomeBack + ' ' : '') + level.goal, {
-          speakParts: resumed ? [LINES.welcomeBack, level.goal] : null,
-          buttons: [{ label: '👉 Show me', cls: 'orange showme-btn', onTap: function () { showMe(); } },
-                    { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }]
+        var parts = [resumed ? LINES.welcomeBack : null, !resumed && spec.story ? spec.story : null, level.goal].filter(Boolean);
+        var gate = LE.READ_GO;
+        buddy.say(parts.join(' '), {
+          speakParts: parts.length > 1 ? parts : null,
+          buttons: [showMeBtn()].concat(gate ? [] :
+                    [{ label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }])
         });
+        if (gate) readThenGo();
       }
     })();
+
+    /* ---------- Read, then Go: the board waits until Salah taps Go (🔊 replays the lines) ---------- */
+    var gateEl = null;
+    function readThenGo() {
+      closeGate();
+      var spoken = buddy.spoken || Promise.resolve();
+      var goBtn = LE.button('green huge gate-go', 'Go ▶', function () { closeGate(); buddy.hide(); emit('ready'); }, { sound: 'whoosh', label: 'Start' });
+      var replay = LE.button('white big gate-replay', '🔊', function () { buddy.spoken = LE.speakForce(buddy.lastSpoken || buddy.lastText); }, { label: 'Say it again' });
+      gateEl = h('div.go-gate', h('div.gate-card', h('div.gate-title', 'Ready? 👂'), h('div.gate-bar', replay, goBtn)));
+      host.appendChild(gateEl);
+      el.classList.add('gated');
+      spoken.then(function () { if (gateEl) gateEl.classList.add('ready'); });
+    }
+    function closeGate() {
+      if (!gateEl) return;
+      gateEl.remove(); gateEl = null;
+      el.classList.remove('gated');
+    }
 
     async function runTutorial(steps) {
       var token = ++tutorialToken;
@@ -451,46 +794,152 @@
       }
     }
 
+    /* ---------- Show me: unlocks after 2 tries or ~2 minutes (parent: always). A guided demo with the hand and
+     * a line per step, Pause / Replay step / Let me try. The demo proves the solution works, never gives stars,
+     * then the level goes back to the start so Salah builds it himself. ---------- */
+    var SHOWME_MS = 120000;
+    var t0 = LE.now().getTime(), hiddenMs = 0, hiddenAt = 0, readyAnnounced = false;
+    function onVis() {
+      var now = LE.now().getTime();
+      if (document.hidden) hiddenAt = now;
+      else if (hiddenAt) { hiddenMs += now - hiddenAt; hiddenAt = 0; }
+    }
+    document.addEventListener('visibilitychange', onVis);
+    function playedMs() { return LE.now().getTime() - t0 - hiddenMs - (hiddenAt ? LE.now().getTime() - hiddenAt : 0); }
+    function showMeOpen() {
+      return !LE.SHOWME_GATE || store.data.settings.showMeAlways || LE.showMeForce || attempts >= 2 || playedMs() >= SHOWME_MS;
+    }
+    function showMeBtn() {
+      var open = showMeOpen();
+      return { label: open ? '👉 Show me' : '👉 Show me 🔒', cls: 'orange showme-btn' + (open ? ' lit' : ' locked'), onTap: function () { showMe(); } };
+    }
+    function hintFirst() {
+      LE.sound.play('pop');
+      if (level.hint) buddy.say(LINES.showMeLater + ' ' + level.hint, { speakParts: [LINES.showMeLater, level.hint], buttons: [showMeBtn()] });
+      else buddy.say(level.goal, { buttons: [showMeBtn()] });
+    }
+    function announceShowMe() {
+      if (readyAnnounced || won || demoRunning || !alive) return;
+      readyAnnounced = true;
+      buddy.say(LINES.showMeReady, { buttons: [showMeBtn(), { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }] });
+    }
+    var showMeT = setInterval(function () {
+      if (!alive) { clearInterval(showMeT); return; }
+      if (LE.SHOWME_GATE && !readyAnnounced && !demoRunning && !helperSession && !LE.hasOverlay() && !(inst && inst.busy) && showMeOpen()) announceShowMe();
+    }, 1000);
+
+    function narrate(st) {
+      if (st.say) return st.say;
+      var m = LINES.demo[worldId] || {};
+      if (m[st.from]) return m[st.from];
+      if (worldId === 'bridges' && /^node:/.test(st.from || '')) return m.node;
+      return null;
+    }
+
+    var demo = null;     // { paused, replay, stop, solved, onResult }
     async function showMe() {
       if (demoRunning || !alive) return;
+      if (!showMeOpen()) { hintFirst(); return; }
       if (inst.busy && inst.stop) inst.stop();
+      closeGate();
       tutorialToken++;
       LE.hand.hide();
+      LE.stopSpeaking();
+      readyAnnounced = true;
       demoRunning = true;
+      demo = { paused: false, replay: false, stop: false, solved: false, onResult: null };
+      var d = demo;
       el.classList.add('demo');
       var shield = h('div.demo-shield');
-      el.appendChild(shield);
+      var pauseBtn = LE.button('white demo-pause', '⏸ Pause', function () {
+        d.paused = !d.paused;
+        pauseBtn.innerHTML = d.paused ? '▶ Go on' : '⏸ Pause';
+        el.classList.toggle('demo-paused', d.paused);
+        if (d.paused) LE.stopSpeaking();
+      }, { label: 'Pause the demo' });
+      var replayBtn = LE.button('blue demo-replay', '↻ Again', function () { d.replay = true; d.paused = false; pauseBtn.innerHTML = '⏸ Pause'; el.classList.remove('demo-paused'); }, { label: 'Replay this step' });
+      var tryBtn = LE.button('green demo-try', '👍 Let me try', function () { d.stop = true; d.paused = false; }, { label: 'Let me try' });
+      var bar = h('div.demo-bar', pauseBtn, replayBtn, tryBtn);
+      el.append(shield, bar);
+      var stepsShown = 0;
       try {
+        // Always demo from the start state (so a step can be replayed from there).
+        if (inst.reset) inst.reset();
+        await LE.wait(250);
         var steps = inst.showMe() || [];
         buddy.say(steps.intro || LINES.watch, { speak: true });
         await LE.wait(700);
-        for (var i = 0; i < steps.length && alive; i++) {
-          let s = steps[i];
-          if (s.say) {
+        var lastLine = '';
+        var i = 0;
+        while (i < steps.length && alive && !d.stop) {
+          while (d.paused && alive && !d.stop) await LE.wait(120);
+          if (!alive || d.stop) break;
+          let st = steps[i];
+          var line = narrate(st);
+          if (line && line !== lastLine) {
             await buddy.afterSpeech();        // don't talk over the previous line
-            if (!alive) return;
-            buddy.say(s.say);
+            if (!alive || d.stop) break;
+            buddy.say(line);
+            lastLine = line;
           }
-          if (s.from && s.to) await LE.hand.drag(function () { return inst.target(s.from); }, function () { return inst.target(s.to); }, inst.ghost && inst.ghost(s.from));
-          else if (s.from) { await LE.hand.moveTo(function () { return inst.target(s.from); }, 450); await LE.hand.tap(); }
-          if (!alive) return;
-          if (s.apply) s.apply();
-          await LE.wait(s.pause || 260);
+          if (st.from && st.to) await LE.hand.drag(function () { return inst.target(st.from); }, function () { return inst.target(st.to); }, inst.ghost && inst.ghost(st.from));
+          else if (st.from) { await LE.hand.moveTo(function () { return inst.target(st.from); }, 450); await LE.hand.tap(); }
+          if (!alive || d.stop) break;
+          if (st.apply) st.apply();
+          await LE.wait(st.pause || 260);
+          stepsShown = i + 1;
+          if (d.replay) {
+            // Rewind to just before this step (start state + earlier steps, no hand), then show it again.
+            d.replay = false;
+            LE.hand.hide();
+            if (inst.busy && inst.stop) inst.stop();
+            if (inst.reset) inst.reset();
+            await LE.wait(150);
+            for (var j = 0; j < i && alive; j++) { if (steps[j].apply) steps[j].apply(); await LE.wait(steps[j].pause || 120); }
+            lastLine = '';
+            continue;
+          }
+          i++;
+        }
+        // Prove it works: press Go (worlds without Go finish by themselves).
+        if (alive && !d.stop) {
+          var result = new Promise(function (resolve) { d.onResult = resolve; if (d.solved) resolve('win'); });
+          if (!inst.noGo) {
+            await buddy.afterSpeech();
+            buddy.say(LINES.demoGo[inst.goLabel || 'Go'] || LINES.demoGo.Go);
+            var goKey = inst.goKey || 'go';
+            await LE.hand.moveTo(function () { return inst.target(goKey); }, 450);
+            await LE.hand.tap();
+            LE.hand.hide();
+            d.going = true;
+            var goEl = host.querySelector('.go-btn');
+            if (inst.go) inst.go(); else if (goEl) goEl.click();
+          }
+          await Promise.race([result, LE.wait(inst.noGo ? 20000 : 45000)]);
+          if (d.solved && alive) {
+            buddy.cheer();
+            buddy.say(LINES.demoWorks);
+            await buddy.afterSpeech(600);
+            await LE.wait(500);
+          }
         }
       } finally {
+        LE.hand.hide();
+        if (alive) {
+          if (inst.busy && inst.stop) inst.stop();
+          if (inst.reset) inst.reset();        // back to the start: no stars for watching
+        }
         demoRunning = false;
-        el.classList.remove('demo');
+        demo = null;
+        el.classList.remove('demo', 'demo-paused');
         shield.remove();
+        bar.remove();
+        if (LE.activeLevel) LE.activeLevel.lastDemo = { solved: d.solved, stopped: d.stop, steps: stepsShown };
       }
       if (!alive || won) return;
       emit('showme-done');
-      await buddy.afterSpeech();
-      if (!alive || won) return;
-      if (inst.noGo) { buddy.say(LINES.nowYou); return; }
-      buddy.say(LINES.tapGo[inst.goLabel || 'Go'] || LINES.tapGo.Go, {});
-      var goKey = inst.goKey || 'go';
-      LE.hand.loop(function () { return inst.target(goKey); });
-      var off = on('run', function () { off(); LE.hand.stop(); });
+      buddy.say(LINES.demoYourTurn, { buttons: [showMeBtn()] });
+      if (LE.READ_GO) readThenGo();
     }
 
     function onFail(r) {
@@ -502,11 +951,13 @@
       if (attempts >= 3) {
         buddy.say(msg + ' ' + LINES.showYou, {
           speakParts: [msg, LINES.showYou],
-          buttons: [{ label: '👉 Show me', cls: 'orange showme-btn', onTap: function () { showMe(); } },
+          buttons: [showMeBtn(),
                     { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }]
         });
       } else if (attempts === 2 && level.hint) {
-        buddy.say(msg + ' Hint: ' + level.hint, { speakParts: [msg, LINES.hint, level.hint] });
+        // Second try: the hint first, and Show me lights up now.
+        readyAnnounced = true;
+        buddy.say(msg + ' Hint: ' + level.hint, { speakParts: [msg, LINES.hint, level.hint], buttons: [showMeBtn()] });
       } else {
         buddy.say(msg);
       }
@@ -515,39 +966,36 @@
     function onWin(r) {
       won = true;
       var stars = Math.max(1, Math.min(3, r.stars || 1));
-      var prevBest = store.getStars(worldId, index);
-      store.setStars(worldId, index, stars);
-      store.clearInProgress(worldId, index);
-      var hasNext = index + 1 < w.levels.length;
-      store.setLast(hasNext ? { screen: 'level', world: worldId, level: index + 1 } : { screen: 'map', world: worldId });
+      var prevBest = best;
+      var res = spec.record(stars);
       tutorialToken++;
       LE.hand.hide();
       buddy.cheer();
       buddy.say(LINES.praise[index % LINES.praise.length]);
       LE.sound.play('success');
       LE.fx.confetti();
-      setTimeout(function () { if (alive) showWin(stars, prevBest, hasNext, r); }, 900 / LE.speed);
+      setTimeout(function () { if (alive) showWin(stars, prevBest, res, r); }, 900 / LE.speed);
     }
 
-    function showWin(stars, prevBest, hasNext, r) {
+    function showWin(stars, prevBest, res, r) {
       var facts = w.content.facts || [];
-      var fact = facts.length ? facts[index % facts.length] : '';
+      var fact = facts.length ? facts[spec.factIndex % facts.length] : '';
       var starsEl = h('div.win-stars');
       for (var i = 0; i < 3; i++) starsEl.appendChild(h('div.win-star', { html: LE.starSVG(false) }));
-      var next = LE.button('green huge next-btn', hasNext ? 'Next ▶' : 'Map 🗺️', function () {
+      var next = LE.button('green huge next-btn', res.nextLabel, function () {
         closeOverlay();
-        if (hasNext) openLevel(worldId, index + 1); else showMap(worldId);
+        res.next();
       }, { sound: 'whoosh' });
       var note = r.note ? h('div.win-note', r.note) : null;
       openOverlay([
-        h('h2.win-title', !hasNext ? 'World complete!' : stars === 3 ? 'Perfect!' : 'You did it!'),
+        h('h2.win-title', res.title || (stars === 3 ? 'Perfect!' : 'You did it!')),
         starsEl,
         note,
         fact ? h('div.fact', h('div.fact-title', '💡 Did you know?'), h('div.fact-text', fact)) : null,
         next,
         h('div.row',
-          LE.button('blue', '↻ Replay', function () { closeOverlay(); openLevel(worldId, index, { fresh: true }); }),
-          hasNext ? LE.button('purple', '🗺️ Map', function () { closeOverlay(); showMap(worldId); }) : null)
+          LE.button('blue', '↻ Replay', function () { closeOverlay(); spec.replay(); }),
+          res.map ? LE.button('purple', res.map.label, function () { closeOverlay(); res.map.go(); }) : null)
       ], 'win');
       starsEl.querySelectorAll('.win-star').forEach(function (s, i) {
         if (i < stars) setTimeout(function () {
@@ -557,7 +1005,7 @@
       });
       // Read the fact only after the praise clip has finished (real clips can run longer than the delay).
       if (fact) Promise.all([LE.wait(1400 / LE.speed), buddy.afterSpeech(300)]).then(function () { if (alive) LE.speak(factLine(fact)); });
-      if (!hasNext) setTimeout(function () { LE.fx.confetti(220); LE.sound.play('cheer'); }, 1500 / LE.speed);
+      if (!res.hasNext) setTimeout(function () { LE.fx.confetti(220); LE.sound.play('cheer'); }, 1500 / LE.speed);
     }
   }
 
@@ -628,7 +1076,27 @@
     }, 400 / LE.speed);
   }
 
-  LE.app = { showMenu: showMenu, showMap: showMap, openLevel: openLevel, showPractice: showPractice, openSettings: openSettings, store: store };
+  /** Resume a weekly step only if it is still open (the clock or a parent may have changed things). */
+  function resumeWeeklyStep(pid, k) {
+    var p = weeklyProject(pid), W = LE.logic.weekly, i = (LE.weeklyProjects || []).indexOf(p);
+    if (W.isProjectUnlocked(store.data, i, LE.now()) && p.steps[k] && W.isStepUnlocked(p, store.projectProgress(pid), k)) openWeeklyStep(pid, k);
+    else showWeeklyHub(pid);
+  }
+
+  LE.app = { showMenu: showMenu, showMap: showMap, openLevel: openLevel, showPractice: showPractice, openSettings: openSettings, store: store,
+    showScreen: show, topbar: topbar, confirmDialog: confirmDialog,
+    openWeeklyStep: openWeeklyStep, showWeekly: showWeekly, showWeeklyHub: showWeeklyHub };
+
+  /** True when el (or an ancestor below <body>) is a scroll container whose content overflows. */
+  LE.inScrollable = function (el) {
+    for (var n = el && el.nodeType === 1 ? el : el && el.parentElement; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
+      if (n.classList && (n.classList.contains('scroll-y') || n.classList.contains('map-scroll'))) return true;
+      var cs = getComputedStyle(n);
+      if ((cs.overflowY === 'auto' || cs.overflowY === 'scroll') && n.scrollHeight > n.clientHeight + 1) return true;
+      if ((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && n.scrollWidth > n.clientWidth + 1) return true;
+    }
+    return false;
+  };
 
   /* ---------- Boot ---------- */
   function boot() {
@@ -636,9 +1104,12 @@
     ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (ev) {
       document.addEventListener(ev, function (e) { e.preventDefault(); }, { passive: false });
     });
+    // One-finger moves are allowed inside ANY element that can really scroll (parent panel tabs, weekly hub, week chips,
+    // maps, settings, practice chips, …): a fixed whitelist silently broke finger scrolling of new panels on real iPhones.
+    // Everything else is blocked so the page itself never rubber-bands. Game boards handle their own drags.
     document.addEventListener('touchmove', function (e) {
       if (e.touches && e.touches.length > 1) { e.preventDefault(); return; }
-      if (!(e.target.closest && e.target.closest('.scroll-y, .map-scroll'))) e.preventDefault();
+      if (!LE.inScrollable(e.target)) e.preventDefault();
     }, { passive: false });
     document.addEventListener('dblclick', function (e) { e.preventDefault(); }, { passive: false });
     document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
@@ -647,6 +1118,8 @@
     var noResume = /[?&]menu=1/.test(location.search);
     try {
       if (!noResume && last && last.screen === 'level' && world(last.world).levels[last.level]) openLevel(last.world, last.level);
+      else if (!noResume && last && last.screen === 'weekly-step' && weeklyProject(last.project)) resumeWeeklyStep(last.project, last.step);
+      else if (!noResume && last && last.screen === 'weekly' && weeklyProject(last.project)) showWeeklyHub(last.project);
       else if (!noResume && last && last.screen === 'practice') showPractice();
       else if (!noResume && last && last.screen === 'map' && world(last.world).levels.length) showMap(last.world);
       else showMenu();
@@ -656,7 +1129,7 @@
     }
 
     if ('serviceWorker' in navigator && location.protocol !== 'file:' && !/[?&]nosw=1/.test(location.search)) {
-      navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function () {});
+      LE.updater.register('./sw.js');
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();

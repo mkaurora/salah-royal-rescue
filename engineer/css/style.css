@@ -86,10 +86,12 @@ svg { display: block; }
   text-shadow: 0 2px 0 rgba(0,0,0,.25); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-.topbar-title > span { display: inline-flex; align-items: center; gap: 8px; }
+.topbar-title > span { display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; }
 .topbar-stars { background: rgba(0,0,0,.2); border-radius: 14px; padding: 3px 10px 3px 6px; font-size: 16px; }
 .topbar-stars .star-svg { width: 20px; height: 20px; }
-.lvl-title { overflow: hidden; text-overflow: ellipsis; }
+.lvl-title { overflow: hidden; min-width: 0; }
+.lvl-title > .lvl-num { flex: none; }
+.lvl-title > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .lvl-num {
   display: inline-grid; place-items: center; min-width: 34px; height: 34px; border-radius: 12px;
   background: #fff; color: var(--ink); font-size: 19px; text-shadow: none; box-shadow: 0 3px 0 rgba(0,0,0,.2);
@@ -238,6 +240,7 @@ svg { display: block; }
 .hand-ghost { position: absolute; left: -10px; top: -46px; opacity: .85; transform: scale(.9); pointer-events: none; }
 
 /* ---------- Overlays ---------- */
+/* cards scroll inside themselves when taller than the screen (small phones, big text) */
 .overlay {
   position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center;
   background: rgba(20, 24, 60, .55); opacity: 0; transition: opacity .25s;
@@ -248,9 +251,11 @@ svg { display: block; }
   width: 100%; max-width: 400px; background: linear-gradient(180deg, #ffffff, #eef4ff); border-radius: 30px;
   padding: 22px 20px 20px; text-align: center; display: flex; flex-direction: column; gap: 14px;
   box-shadow: 0 10px 0 rgba(0,0,0,.15), 0 24px 50px rgba(0,0,0,.35);
+  overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y;
   transform: scale(.7); transition: transform .35s cubic-bezier(.3,1.6,.6,1);
   max-height: 100%; overflow: auto;
 }
+.overlay-card > * { flex-shrink: 0; }
 .overlay.show .overlay-card { transform: none; }
 .overlay h2 { margin: 0; font-size: 26px; font-weight: 900; }
 .dialog-icon { font-size: 44px; }
@@ -320,3 +325,65 @@ svg { display: block; }
   .practice-sub { font-size: 12px; }
   .win-title { font-size: 30px !important; }
 }
+
+/* ---------- v3: Read, then Go (the board waits for a big Go) ---------- */
+.go-gate { position: absolute; inset: 0; z-index: 15; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px;
+  background: rgba(30, 34, 80, .4); border-radius: 22px; }
+.gate-card { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 18px 18px; border-radius: 28px;
+  background: rgba(255,255,255,.95); box-shadow: 0 8px 0 rgba(0,0,0,.12), 0 18px 40px rgba(0,0,0,.25); animation: popIn .4s both; }
+.gate-title { font-size: 22px; font-weight: 900; }
+.gate-bar { display: flex; gap: 12px; align-items: center; }
+.gate-go { min-width: 168px; min-height: 80px; font-size: 34px; border-radius: 28px; }
+.go-gate.ready .gate-go { animation: gatePulse 1.3s ease-in-out infinite; }
+@keyframes gatePulse { 0%,100% { box-shadow: 0 5px 0 var(--c3), 0 0 0 0 rgba(94,232,122,.85); } 50% { box-shadow: 0 5px 0 var(--c3), 0 0 0 14px rgba(94,232,122,0); } }
+.gate-replay { width: 72px; min-width: 72px; height: 72px; padding: 0; font-size: 32px; border-radius: 24px; }
+@media (max-height: 600px) { .gate-go { min-height: 66px; font-size: 28px; min-width: 140px; } .gate-replay { width: 60px; min-width: 60px; height: 60px; font-size: 26px; } .gate-title { font-size: 19px; } }
+
+/* ---------- v3: Ask Helper (talk to the helper) ---------- */
+.top-actions { display: flex; gap: 8px; flex: none; }
+.btn.icon.ask-helper { --c1: #d9c4ff; --c2: #9b6bff; --c3: #5b33c2; color: #fff; flex-direction: column; gap: 0; text-shadow: 0 1px 0 rgba(0,0,0,.2); }
+.btn.icon.ask-helper svg { width: 24px; height: 24px; }
+.btn.icon.ask-helper span { font-size: 11px; line-height: 1; margin-top: 1px; }
+.helper .overlay-card { background: linear-gradient(180deg, #f6f0ff, #e6dbff); gap: 10px; }
+.helper-face { width: 120px; height: 140px; margin: 0 auto; position: relative; }
+.helper-face .buddy-svg { width: 100%; height: 100%; position: relative; z-index: 1; }
+.helper-face::before { content: ""; position: absolute; left: 50%; top: 52%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; background: rgba(155,107,255,.25); transform: scale(.6); opacity: 0; }
+.helper-face.listening::before { animation: hearPulse 1.4s ease-out infinite; opacity: 1; }
+.helper-face.speaking::before { animation: talkPulse .5s ease-in-out infinite alternate; opacity: 1; background: rgba(94,232,122,.35); }
+.helper-face.connecting, .helper-face.loading { animation: helperBob 1s ease-in-out infinite; }
+@keyframes hearPulse { from { transform: scale(.6); opacity: .9; } to { transform: scale(1.35); opacity: 0; } }
+@keyframes talkPulse { from { transform: scale(.85); } to { transform: scale(1.15); } }
+@keyframes helperBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.helper-status { font-size: 24px; font-weight: 900; color: #5b33c2; }
+.helper-timer { font-size: 15px; font-weight: 800; color: #7a6aa8; min-height: 18px; }
+.helper-end { width: 100%; }
+.helper-note { font-size: 14px; font-weight: 700; color: #7a6aa8; }
+.kid-toast { position: fixed; left: 50%; bottom: calc(var(--sab) + 22px); z-index: 75; transform: translate(-50%, 30px); opacity: 0; transition: opacity .25s, transform .25s;
+  background: #fff; color: var(--ink); font-size: 17px; font-weight: 900; padding: 12px 18px; border-radius: 18px; box-shadow: 0 6px 0 rgba(0,0,0,.12), 0 12px 30px rgba(0,0,0,.25); width: max-content; max-width: calc(100vw - 32px); text-align: center; }
+.kid-toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (max-height: 600px) {
+  .topbar .top-actions .btn.icon { width: 46px; height: 46px; min-width: 46px; min-height: 46px; }
+  .helper-face { width: 90px; height: 105px; } .helper-status { font-size: 20px; }
+}
+
+/* ---------- v3: Show me (gated demo with Pause / Replay step / Let me try) ---------- */
+.btn.showme-btn.locked { --c1: #e3d9c9; --c2: #c2b49c; --c3: #8f826b; color: #fff; }
+.btn.showme-btn.lit { animation: litGlow 1.6s ease-in-out infinite; }
+@keyframes litGlow { 0%,100% { box-shadow: 0 5px 0 var(--c3), 0 0 0 0 rgba(255,192,97,.9); } 50% { box-shadow: 0 5px 0 var(--c3), 0 0 0 10px rgba(255,192,97,0); } }
+.demo-bar { position: absolute; left: 50%; top: calc(var(--sat) + 6px); transform: translateX(-50%); z-index: 45; display: flex; gap: 8px;
+  background: rgba(255,255,255,.92); padding: 8px; border-radius: 22px; box-shadow: 0 6px 0 rgba(0,0,0,.12), 0 12px 30px rgba(0,0,0,.25); }
+.demo-bar .btn { min-height: 52px; font-size: 18px; padding: 8px 12px; border-radius: 16px; white-space: nowrap; }
+.level-screen.demo-paused .play-host { filter: saturate(.6) brightness(.95); }
+@media (max-width: 340px) { .demo-bar { gap: 5px; padding: 6px; } .demo-bar .btn { font-size: 15px; padding: 6px 9px; min-height: 48px; } }
+
+/* v3 game update: small banner (never blocks play) + settings button */
+.update-banner { position: fixed; left: 50%; bottom: calc(var(--sab) + 136px); transform: translateX(-50%); z-index: 80;
+  display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 24px); padding: 10px 10px 10px 16px;
+  background: linear-gradient(#ffe56b, #ffc21a); color: #5a3b00; font-weight: 900; font-size: 17px; border-radius: 999px;
+  box-shadow: 0 4px 0 #b8860b, 0 10px 24px rgba(0,0,0,.25); cursor: pointer; width: max-content; animation: upd-pop .35s ease-out; }
+.update-banner span { line-height: 1.15; }
+@media (max-width: 380px) { .update-banner { font-size: 15px; gap: 8px; padding-left: 12px; } }
+.update-x { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.7); color: #5a3b00;
+  font-size: 16px; font-weight: 900; cursor: pointer; }
+@keyframes upd-pop { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+.update-btn.busy { opacity: .6; pointer-events: none; }

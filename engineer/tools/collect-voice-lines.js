@@ -8,7 +8,9 @@
  *    map, every level (tip card, guided tutorial, Show me → Go → win screen + fact, failing attempts) and the
  *    Practice Room challenges, recording every text passed.
  *
- * Usage: node tools/collect-voice-lines.js [--static]   (--static skips the browser run) */
+ * Usage: node tools/collect-voice-lines.js [--static | --merge]
+ *   --static skips the browser run; --merge = static lines added to the existing lines.json / groups.json
+ *   (quick update while developing; run the full collection before generating clips). */
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -85,6 +87,34 @@ function dynamicLines() {
   return out;
 }
 
+/** Weekly projects (v3): hub lines per project + per step (story, goal, hint, tutorial, tip, win fact). */
+function weeklyStatic(LINES) {
+  const W = require(path.join(ROOT, 'js/logic/weekly.js'));
+  const { projects } = require(path.join(ROOT, 'js/data/weekly-projects.js'));
+  const levelsByWorld = {}, contentByWorld = {};
+  WORLDS.forEach((w) => { const d = worldData(w); levelsByWorld[w] = d.levels; contentByWorld[w] = d.content; });
+  const out = [];
+  projects.forEach((p) => {
+    out.push({ group: 'weekly:' + p.id, lines: [p.intro, p.done, LINES.weeklyLocked, LINES.weeklyStepLocked] });
+    p.steps.forEach((s, k) => {
+      const lv = W.resolveStep(p, k, levelsByWorld);
+      const lines = weeklyStepLines(p, s, k, lv, contentByWorld[s.world], LINES);
+      out.push({ group: 'weekly:' + p.id + ':' + k, lines });
+    });
+  });
+  return out;
+}
+/** Same lines (and fact index) as openWeeklyStep in js/core/app.js. */
+function weeklyStepLines(p, s, k, lv, content, LINES) {
+  const out = [s.say, lv.goal, lv.hint];
+  (lv.tutorial || []).forEach((t) => { if (t.say) out.push(t.say); });
+  const tip = lv.tip && content.tips && content.tips[lv.tip];
+  if (tip) out.push(VK.tipLine(tip.title, tip.text));
+  const facts = content.facts || [];
+  if (facts.length) out.push(LINES.didYouKnow + facts[(p.weekIndex * 7 + k * 3) % facts.length]);
+  return out.filter(Boolean);
+}
+
 function staticCollect() {
   const { LINES, lines: shell } = shellLines();
   const groups = { common: new Set(), practice: new Set() };
@@ -102,6 +132,10 @@ function staticCollect() {
   });
   const robot = require(path.join(ROOT, 'js/data/robot-levels.js'));
   (robot.practice || []).forEach((c) => add(groups.practice, c.goal));
+  weeklyStatic(LINES).forEach(({ group, lines }) => {
+    const g = groups[group] = groups[group] || new Set();
+    lines.forEach((t) => add(g, t));
+  });
   viewLiterals().forEach((v) => add(null, v.text));
   dynamicLines().forEach((t) => add(null, t));
   return { all, groups, LINES };
@@ -233,7 +267,9 @@ async function runtimeCollect() {
           await clickIf(page, '.overlay.tip .btn');
           await page.evaluate(() => LE.activeLevel.showMe());
           await page.waitForTimeout(200);
-          await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 60000 });
+          await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 120000 });
+          await page.waitForTimeout(200);
+          await page.evaluate(() => LE.activeLevel.solve());    // the demo gives no stars: now solve it for the win lines
           await page.waitForTimeout(200);
           const wonLive = await page.waitForSelector('.overlay.win', { timeout: 1200 }).then(() => true, () => false);
           if (!noGo && !wonLive) await clickIf(page, '.go-btn');
@@ -247,15 +283,81 @@ async function runtimeCollect() {
     }
     await page.context().close();
   }));
+  // Every weekly project hub + step (fresh, fail attempts, Show me → Go → win).
+  {
+    const page = await newPage();
+    const list = await page.evaluate(() => LE.weeklyProjects.map((p) => ({ id: p.id, n: p.steps.length })));
+    for (const p of list) {
+      await page.evaluate((pid) => { LE.app.store.setWeeklyUnlockedMax(99); LE.app.showWeeklyHub(pid); }, p.id);
+      await page.waitForTimeout(300);
+      await clickIf(page, '.weekly-screen .buddy-char');
+      note('weekly:' + p.id, await take(page));
+      for (let k = 0; k < p.n; k++) {
+        const g = 'weekly:' + p.id + ':' + k;
+        try {
+          await page.evaluate(([pid, k]) => {
+            const s = LE.app.store; s.data.seenTips = {};
+            const pr = LE.weeklyProjects.find((x) => x.id === pid), ids = pr.steps.map((x) => x.id);
+            s.resetProject(pid);
+            for (let j = 0; j < k; j++) s.setStepStars(pid, ids[j], 1, ids);
+            s.clearInProgress('wk-' + pid, k);
+            LE.app.openWeeklyStep(pid, k);
+          }, [p.id, k]);
+          await page.waitForSelector('.level-screen .play-host');
+          await page.waitForTimeout(300);
+          await clickIf(page, '.overlay.tip .btn');
+          await page.waitForTimeout(200);
+          await clickIf(page, '.buddy-char');
+          const noGo = await page.evaluate(() => !!LE.activeLevel.inst.noGo);
+          if (!noGo) {
+            for (let j = 0; j < 3; j++) {
+              await clickIf(page, '.go-btn');
+              await page.waitForFunction(() => !LE.activeLevel.inst.busy, null, { timeout: 20000 }).catch(() => {});
+              await page.waitForTimeout(250);
+            }
+          }
+          await page.evaluate(([pid, k]) => LE.app.openWeeklyStep(pid, k, { fresh: true }), [p.id, k]);
+          await page.waitForSelector('.level-screen .play-host');
+          await page.waitForTimeout(250);
+          await page.evaluate(() => LE.activeLevel.showMe());
+          await page.waitForTimeout(200);
+          await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 120000 });
+          await page.waitForTimeout(200);
+          await page.evaluate(() => LE.activeLevel.solve());
+          await page.waitForTimeout(200);
+          const wonLive = await page.waitForSelector('.overlay.win', { timeout: 1200 }).then(() => true, () => false);
+          if (!noGo && !wonLive) await clickIf(page, '.go-btn');
+          await page.waitForSelector('.overlay.win', { timeout: 60000 });
+          await page.waitForTimeout(700);
+        } catch (e) {
+          errors.push(`${g}: ${String(e.message || e).split('\n')[0]}`);
+        }
+        note(g, await take(page));
+      }
+    }
+    await page.context().close();
+  }
+
   await browser.close();
   server.close();
   return { captured, errors };
 }
 
 async function main() {
-  const staticOnly = process.argv.includes('--static');
+  const merge = process.argv.includes('--merge');
+  const staticOnly = merge || process.argv.includes('--static');
   const { all, groups } = staticCollect();
   let errors = [];
+  if (merge) {
+    const old = JSON.parse(fs.readFileSync(path.join(OUT, 'lines.json'), 'utf8'));
+    const oldGroups = JSON.parse(fs.readFileSync(path.join(OUT, 'groups.json'), 'utf8'));
+    const byKey = new Map(old.map((l) => [l.id, l.text]));
+    old.forEach((l) => all.add(l.text));
+    Object.keys(oldGroups).forEach((g) => {
+      groups[g] = groups[g] || new Set();
+      oldGroups[g].forEach((k) => { if (byKey.has(k)) groups[g].add(byKey.get(k)); });
+    });
+  }
   if (!staticOnly) {
     const r = await runtimeCollect();
     errors = r.errors;
@@ -274,10 +376,10 @@ async function main() {
   fs.writeFileSync(path.join(OUT, 'lines.json'), JSON.stringify(lines, null, 1) + '\n');
   fs.writeFileSync(path.join(OUT, 'groups.json'), JSON.stringify(groupsOut) + '\n');
   const chars = lines.reduce((a, l) => a + l.text.length, 0);
-  console.log(`lines.json: ${lines.length} lines, ${chars} characters${staticOnly ? ' (static only)' : ''}`);
+  console.log(`lines.json: ${lines.length} lines, ${chars} characters${merge ? ' (static merged into the last full run)' : staticOnly ? ' (static only)' : ''}`);
   console.log(`groups.json: ${Object.keys(groupsOut).length} groups`);
   if (errors.length) { console.log('capture problems:\n  ' + errors.join('\n  ')); process.exitCode = 1; }
 }
 
-module.exports = { staticCollect, viewLiterals, shellLines, levelLines, dynamicLines, WORLDS };
+module.exports = { staticCollect, viewLiterals, shellLines, levelLines, dynamicLines, weeklyStatic, weeklyStepLines, WORLDS };
 if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });

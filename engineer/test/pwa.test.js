@@ -47,9 +47,13 @@ test('index.html: relative assets only, viewport-fit=cover, apple touch icon, al
   });
 });
 
-test('service worker: cache engineer-v2, precaches every app file + early voice clips, registered with scope ./', () => {
+test('service worker: cache engineer-v3, precaches every app file + early voice clips, registered with scope ./', () => {
   const sw = read('sw.js');
-  assert.match(sw, /var CACHE = 'engineer-v2';/);
+  assert.match(sw, /var CACHE = 'engineer-v3-' \+ BUILD;/);
+  const { buildStamp } = require('../tools/build-sw.js');
+  const stamp = (/var BUILD = '([0-9a-f]{10})';/.exec(sw) || [])[1];
+  assert.strictEqual(stamp, buildStamp(precacheList()), 'build stamp is stale: run node tools/build-sw.js');
+  assert.match(sw, /new Request\(u, \{ cache: 'reload' \}\)/, 'precache bypasses the HTTP cache');
   const listed = [...sw.matchAll(/^\s+'(\.\/[^']*)'/gm)].map((m) => m[1]);
   assert.deepStrictEqual(listed.slice().sort(), precacheList().sort(), 'run node tools/build-sw.js');
   listed.forEach((f) => assert.ok(f === './' || fs.existsSync(path.join(ROOT, f)), 'precached file exists on disk: ' + f));
@@ -61,10 +65,12 @@ test('service worker: cache engineer-v2, precaches every app file + early voice 
   assert.match(sw, /k\.indexOf\('engineer-'\) === 0 && k !== CACHE/);
   assert.match(sw, /res\.status === 200/);
   const app = read('js/core/app.js');
-  assert.match(app, /serviceWorker\.register\('\.\/sw\.js', \{ scope: '\.\/' \}\)/);
+  assert.match(app, /LE\.updater\.register\('\.\/sw\.js'\)/);
+  const upd = fs.readFileSync(path.join(ROOT, 'js', 'core', 'updater.js'), 'utf8');
+  assert.match(upd, /scope: '\.\/', updateViaCache: 'none'/);
 });
 
-test('no runtime network calls or external URLs in app code', () => {
+test('no runtime network calls or external URLs in app code (the vendored helper SDK is the only exception)', () => {
   appFiles().filter((f) => /\.(js|css|html)$/.test(f)).forEach((f) => {
     const src = read(f);
     assert.ok(!/https?:\/\/(?!www\.w3\.org)/.test(src), f + ' contains an external URL');
