@@ -142,7 +142,7 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer}
 @keyframes boomA{0%{opacity:1;transform:scale(.2)}100%{opacity:0;transform:scale(1.6)}}
 .flick{animation:flick .35s infinite alternate}
 @keyframes flick{from{transform:scale(1) translateY(0);filter:brightness(1)}to{transform:scale(1.06,1.12) translateY(-2px);filter:brightness(1.25)}}
-#howScroll{max-height:calc(100vh - 220px);overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;text-align:left;margin:0 -8px;padding:0 8px}
+#howScroll{max-height:calc(100vh - 330px);overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;text-align:left;margin:0 -8px;padding:0 8px}
 .how{display:flex;align-items:center;gap:12px;background:#0d2f7a66;border-radius:18px;padding:10px;margin:10px 0}
 .how .ic{flex:none;display:flex;gap:2px;align-items:center}
 .how .ic img{width:44px;height:44px}
@@ -178,6 +178,17 @@ button{font-family:inherit;touch-action:manipulation;cursor:pointer}
 .stSeg button.on{background:linear-gradient(#ffe27a,#f09a00);color:#6a3300;border-color:#fff3c0}
 .admCode{font-size:min(21px,4.7vw);font-weight:900;white-space:nowrap;overflow-x:auto;background:#fff;color:#123a8c;border-radius:12px;padding:8px 10px;text-align:center;user-select:text;-webkit-user-select:text}
 .admConfirm{background:#8a170ecc;border-radius:14px;padding:10px;margin-top:8px;font-weight:800}
+/* ---------- updates ---------- */
+#updRow{text-align:center;margin-top:10px}
+#updRow .btn{font-size:20px;min-height:54px;padding:6px 20px}
+#updRow .btn[disabled]{opacity:.7}
+#updMsg{min-height:20px;margin-top:6px;font-size:16px;font-weight:800;line-height:1.25}
+#updMsg .ar{display:block;font-size:14px;opacity:.9}
+#updBanner{position:fixed;z-index:80;left:50%;bottom:calc(var(--sb) + 14px);transform:translateX(-50%);max-width:calc(100vw - 24px);padding:10px 22px;border:3px solid #fff;border-radius:24px;
+ background:linear-gradient(#ffe27a,#ffbf1f 52%,#f09a00);color:#6a3300;font:inherit;font-size:19px;font-weight:900;white-space:nowrap;box-shadow:0 5px 0 #a35f00,0 12px 24px #0007;animation:bannerIn .5s cubic-bezier(.3,1.6,.5,1) both}
+#updBanner small{display:block;font-size:15px;font-weight:800}
+#updBanner.busy{opacity:.85}
+@keyframes bannerIn{from{transform:translate(-50%,160%)}to{transform:translate(-50%,0)}}
 </style></head><body>
 <div id="title" class="scr"><svg class="bgsvg" id="tBg" viewBox="0 0 400 700" preserveAspectRatio="xMidYMax slice"></svg>
  <div id="tWrap">
@@ -655,6 +666,97 @@ function validateCur(cur){
     return {mode,lv:mode==='story'?cur.lv:-1,en:mode==='endless'?cur.en:0,b,moves:cur.moves,score:cur.score,turn:cur.turn,collected,plus:cur.plus?1:0};
   }catch(e){return null}
 }
+</script>
+<script id="update">
+/* Game updates. Registers the service worker with updateViaCache:'none', checks for a new version on load and every
+ * time the app comes back to the screen, and tells the page (onUpdate) when a new version is installed and waiting.
+ * Nothing reloads by itself: apply() is only called from a tap, and the reload happens on controllerchange.
+ * check() is the "Update game" button: resolves 'offline' | 'latest' | 'updating'.
+ * All browser objects are injected so this runs in node tests with fakes. UMD. */
+(function (root, factory) {
+  var mod = factory();
+  if (typeof module === 'object' && module.exports) module.exports = mod;
+  else { root.GameUpdate = mod; }
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  function createUpdater(o) {
+    var nav = o.navigator, sw = nav && nav.serviceWorker, reg = null, waiting = null, wantReload = false, reloading = false;
+    var timeout = o.timeout || 30000, setT = o.setTimeout || setTimeout;
+    function reload() { if (reloading) return; reloading = true; o.reload(); }
+    function found(w) { if (!w || waiting === w) return; waiting = w; if (o.onUpdate) o.onUpdate(); }
+    function watchWorker(w) {
+      if (!w) return;
+      if (w.state === 'installed') { if (sw.controller) found(w); return; }
+      w.addEventListener('statechange', function () { if (w.state === 'installed' && sw.controller) found(w); });
+    }
+    function watch(r) {
+      if (r.waiting && sw.controller) found(r.waiting);
+      if (r.installing) watchWorker(r.installing);
+      r.addEventListener('updatefound', function () { watchWorker(r.installing); });
+    }
+    function register(url) {
+      if (!sw) return Promise.resolve(null);
+      sw.addEventListener('controllerchange', function () { if (wantReload) reload(); });
+      return sw.register(url, { updateViaCache: 'none' }).then(function (r) { reg = r; watch(r); return r; })
+        .catch(function () { return null; });
+    }
+    /** quiet background check (load + visibilitychange) */
+    function poll() {
+      if (!reg || nav.onLine === false) return Promise.resolve(false);
+      return Promise.resolve().then(function () { return reg.update(); }).then(function () { return true; }, function () { return false; });
+    }
+    function waitInstalled(w) {
+      return new Promise(function (res) {
+        if (w.state === 'installed' || w.state === 'activated') return res(true);
+        if (w.state === 'redundant') return res(false);
+        var done = false;
+        w.addEventListener('statechange', function () {
+          if (done) return;
+          if (w.state === 'installed' || w.state === 'activated') { done = true; res(true); }
+          else if (w.state === 'redundant') { done = true; res(false); }
+        });
+        setT(function () { if (!done) { done = true; res(false); } }, timeout);
+      });
+    }
+    /** activate the waiting version and reload into it (only call this from a tap) */
+    function apply() {
+      wantReload = true;
+      var w = waiting || (reg && reg.waiting);
+      if (w && sw.controller) {
+        w.postMessage({ type: 'SKIP_WAITING' });
+        setT(reload, 5000); // safety net if controllerchange never fires
+      } else reload();
+    }
+    /** the "Update game" button */
+    function check() {
+      if (nav.onLine === false) return Promise.resolve('offline');
+      if (!reg) {
+        // no service worker (old browser / test mode): a fresh reload is the update
+        if (!o.ping) return Promise.resolve('latest');
+        return o.ping().then(function () { return 'latest'; }, function () { return 'offline'; });
+      }
+      return Promise.resolve().then(function () { return reg.update(); }).then(function () {
+        var w = reg.installing || reg.waiting;
+        if (!w) return 'latest';
+        return waitInstalled(w).then(function (ok) {
+          if (!ok) return 'latest';
+          waiting = reg.waiting || w;
+          apply();
+          return 'updating';
+        });
+      }, function () { return 'offline'; });
+    }
+    return { register: register, poll: poll, check: check, apply: apply,
+      hasUpdate: function () { return !!waiting; }, registration: function () { return reg; } };
+  }
+  var TEXT = {
+    latest: 'You have the latest version', latestAr: 'لديك أحدث نسخة',
+    offline: "You're offline, try again later", offlineAr: 'أنت غير متصل، حاول لاحقًا',
+    updating: 'Updating…', updatingAr: 'جارٍ التحديث…',
+    banner: 'New version! Tap to update', bannerAr: 'نسخة جديدة! اضغط للتحديث'
+  };
+  return { createUpdater: createUpdater, TEXT: TEXT };
+});
 </script>
 <script>
 "use strict";
@@ -1533,8 +1635,9 @@ function howHTML(){
    <style>#musicCredits a{color:#ffe27a}</style><div class="how" id="musicCredits" style="display:block;font-size:13px;line-height:1.4"><b>🎵 Music credits / حقوق الموسيقى</b><br>
    Kuwait levels: “Traditional Qatari Wedding Ceremony” by Noah Scalin, <a href="https://commons.wikimedia.org/wiki/File:Traditional_Qatari_Wedding_Ceremony.webm" target="_blank" rel="noopener">Wikimedia Commons</a>, licensed <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Excerpt (80 s), looped and volume-adjusted.<br>
    Morocco levels: “وصلة من فن كناوة باب الاحد الرباط” (Gnawa, Bab El Had, Rabat) by RACHID BAYA, <a href="https://commons.wikimedia.org/wiki/File:%D9%88%D8%B5%D9%84%D8%A9_%D9%85%D9%86_%D9%81%D9%86_%D9%83%D9%86%D8%A7%D9%88%D8%A9_%D8%A8%D8%A7%D8%A8_%D8%A7%D9%84%D8%A7%D8%AD%D8%AF_%D8%A7%D9%84%D8%B1%D8%A8%D8%A7%D8%B7.webm" target="_blank" rel="noopener">Wikimedia Commons</a>, licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. This clip is adapted (120 s excerpt, looped, volume-adjusted) and the adapted clip (music/morocco.m4a) is shared under CC BY-SA 4.0.</div>
-   </div><button class="btn big wide" id="howOk" style="margin-top:12px">OK! 👍<small class="ar">حسنًا</small></button></div>`}
-function showHow(back){openOv(howHTML());$('howOk').onclick=()=>{sfx.click();closeOv();back&&back()}}
+   </div><div id="updRow"><button class="btn blue" id="updBtn">🔄 Update game<small class="ar">حدّث اللعبة</small></button><div id="updMsg"></div></div>
+   <button class="btn big wide" id="howOk" style="margin-top:12px">OK! 👍<small class="ar">حسنًا</small></button></div>`}
+function showHow(back){openOv(howHTML());$('howOk').onclick=()=>{sfx.click();closeOv();back&&back()};$('updBtn').onclick=()=>{sfx.click();updateGame()}}
 function showPause(){if(!g||g.over)return;g.busy=true;
   openOv(`<div class="panel" style="margin-top:40px"><div class="ribbon ttl">Paused<span class="ar">توقف</span></div>
    <div class="goalList">${g.L.goals.map(gl=>gl.k==='score'?`<div class="fact" style="margin:0">⭐ ${gl.n} points</div>`:`<div class="goal">${goalIcon(gl)}</div>`).join('')}</div>
@@ -1700,5 +1803,18 @@ window._t={musicPlan,findMatches,applyGravity,resolveStep,resolveAll,planMove,ha
   openTitle();
   if(save.mig&&!save.tut.mig){save.tut.mig=1;persist();setTimeout(()=>toast(`⭐ Welcome back! ${save.mig} level${save.mig>1?'s':''} unlocked from your old game`,3500),600)}
 })();
-if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+// ---------- updates: "Update game" button (How to play) + "New version!" banner, never mid-level ----------
+const UT=GameUpdate.TEXT;
+const updater=GameUpdate.createUpdater({navigator,reload:()=>{try{if(g&&!g.busy&&!g.over)saveCur()}catch(e){}persist();location.reload()},
+  ping:()=>fetch('index.html',{cache:'no-store'}).then(r=>{if(!r.ok)throw 0}),onUpdate:()=>showUpdateBanner()});
+let bannerT=0;
+function showUpdateBanner(){clearInterval(bannerT);
+  const place=()=>{if($('game').classList.contains('on'))return false;if($('updBanner'))return true;
+    const b=document.createElement('button');b.id='updBanner';b.innerHTML=`✨ ${UT.banner}<small class="ar">${UT.bannerAr}</small>`;
+    b.onclick=()=>{b.classList.add('busy');b.innerHTML=`${UT.updating}<small class="ar">${UT.updatingAr}</small>`;updater.apply()};document.body.appendChild(b);return true};
+  if(!place())bannerT=setInterval(()=>{if(place())clearInterval(bannerT)},1000)}
+function updateGame(){const b=$('updBtn');if(b)b.disabled=true;
+  return updater.check().then(r=>{if(b)b.disabled=false;const el=$('updMsg');if(el)el.innerHTML=`${UT[r]}<span class="ar">${UT[r+'Ar']}</span>`;return r})}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')updater.poll()});
+if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)))updater.register('sw.js').then(()=>updater.poll());
 </script></body></html>

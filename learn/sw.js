@@ -1,7 +1,13 @@
-/* Service worker (scope: this folder): precaches the app shell + common voice clips so the game works fully
- * offline; other clips are cached the first time they play. Only touches caches named learn-*. */
+/* Service worker (scope: this folder). The app code (HTML, JS, CSS, JSON) is network-first, fetched past the HTTP
+ * cache, so an online launch always gets the newest version; the cached copy is used offline or on a very slow
+ * network. Voice clips are cache-first (precached common ones, the rest cached the first time they play).
+ * A new version waits until the page asks it to take over (postMessage SKIP_WAITING after the kid/parent taps
+ * "Update"), so nothing ever reloads in the middle of a level. Only touches caches named learn-*.
+ * BUILD changes whenever any app file changes (node tools/build-sw.js), so every deploy is a new SW version. */
 'use strict';
-var CACHE = 'learn-v2';
+var BUILD = '8d5a096f';
+var CACHE = 'learn-v3';
+var LEGACY = ['learn-v1', 'learn-v2']; // builds without the update banner: take over at once, they cannot ask
 var PRECACHE = [
   /* PRECACHE:START */
   './',
@@ -20,6 +26,7 @@ var PRECACHE = [
   './js/core/lines.js',
   './js/core/rng.js',
   './js/core/speech.js',
+  './js/core/update.js',
   './js/core/voice-key.js',
   './js/data/english.js',
   './js/data/math.js',
@@ -239,8 +246,17 @@ var PRECACHE = [
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
-    caches.open(CACHE).then(function (cache) { return cache.addAll(PRECACHE); }).then(function () { return self.skipWaiting(); })
+    caches.open(CACHE).then(function (cache) {
+      return cache.addAll(PRECACHE.map(function (u) { return new Request(u, { cache: 'reload' }); }));
+    }).then(function () { return caches.keys(); }).then(function (keys) {
+      if (keys.some(function (k) { return LEGACY.indexOf(k) >= 0; })) return self.skipWaiting();
+    })
   );
+});
+
+self.addEventListener('message', function (event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data && event.data.type === 'VERSION' && event.ports && event.ports[0]) event.ports[0].postMessage({ cache: CACHE, build: BUILD });
 });
 
 self.addEventListener('activate', function (event) {
@@ -252,33 +268,47 @@ self.addEventListener('activate', function (event) {
   );
 });
 
+function put(req, res) {
+  if (res && res.status === 200 && res.type === 'basic') {
+    var copy = res.clone();
+    caches.open(CACHE).then(function (c) { c.put(req, copy); });
+  }
+  return res;
+}
+function fromCache(req) {
+  return caches.match(req, { ignoreSearch: true }).then(function (hit) {
+    if (hit || req.mode !== 'navigate') return hit;
+    return caches.match('./index.html').then(function (h) { return h || caches.match('./'); });
+  });
+}
+// Network first (past the HTTP cache); cached copy when offline, or after 6 s on a very slow network.
+function networkFirst(req) {
+  return new Promise(function (resolve) {
+    var settled = false;
+    function done(r) { if (!settled && r) { settled = true; resolve(r); } }
+    var slow = setTimeout(function () { fromCache(req).then(done); }, 6000);
+    fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(function (res) {
+      clearTimeout(slow);
+      if (res && res.ok) { put(req, res); done(res); }
+      else fromCache(req).then(function (hit) { done(hit || res); });
+    }).catch(function () {
+      clearTimeout(slow);
+      fromCache(req).then(function (hit) { if (hit) done(hit); else if (!settled) { settled = true; resolve(Response.error()); } });
+    });
+  });
+}
+
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
-  // The clip list changes when new clips ship: network first, cached copy when offline.
-  if (/\/audio\/voice\/(manifest|groups)\.json$/.test(url.pathname)) {
-    event.respondWith(fetch(req).then(function (res) {
-      if (res && res.status === 200) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
-      return res;
-    }).catch(function () { return caches.match(req, { ignoreSearch: true }); }));
+  if (/\.mp3$/.test(url.pathname)) {
+    event.respondWith(caches.match(req, { ignoreSearch: true }).then(function (hit) {
+      if (hit) return hit;
+      return fetch(req).then(function (res) { return put(req, res); }).catch(function () { return Response.error(); });
+    }));
     return;
   }
-  event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(function (hit) {
-      if (hit) return hit;
-      return fetch(req).then(function (res) {
-        // Cache complete responses only (200, same-origin); never 206 partial/range responses.
-        if (res && res.status === 200 && res.type === 'basic') {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        }
-        return res;
-      }).catch(function () {
-        if (req.mode === 'navigate') return caches.match('./index.html');
-        return Response.error();
-      });
-    })
-  );
+  event.respondWith(networkFirst(req));
 });
