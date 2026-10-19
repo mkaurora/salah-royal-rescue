@@ -3,7 +3,7 @@
 // copy is used offline or on a very slow network. Music is cache-first. A new version waits until the page asks it to
 // take over (SKIP_WAITING after a tap on "Update"), so nothing reloads in the middle of a level.
 // BUILD changes whenever index.html changes (node tools/stamp-sw.js), so every deploy is a new SW version.
-const BUILD='a2a04e47';
+const BUILD='25a00c02';
 const C='salah-v7',F=['./','index.html','manifest.json','icon-180.png','icon-192.png','icon-512.png','music/kuwait.m4a','music/morocco.m4a'];
 const LEGACY=['salah-v1','salah-v2','salah-v3','salah-v4','salah-v5','salah-v6']; // builds without the update banner: take over at once
 self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(u=>new Request(u,{cache:'reload'})))).then(()=>caches.keys()).then(k=>{if(k.some(x=>LEGACY.includes(x)))return self.skipWaiting()})));
