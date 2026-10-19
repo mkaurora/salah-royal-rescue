@@ -701,12 +701,38 @@
       if (!m) return null;
       return '<div class="blk blk-' + m[1] + '"><div class="blk-ico">' + ICONS[m[1]] + '</div></div>';
     }
-    function showMeSteps(solution) {
+    /** Blocks in pre-order: [{ t, n, path }]. */
+    function preorder(list, slotPath, out) {
+      out = out || [];
+      list.forEach(function (b, i) {
+        var path = (slotPath === '' ? '' : slotPath + '.') + i;
+        out.push({ t: b.t, n: b.n, path: path });
+        if (b.body) preorder(b.body, path, out);
+      });
+      return out;
+    }
+    /** opts.fromCurrent (Ask Helper demo): keep the blocks that already match the start of the solution, take out
+     *  the wrong ones (last first, so paths stay valid), then add the rest. */
+    function showMeSteps(solution, opts) {
       var steps = [];
-      if (program.length) steps.push({ from: 'clear', apply: function () { program = []; target = ''; render(); changed(); ctx.sfx('whoosh'); }, say: 'First, let\'s start fresh.' });
+      var keep = 0;
+      if (opts && opts.fromCurrent && program.length) {
+        var want = preorder(solution, ''), have = preorder(program, '');
+        while (keep < have.length && keep < want.length && have[keep].t === want[keep].t && have[keep].path === want[keep].path &&
+               (have[keep].t !== 'rep' || have[keep].n === want[keep].n)) keep++;
+        if (keep === 0) steps.push({ from: 'clear', apply: function () { program = []; target = ''; render(); changed(); ctx.sfx('whoosh'); }, say: 'First, let\'s start fresh.' });
+        else {
+          have.slice(keep).reverse().forEach(function (b, k) {
+            steps.push({ from: 'block:' + b.path, to: 'tray:' + b.t,
+              apply: function () { removeAt(b.path); target = ''; render(); } });
+          });
+        }
+      } else if (program.length) steps.push({ from: 'clear', apply: function () { program = []; target = ''; render(); changed(); ctx.sfx('whoosh'); }, say: 'First, let\'s start fresh.' });
+      var seen = 0;
       function addList(list, slotPath) {
         list.forEach(function (b, i) {
           var path = (slotPath === '' ? '' : slotPath + '.') + i;
+          if (seen++ < keep) { if (b.body) addList(b.body, path); return; }
           (function (b, path, slotPath) {
             steps.push({
               from: 'tray:' + b.t, to: slotPath === '' ? 'strip' : 'slot:' + slotPath,
@@ -738,7 +764,7 @@
       target: targetRect,
       ghost: ghostHTML,
       goLabel: 'Play',
-      showMe: function () { return showMeSteps(level.solution); },
+      showMe: function (opts) { return showMeSteps(level.solution, opts); },
       showMeFor: showMeSteps,
       stop: stop,
       reset: function () {

@@ -1080,7 +1080,8 @@
       return null;
     }
 
-    function showMeSteps() {
+    function showMeSteps(opts) {
+      var fromCurrent = !!(opts && opts.fromCurrent);
       var steps = [];
       var want = BL.normalize(level.solution);
       var wantKeys = {};
@@ -1091,7 +1092,7 @@
       var extras = bad.length > 0;
       var sim2 = beams.slice();
       var curTool = tool === 'erase' ? null : tool;
-      if (extras && level.eraseDemo && bad.length <= 4) {
+      if (extras && (level.eraseDemo || fromCurrent) && bad.length <= 4) {
         // "Erase and swap" levels: take away only the wrong beams with the Erase tool (same path as a tap).
         steps.push({ from: 'tool:erase', say: 'Tap Erase. Then tap the beam to take it away.', apply: function () { setTool('erase'); } });
         bad.forEach(function (b) {

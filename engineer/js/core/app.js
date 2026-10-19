@@ -40,6 +40,7 @@
     demoGo: { Go: 'Now we press Go!', Play: 'Now we press Play!' },
     demoWorks: 'See? It works!',
     demoYourTurn: 'Now it is your turn. Build it yourself!',
+    aiYourTurn: 'Your turn! Now you do the steps the helper showed you.',
     /* one short line per demo step (only when the line changes), by world and pointer key */
     demo: {
       robot: { 'tray:F': 'Forward!', 'tray:L': 'Turn left!', 'tray:R': 'Turn right!' },
@@ -183,11 +184,20 @@
 
   /* ---------- Ask Helper: talk to the helper by voice (ElevenLabs agent; hints only) ---------- */
   var MIC_SVG = '<svg viewBox="0 0 24 24"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5v3M8.5 21.5h7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
-  /** opts: { world, level, weekly, buddy, onClose } */
+  /** opts: { world, level, weekly, buddy, onClose, vars?, clientTools?, onSession? }
+   *  A compact call bar sits over the top bar so the board stays visible while the helper shows things on it.
+   *  onClose(reason) returning true means the level handles the goodbye (the "Your turn!" after a demo). */
   function askHelper(opts) {
     var level = opts.level, buddy = opts.buddy;
+    var callBar = null;
+    function removeBar() {
+      if (!callBar) return;
+      var b = callBar; callBar = null;
+      b.classList.remove('show');
+      setTimeout(function () { b.remove(); }, 250);
+    }
     function fallback(reason) {
-      closeOverlay();
+      removeBar();
       var line = reason === 'mic' ? LINES.helperMic : LINES.helperOffline;
       toast(reason === 'mic' ? '🎤 The microphone is off — here is a hint instead!'
         : reason === 'blocked' ? '🙈 The helper is not allowed here — here is a hint!'
@@ -196,16 +206,20 @@
       if (level.hint) buddy.say(line + ' ' + level.hint, { speakParts: [line, level.hint] });
       else buddy.say(level.goal);
     }
+    function notify(reason) { return opts.onClose ? opts.onClose(reason) : false; }
     if (!store.getHelper()) return;
-    if (!navigator.onLine || !LE.helperTalk) { fallback('offline'); return; }
+    if (!navigator.onLine || !LE.helperTalk) { notify('fallback'); fallback('offline'); return; }
     LE.stopSpeaking();
     LE.hand.hide();
     var status = h('div.helper-status', 'Calling the helper… 📞');
     var timer = h('div.helper-timer', '');
     var face = h('div.helper-face.connecting', { html: LE.buddySVG() });
     var session = null, t0 = 0, tick = 0, closed = false;
-    var endBtn = LE.button('red huge helper-end', 'End ⏹', function () { finish(true); }, { label: 'End talking' });
-    openOverlay([h('h2', '🎤 Ask Helper'), face, status, timer, endBtn, h('div.helper-note', 'Ask about this level. The helper gives hints, not answers!')], 'helper');
+    var endBtn = LE.button('red helper-end', 'End ⏹', function () { finish(true); }, { label: 'End talking' });
+    callBar = h('div.helper-call', { role: 'dialog', 'aria-label': 'Talking to the helper' }, face, h('div.helper-mid', status, timer), endBtn);
+    document.body.appendChild(callBar);
+    void callBar.offsetWidth;
+    callBar.classList.add('show');
     function onHidden() { if (document.hidden) finish(false); }
     document.addEventListener('visibilitychange', onHidden);
     function finish(byKid) {
@@ -214,12 +228,20 @@
       document.removeEventListener('visibilitychange', onHidden);
       clearInterval(tick);
       if (session) session.end('kid'); else LE.helperTalk.stop();
-      closeOverlay();
-      if (byKid || session) buddy.say(LINES.helperBye, { time: 2500 });
-      if (opts.onClose) opts.onClose();
+      removeBar();
+      var handled = notify(byKid ? 'kid' : 'ended');
+      if (!handled && (byKid || session)) buddy.say(LINES.helperBye, { time: 2500 });
+    }
+    function failed(reason) {
+      closed = true;
+      clearInterval(tick);
+      document.removeEventListener('visibilitychange', onHidden);
+      notify('fallback');
+      fallback(reason);
     }
     LE.helperTalk.start({
-      vars: LE.helperTalk.buildVars({ world: opts.world, level: level, weekly: opts.weekly }),
+      vars: opts.vars || LE.helperTalk.buildVars({ world: opts.world, level: level, weekly: opts.weekly }),
+      clientTools: opts.clientTools,
       onState: function (st) {
         if (closed) return;
         face.className = 'helper-face ' + st;
@@ -234,26 +256,17 @@
       },
       onEnd: function (reason) {
         if (closed) return;
-        if (reason === 'dropped') {                 // the agent hung up without a word → hint instead
-          closed = true; clearInterval(tick);
-          document.removeEventListener('visibilitychange', onHidden);
-          fallback('busy');
-          if (opts.onClose) opts.onClose();
-          return;
-        }
+        if (reason === 'dropped') { failed('busy'); return; }   // the agent hung up without a word → hint instead
         finish(false);
       }
     }).then(function (s) {
       session = s;
-      if (closed) s.end('kid');
+      if (closed) { s.end('kid'); return; }
+      if (opts.onSession) opts.onSession(s);
     }).catch(function (e) {
       if (closed || e.reason === 'cancelled') return;
-      closed = true;
-      document.removeEventListener('visibilitychange', onHidden);
-      clearInterval(tick);
       console.warn('Ask Helper unavailable:', e.reason, e.error && (e.error.message || e.error));
-      fallback(e.reason);
-      if (opts.onClose) opts.onClose();
+      failed(e.reason);
     });
     return { end: function () { finish(false); } };
   }
@@ -642,10 +655,87 @@
     var helperOn = store.getHelper() && !!LE.helperTalk;
     var helperSession = null;
     function openHelper() {
-      if (demoRunning || helperSession) return;
-      helperSession = askHelper({ world: worldId, level: level, buddy: buddy,
-        weekly: spec.weekly ? { title: spec.weekly.title, stepTitle: level.name, index: spec.weekly.index, count: spec.weekly.count } : null,
-        onClose: function () { helperSession = null; lastActivity = Date.now(); } }) || null;
+      if (demoRunning || helperSession || ai) return;
+      var weekly = spec.weekly ? { title: spec.weekly.title, stepTitle: level.name, index: spec.weekly.index, count: spec.weekly.count } : null;
+      var demoApi = aiBegin();
+      var cv = demoApi ? demoApi.vars() : {};
+      helperSession = askHelper({ world: worldId, level: level, buddy: buddy, weekly: weekly,
+        vars: LE.helperTalk ? LE.helperTalk.buildVars({ world: worldId, level: level, weekly: weekly, board: cv.board, steps: cv.steps, targets: cv.targets }) : null,
+        clientTools: demoApi ? demoApi.tools : null,
+        onSession: function (s) { if (ai) { ai.session = s; ai.sendNow(); } },
+        onClose: function (reason) { helperSession = null; lastActivity = Date.now(); return aiEnd(reason); } }) || null;
+      if (!helperSession && ai) aiEnd('fallback');
+    }
+
+    /* ---------- The helper shows things on his board (js/core/ai-demo.js) ----------
+     * At call start the board is snapshotted; nothing is saved while the helper demonstrates (saveState only tracks
+     * curState); a shield blocks the board (only the call bar's End works); win/fail are swallowed (no stars).
+     * When the call ends (End / hang-up / time-out / leaving) the view is re-created from the snapshot → exactly
+     * his board again, then "Your turn!". */
+    var ai = null, curState = spec.saved || null;
+    function aiBegin() {
+      if (!LE.aiDemo || !inst || !inst.showMe) return null;
+      if (inst.busy && inst.stop) inst.stop();
+      closeGate();
+      tutorialToken++;
+      LE.hand.hide();
+      buddy.hide();
+      var a = ai = { snapshot: curState == null ? null : JSON.parse(JSON.stringify(curState)), before: JSON.stringify(LE.aiDemo.boardOf(inst)),
+        solved: false, result: null, going: false, session: null, lastSent: '', sendT: 0, shield: h('div.ai-shield') };
+      ['pointerdown', 'touchstart', 'mousedown', 'click'].forEach(function (t) {
+        a.shield.addEventListener(t, function (e) { e.preventDefault(); e.stopPropagation(); }, { passive: false });
+      });
+      el.classList.add('ai-call');
+      el.appendChild(a.shield);
+      a.demo = LE.aiDemo.create({
+        getInst: function () { return inst; }, world: worldId, level: level, host: host,
+        alive: function () { return alive && ai === a; },
+        solved: function () { return a.solved; },
+        onResult: function (fn) { a.result = fn; if (a.solved) fn('win'); },
+        going: function (v) { a.going = v; },
+        onTool: function (name, params, res) { emit('ai-tool', { name: name, params: params, result: res }); }
+      });
+      a.sendNow = function () {
+        clearTimeout(a.sendT);
+        if (ai !== a || !a.session || !a.session.sendContext) return;
+        var txt = a.demo.update();
+        if (txt === a.lastSent) return;
+        if (a.session.sendContext(txt)) { a.lastSent = txt; emit('ai-context', txt); }
+      };
+      a.changed = function () { clearTimeout(a.sendT); a.sendT = setTimeout(a.sendNow, 350); };
+      return a.demo;
+    }
+    function aiEnd(reason) {
+      var a = ai;
+      if (!a) return false;
+      ai = null;
+      clearTimeout(a.sendT);
+      var used = a.demo.log.length > 0;
+      a.demo.stop();
+      a.shield.remove();
+      el.classList.remove('ai-call');
+      var record = { reason: reason, tools: a.demo.log.slice(), before: a.before, after: null, exact: true, restored: false };
+      if (alive) {
+        // Put his own board back exactly: re-create the view from the snapshot (the same path as resuming a level).
+        if (inst.busy && inst.stop) inst.stop();
+        if (used || a.before !== JSON.stringify(LE.aiDemo.boardOf(inst))) {
+          if (inst.destroy) inst.destroy();
+          ctx.savedState = a.snapshot;
+          inst = w.view.create(host, level, ctx);
+          if (LE.activeLevel) LE.activeLevel.inst = inst;
+          record.restored = true;
+        }
+        curState = a.snapshot;
+        if (a.snapshot != null) spec.saveState(a.snapshot);
+        record.after = JSON.stringify(LE.aiDemo.boardOf(inst));
+        record.exact = record.after === a.before;
+        if (!record.exact) console.warn('helper demo: board restore differs', a.before, record.after);
+      }
+      if (LE.activeLevel) LE.activeLevel.lastAi = record;
+      emit('ai-restored', record);
+      if (!alive || reason === 'fallback' || !used) return false;   // nothing was shown → the usual goodbye
+      buddy.say(LINES.aiYourTurn, { buttons: [{ label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }] });
+      return true;
     }
     var askBtn = helperOn ? LE.button('icon ask-helper', MIC_SVG + '<span>Ask</span>', openHelper, { label: 'Ask Helper' }) : null;
     var bar = topbar(title, function () { spec.back(); }, h('div.top-actions', askBtn, restartBtn));
@@ -677,19 +767,20 @@
       buddy: buddy,
       emit: emit,
       savedState: spec.saved,
-      saveState: function (s) { if (alive) spec.saveState(s); },
+      saveState: function (s) { if (!alive) return; curState = s; if (ai) { ai.changed(); return; } spec.saveState(s); },
       fast: LE.FAST,
       fx: LE.fx,
-      win: function (r) { if (!alive) return; if (demo) { demo.solved = true; if (demo.onResult) demo.onResult('win'); return; } onWin(r || {}); },
-      fail: function (r) { if (!alive) return; if (demo) { if (demo.onResult) demo.onResult('fail'); return; } onFail(r || {}); },
-      isDemo: function () { return demoRunning && !(demo && demo.going); }
+      win: function (r) { if (!alive) return; if (ai) { ai.solved = true; if (ai.result) ai.result('win'); return; } if (demo) { demo.solved = true; if (demo.onResult) demo.onResult('win'); return; } onWin(r || {}); },
+      fail: function (r) { if (!alive) return; if (ai) { if (ai.result) ai.result('fail'); return; } if (demo) { if (demo.onResult) demo.onResult('fail'); return; } onFail(r || {}); },
+      isDemo: function () { return (demoRunning && !(demo && demo.going)) || (!!ai && !ai.going); }
     };
 
     show({ el: el, destroy: function () { alive = false; tutorialToken++; clearInterval(idleT); clearInterval(showMeT); document.removeEventListener('visibilitychange', onVis); if (helperSession) helperSession.end(); if (LE.helperTalk) LE.helperTalk.stop(); buddy.destroy(); if (inst && inst.destroy) inst.destroy(); LE.hand.hide(); } });
     var inst = w.view.create(host, level, ctx);
     LE.activeLevel = { world: worldId, index: index, weekly: spec.weekly || null, level: level, inst: inst, ctx: ctx, showMe: function () { return showMe(); }, buddy: buddy,
       lastDemo: null, askHelper: openHelper, showMeOpen: function () { return showMeOpen(); }, demo: function () { return demo; },
-      solve: function () { return solve(); } };
+      solve: function () { return solve(); },
+      ai: function () { return ai; }, lastAi: null };
 
     /** Test hook: build the stored solution through the same code paths as Show me (no hand, not a demo, so a
      *  win counts like a real one). The caller presses Go (worlds without Go win live). */
@@ -706,7 +797,7 @@
     }
 
     buddy.onTap = function () {
-      if (demoRunning) return;
+      if (demoRunning || ai) return;
       buddy.say(level.goal, {
         buttons: [
           showMeBtn(),
@@ -720,7 +811,7 @@
     el.addEventListener('pointerdown', onActivity, true);
     var idleNudged = 0;
     var idleT = setInterval(function () {
-      if (!alive || demoRunning || helperSession || LE.hasOverlay() || (inst && inst.busy)) return;
+      if (!alive || demoRunning || helperSession || ai || LE.hasOverlay() || (inst && inst.busy)) return;
       if (Date.now() - lastActivity > 35000 && idleNudged < 3) {
         idleNudged++;
         lastActivity = Date.now();
@@ -838,7 +929,7 @@
 
     var demo = null;     // { paused, replay, stop, solved, onResult }
     async function showMe() {
-      if (demoRunning || !alive) return;
+      if (demoRunning || ai || !alive) return;
       if (!showMeOpen()) { hintFirst(); return; }
       if (inst.busy && inst.stop) inst.stop();
       closeGate();

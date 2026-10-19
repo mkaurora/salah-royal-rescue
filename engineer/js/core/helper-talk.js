@@ -35,6 +35,10 @@
       step: wk ? 'Weekly project "' + wk.title + '", step ' + (wk.index + 1) + ' of ' + wk.count + ': ' + wk.stepTitle : 'none'
     };
     if (w === 'robot') vars.hint_only = 'true';
+    // What is on his board right now + the steps still needed + target ids for the show-me tools (js/core/ai-demo.js).
+    vars.board = String((info && info.board) || 'unknown');
+    vars.next_steps = String((info && info.steps) || 'unknown');
+    vars.targets = String((info && info.targets) || 'none');
     return vars;
   }
 
@@ -108,6 +112,8 @@
           agentId: HELPER_AGENT_ID,
           connectionType: 'webrtc',
           dynamicVariables: opts.vars || {},
+          // Show-me tools the agent can call (point_at, draw_arrow, highlight, demo_next_step, demo_all, clear_marks).
+          clientTools: opts.clientTools || {},
           libsampleratePath: LIBSAMPLERATE_PATH,
           onConnect: function () { connectedAt = Date.now(); onState('listening'); },
           onModeChange: function (m) { if (ended) return; if (m && m.mode === 'speaking') spoke = true; onState(m && m.mode === 'speaking' ? 'speaking' : 'listening'); },
@@ -119,7 +125,14 @@
         if (my !== token) { c.endSession().catch(function () {}); throw new Error('cancelled'); }
         convo = c;
         endTimer = setTimeout(function () { end('time'); }, (MAX_SECONDS + 5) * 1000);
-        return { end: end };
+        return {
+          end: end,
+          /** Tell the agent what changed on the board (no reply is triggered). */
+          sendContext: function (text) {
+            if (ended || !convo || !convo.sendContextualUpdate) return false;
+            try { convo.sendContextualUpdate(String(text)); return true; } catch (e) { return false; }
+          }
+        };
       }).catch(function (err) {
         if (err && err.reason) throw err;
         var online = root.navigator ? root.navigator.onLine : true;

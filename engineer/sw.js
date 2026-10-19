@@ -1,7 +1,7 @@
 /* Service worker: precaches the game shell (+ the first voice clips) so it works fully offline.
  * Other voice clips are cached the first time they are played. */
 'use strict';
-var BUILD = '6ba7e0941e';   // written by tools/build-sw.js (hash of all precached files)
+var BUILD = '4a4cb91789';   // written by tools/build-sw.js (hash of all precached files)
 var CACHE = 'engineer-v3-' + BUILD;
 var PRECACHE = [
   /* PRECACHE:START */
@@ -23,6 +23,7 @@ var PRECACHE = [
   './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
   './index.html',
+  './js/core/ai-demo.js',
   './js/core/app.js',
   './js/core/audio.js',
   './js/core/buddy.js',
@@ -120,6 +121,7 @@ var PRECACHE = [
   './audio/voice/68bbe65b.mp3',
   './audio/voice/698af710.mp3',
   './audio/voice/6adb92bb.mp3',
+  './audio/voice/6bf401ca.mp3',
   './audio/voice/70e8efaf.mp3',
   './audio/voice/70ea334a.mp3',
   './audio/voice/72505f73.mp3',

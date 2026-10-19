@@ -1233,17 +1233,27 @@
       });
       return ms;
     }
-    function showMe() {
+    /** opts.fromCurrent (Ask Helper demo): when the board is exactly where the solution would be after its first k
+     *  moves (the move counter aside), continue from move k+1; otherwise start fresh. */
+    function showMe(opts) {
       var steps = [];
-      if (hist.length || !CL.isInitial(level, state) || finished) {
+      var skip = 0;
+      if (opts && opts.fromCurrent && !finished && !queue.length) {
+        var key = function (x) { return JSON.stringify({ stage: x.stage, st: x.st, won: x.won }); };
+        var now = key(state), s0 = CL.init(level), k = 0, found = key(s0) === now ? 0 : -1;
+        (level.solution || []).forEach(function (acts) { acts.forEach(function (a) { s0 = CL.act(level, s0, a).state; k++; if (key(s0) === now) found = k; }); });
+        if (found > 0) skip = found;
+        else if (found < 0) steps.push({ from: 'restart', say: 'First, let\'s start fresh.', apply: function () { doRestart(); }, pause: 400 });
+      } else if (hist.length || !CL.isInitial(level, state) || finished) {
         steps.push({ from: 'restart', say: 'First, let\'s start fresh.', apply: function () { doRestart(); }, pause: 400 });
       }
-      var sim = CL.init(level);
+      var sim = CL.init(level), n = 0;
       (level.solution || []).forEach(function (acts, si) {
         var stg = stages[si];
         acts.forEach(function (a) {
           var r = CL.act(level, sim, a);
           sim = r.state;
+          if (n++ < skip) return;
           var step = { apply: function () { enqueue(a); }, pause: estimate(r.events, stg.type, stg) + 140 };
           if (stg.type === 'build') { step.from = 'tray:' + a; step.to = 'slot:' + a; }
           else step.from = 'btn:' + a;
