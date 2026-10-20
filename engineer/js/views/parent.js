@@ -172,10 +172,11 @@
   PANELS.weekly = function (body, refresh) {
     var st = store(), W = LE.logic.weekly, projects = LE.weeklyProjects || [];
     var now = LE.now();
-    var cal = W.calendarWeek(now), cur = W.currentWeek(st.data, now, projects.length), max = W.unlockedMax(st.data, now);
+    var cal = W.calendarWeek(now), cur = W.currentWeek(st.data, now, projects.length, projects), max = W.unlockedMax(st.data, now);
     var force = st.getWeekly().currentWeekForce;
     var info = card(body, 'Weekly Big Project',
-      'A new project opens every Monday (first one: Mon 19 Oct 2026). Calendar week now: ' + (cal + 1) +
+      'Weeks 1–' + W.OPEN_NOW + ' are open. After that a new project opens every Monday (week ' + (W.OPEN_NOW + 1) + ' on ' +
+      W.opensOn(W.OPEN_NOW).toISOString().slice(0, 10) + '). Open now: weeks 1–' + (Math.min(max, projects.length - 1) + 1) + ' of ' + projects.length +
       '. Showing as "this week": week ' + (cur + 1) + (force !== null ? ' (set by you)' : '') + '.');
     info.appendChild(h('div.a-row',
       abtn('Follow the calendar', 'follow-calendar', function () { st.setCurrentWeekForce(null); st.setWeeklyUnlockedMax(-1); toast('Weeks follow the calendar again.'); refresh(); }),
@@ -183,7 +184,7 @@
     projects.forEach(function (p, i) {
       var open = W.isProjectUnlocked(st.data, i, now), prog = st.projectProgress(p.id);
       var c = card(body, 'Week ' + (i + 1) + ' · ' + p.icon + ' ' + p.title,
-        'Opens ' + W.weekStart(i).toISOString().slice(0, 10) + ' · ' + (prog.done ? 'finished ✔' : open ? 'open' : 'locked') + (i === cur ? ' · this week' : ''));
+        'Opens ' + W.opensOn(i).toISOString().slice(0, 10) + ' · ' + (prog.done ? 'finished ✔' : open ? 'open' : 'locked') + (i === cur ? ' · this week' : ''));
       c.dataset.week = i;
       c.classList.add('wk-card');
       c.appendChild(h('div.a-row',

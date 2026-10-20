@@ -69,3 +69,20 @@
 }
 /* level screen of a weekly step: a little teal badge on the level number */
 .weekly-level .lvl-num { min-width: 48px; padding: 0 6px; background: #d6fff7; }
+
+/* "All weeks" grid (52 weekly projects at a glance) */
+.btn.wk-all { min-height: 36px; padding: 0 10px; font-size: 13px; border-radius: 12px; flex: none; }
+.week-grid .overlay-card { gap: 8px; max-height: calc(100% - 24px); }
+.wg-note { font-size: 14px; font-weight: 800; color: #0b6f66; }
+.wg-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 58vh; overflow-y: auto; padding: 2px; }
+.wg-cell { appearance: none; border: 0; position: relative; aspect-ratio: 1; min-width: 0; border-radius: 12px; background: #fff; font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; box-shadow: 0 3px 0 rgba(0,0,0,.12); cursor: pointer; padding: 0; }
+.wg-icon { font-size: 20px; line-height: 1.1; }
+.wg-num { font-size: 11px; font-weight: 900; color: var(--ink); }
+.wg-cell.done { background: #fff6c9; }
+.wg-cell.on { outline: 3px solid #ffd21f; }
+.wg-cell.locked { background: rgba(35,38,74,.12); box-shadow: none; }
+.wg-cell.locked .wg-icon { font-size: 15px; opacity: .7; }
+.wg-cell.locked .wg-num { color: rgba(35,38,74,.55); }
+.wg-done { position: absolute; top: 1px; right: 4px; font-size: 11px; font-weight: 900; color: #2f9e44; }
+@media (max-height: 600px) { .wg-grid { max-height: 52vh; gap: 5px; } .wg-icon { font-size: 17px; } }

@@ -10,8 +10,9 @@
   function projects() { return LE.weeklyProjects || []; }
   function store() { return LE.app.store; }
   function project(pid) { return projects().filter(function (p) { return p.id === pid; })[0] || null; }
-  function currentIndex() { return W().currentWeek(store().data, LE.now(), projects().length); }
+  function currentIndex() { return W().currentWeek(store().data, LE.now(), projects().length, projects()); }
   function countdownText() {
+    if (W().allOpen(store().data, LE.now(), projects().length)) return 'Every project is open!';
     var d = W().untilNextWeek(LE.now()).days;
     return 'Next project in ' + d + (d === 1 ? ' day' : ' days');
   }
@@ -75,7 +76,8 @@
       h('div.wk-blurb', p.blurb),
       h('div.wk-meta',
         h('span.wk-stars', { html: LE.starSVG(true) + stars + '/' + max }),
-        h('span.wk-countdown', open ? countdownText() : 'Opens ' + W().weekStart(i).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }))));
+        h('span.wk-countdown', open ? countdownText() : 'Opens ' + W().opensOn(i).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })),
+        LE.button('white wk-all', '📅 All weeks', function () { weekGrid(p.id, buddy); }, { label: 'All weeks' })));
 
     var path = h('div.wk-path.scroll-y');
     p.steps.forEach(function (s, k) {
@@ -117,5 +119,29 @@
     }, 350 / LE.speed);
   }
 
-  LE.weeklyHub = { menuCard: menuCard, show: show, project: project };
+  /** Every week at a glance (open / finished / locked with its opening date); tap an open week to go there. */
+  function weekGrid(curId, buddy) {
+    var list = projects(), st = store(), now = LE.now();
+    var nOpen = 0;
+    var grid = h('div.wg-grid.scroll-y');
+    list.forEach(function (q, k) {
+      var open = W().isProjectUnlocked(st.data, k, now), prog = st.projectProgress(q.id);
+      if (open) nOpen++;
+      var cell = h('button.wg-cell' + (open ? '' : '.locked') + (prog.done ? '.done' : '') + (q.id === curId ? '.on' : ''),
+        { type: 'button', 'data-week': k, 'aria-label': 'Week ' + (k + 1) + ': ' + q.title + (open ? '' : ' (locked)') },
+        h('span.wg-icon', open ? q.icon : '🔒'), h('span.wg-num', String(k + 1)),
+        prog.done ? h('span.wg-done', '✔') : null);
+      cell.addEventListener('click', function () {
+        if (!open) { LE.sound.play('buzz'); LE.shake(cell); return; }
+        LE.sound.play('tap');
+        LE.closeOverlay();
+        show(q.id);
+      });
+      grid.appendChild(cell);
+    });
+    LE.openOverlay([h('h2', '📅 All weeks'), h('div.wg-note', nOpen + ' of ' + list.length + ' weeks are open'), grid,
+      LE.button('green wg-close', 'OK 👍', function () { LE.closeOverlay(); })], 'week-grid');
+  }
+
+  LE.weeklyHub = { menuCard: menuCard, show: show, project: project, weekGrid: weekGrid };
 })();
