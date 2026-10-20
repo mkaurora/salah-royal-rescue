@@ -1,4 +1,6 @@
 /* Rewrites the PRECACHE list in sw.js (run after adding/removing files or clips: node tools/build-sw.js).
+ * Also stamps the game version from js/version.js into sw.js (see tools/version-stamp.js): warns when the game
+ * changed but the version was not bumped; `--bump` bumps it for you, `--strict` fails instead of warning.
  * Precaches the app shell, audio/voice/manifest.json + groups.json, and the voice clips (that exist on disk)
  * for the menu / common lines and the first 3 levels of each world. All other clips are cached at runtime. */
 'use strict';
@@ -6,6 +8,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
+const VS = require('./version-stamp.js');
+const VERSION_FILE = 'js/version.js';
 const SKIP = new Set(['node_modules', '.git', 'test', 'e2e', 'tools', 'docs']);
 const SKIP_FILES = new Set(['package.json', 'package-lock.json', 'README.md', 'SPEC.md', 'V2_PROGRESS.md', '.gitignore', 'sw.js',
   'audio/voice/lines.json']);
@@ -32,7 +36,7 @@ function appFiles() {
 function precacheClips() {
   const gf = path.join(ROOT, 'audio/voice/groups.json');
   const groups = fs.existsSync(gf) ? JSON.parse(fs.readFileSync(gf, 'utf8')) : {};
-  const names = ['common'];
+  const names = ['common', 'cars'];
   WORLDS.forEach((w) => { for (let i = 0; i < PRECACHE_LEVELS; i++) names.push(w + ':' + i); });
   const keys = new Set();
   names.forEach((n) => (groups[n] || []).forEach((k) => keys.add(k)));
@@ -52,10 +56,15 @@ function buildStamp(list) {
   return h.digest('hex').slice(0, 10);
 }
 
-function build() {
+function build(opts) {
+  opts = opts || {};
   const list = precacheList();
   const swPath = path.join(ROOT, 'sw.js');
-  const src = fs.readFileSync(swPath, 'utf8');
+  // Version first (it may rewrite js/version.js), then the build stamp over everything including the version file.
+  const ver = VS.stamp({ root: ROOT, versionFile: VERSION_FILE, contentFiles: contentFiles(list),
+    sw: fs.readFileSync(swPath, 'utf8'), flags: opts.flags || VS.flags(), now: opts.now, log: opts.log });
+  build.version = ver;
+  const src = ver.sw;
   const next = src.replace(/\/\* PRECACHE:START \*\/[\s\S]*?\/\* PRECACHE:END \*\//,
     '/* PRECACHE:START */\n' + list.map((f) => "  '" + f + "'").join(',\n') + '\n  /* PRECACHE:END */');
   // Build stamp = hash of every precached file: any change to the game changes sw.js, so phones see a new version.
@@ -67,5 +76,16 @@ function build() {
   return list;
 }
 
-module.exports = { appFiles, precacheClips, precacheList, buildStamp, WORLDS };
-if (require.main === module) { const n = build().length; console.log('precache entries:', n, '(voice clips: ' + precacheClips().length + '), build', build.stamp); }
+/** Shipped files without the version file: their hash (CONTENT in sw.js) tells whether the game changed. */
+function contentFiles(list) {
+  return (list || precacheList()).filter((f) => f !== './').map((f) => f.slice(2)).filter((f) => f !== VERSION_FILE);
+}
+function contentStamp() { return VS.hashFiles(ROOT, contentFiles()); }
+
+module.exports = { appFiles, precacheClips, precacheList, buildStamp, contentStamp, build, WORLDS, VERSION_FILE };
+if (require.main === module) {
+  try {
+    const n = build().length;
+    console.log('precache entries:', n, '(voice clips: ' + precacheClips().length + '), build', build.stamp, '·', build.version.label);
+  } catch (e) { console.error(e.message); process.exit(1); }
+}

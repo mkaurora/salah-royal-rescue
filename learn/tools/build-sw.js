@@ -1,4 +1,6 @@
 /* Rewrites the PRECACHE list in sw.js (run after adding/removing files or clips: node tools/build-sw.js).
+ * Also stamps the game version from js/version.js into sw.js (see tools/version-stamp.js): warns when the app
+ * changed but the version was not bumped; `--bump` bumps it for you, `--strict` fails instead of warning.
  * Precaches the app shell, audio/voice/manifest.json + groups.json, and the voice clips that exist on disk for the
  * 'common' group and the first PRECACHE_LEVELS levels of each subject. All other clips are cached at runtime. */
 'use strict';
@@ -9,6 +11,8 @@ const SKIP = new Set(['node_modules', '.git', 'test', 'e2e', 'tools', 'docs']);
 const SKIP_FILES = new Set(['package.json', 'package-lock.json', 'README.md', 'PROGRESS.md', 'PROMPT.md', '.gitignore', 'sw.js',
   'audio/voice/lines.json', 'run1.log']);
 const SUBJECTS = ['math', 'english', 'science'];
+const VS = require('./version-stamp.js');
+const VERSION_FILE = 'js/version.js';
 const PRECACHE_LEVELS = 2;
 
 function appFiles() {
@@ -45,10 +49,19 @@ function buildHash() {
   return ('0000000' + h.toString(16)).slice(-8);
 }
 
-function build() {
+/** App files + precached clips without the version file: their hash (CONTENT in sw.js) tells whether the app changed. */
+function contentFiles() { return appFiles().concat(precacheClips()).filter((f) => f !== VERSION_FILE); }
+function contentStamp() { return VS.hashFiles(ROOT, contentFiles()); }
+
+function build(opts) {
+  opts = opts || {};
   const list = precacheList();
   const swPath = path.join(ROOT, 'sw.js');
-  const src = fs.readFileSync(swPath, 'utf8').replace(/var BUILD = '[0-9a-f]{8}';/, "var BUILD = '" + buildHash() + "';");
+  // Version first (it may rewrite js/version.js), then BUILD over everything including the version file.
+  const ver = VS.stamp({ root: ROOT, versionFile: VERSION_FILE, contentFiles: contentFiles(), sw: fs.readFileSync(swPath, 'utf8'),
+    flags: opts.flags || VS.flags(), now: opts.now, log: opts.log });
+  build.version = ver;
+  const src = ver.sw.replace(/var BUILD = '[0-9a-f]{8}';/, "var BUILD = '" + buildHash() + "';");
   const next = src.replace(/\/\* PRECACHE:START \*\/[\s\S]*?\/\* PRECACHE:END \*\//,
     '/* PRECACHE:START */\n' + list.map((f) => "  '" + f + "'").join(',\n') + '\n  /* PRECACHE:END */');
   fs.writeFileSync(swPath, next);
@@ -66,5 +79,8 @@ function currentBuild() {
   return m ? m[1] : null;
 }
 
-module.exports = { appFiles, precacheClips, precacheList, currentList, buildHash, currentBuild, SUBJECTS };
-if (require.main === module) console.log('precache entries:', build().length, '(voice clips: ' + precacheClips().length + ')');
+module.exports = { appFiles, precacheClips, precacheList, currentList, buildHash, currentBuild, contentStamp, build, SUBJECTS, VERSION_FILE };
+if (require.main === module) {
+  try { console.log('precache entries:', build().length, '(voice clips: ' + precacheClips().length + ') ·', build.version.label); }
+  catch (e) { console.error(e.message); process.exit(1); }
+}

@@ -77,3 +77,4 @@
 /* Settings panel: dedicated Parents button (works when hold / 5 taps don't) + version label */
 .overlay.settings .parents-btn { font-size: 19px; }
 .app-version { margin-top: 2px; font-size: 13px; font-weight: 700; color: #8a93a8; text-align: center; }
+.admin-version { display: block; font-size: 12px; font-weight: 700; color: #8a93a8; }

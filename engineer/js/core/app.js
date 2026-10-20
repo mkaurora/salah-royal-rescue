@@ -284,6 +284,14 @@
       if (!LE.updater.applyUpdate()) { updateBanner.remove(); updateBanner = null; }
     });
     document.body.appendChild(updateBanner);
+    // Show which version is waiting: "New version 3.4! Tap to update".
+    var shown = updateBanner;
+    if (LE.updater.waitingVersion) LE.updater.waitingVersion().then(function (v) {
+      var span = shown && shown.querySelector('span');
+      if (v && v.version && updateBanner === shown && span && span.textContent.indexOf(LE.UPDATE_MSG.banner) >= 0) {
+        span.textContent = '✨ ' + LE.UPDATE_MSG.bannerV.replace('{v}', v.version);
+      }
+    });
   }
   LE.updater = LE.createUpdater({
     navigator: navigator, document: document,
@@ -330,12 +338,16 @@
       }),
       LE.button('white wide parents-btn', '🔒 Parents', function () { LE.sound.play('open'); LE.parent.openPin(); }, { label: 'Parents', sound: false }),
       LE.button('blue big wide', 'Done', closeOverlay),
-      h('div.app-version', 'Version ' + LE.APP_VERSION)
+      h('div.app-version', LE.versionLabel())
     ], 'settings');
   }
 
   /** The menu gear: short tap = kid settings; hold 3 s (a ring fills up) = parent PIN pad. */
-  LE.APP_VERSION = '3.0';
+  // The version lives in js/version.js only (bump it there; tools/build-sw.js stamps the date and sw.js).
+  var GV = (typeof self !== 'undefined' && self.GAME_VERSION) || { version: '?', built: '' };
+  LE.APP_VERSION = GV.version;
+  LE.APP_BUILT = GV.built;
+  LE.versionLabel = function () { return 'Version ' + GV.version + (GV.built ? ' (' + GV.built + ')' : ''); };
   LE.HOLD_MS = 3000;
   LE.HOLD_MOVE_PX = 40;
   /** Backup way into parent mode: tap a plain visible element (menu title, star counter) 5 times within 3 s. */
@@ -1153,6 +1165,12 @@
     if ('serviceWorker' in navigator && location.protocol !== 'file:' && !/[?&]nosw=1/.test(location.search)) {
       LE.updater.register('./sw.js');
     }
+    // After an update, say so once: "Updated to version 3.4".
+    try {
+      var seen = localStorage.getItem('le-seen-version');
+      if (seen && seen !== LE.APP_VERSION) setTimeout(function () { toast(LE.UPDATE_MSG.updated.replace('{v}', LE.APP_VERSION)); }, 800);
+      if (seen !== LE.APP_VERSION) localStorage.setItem('le-seen-version', LE.APP_VERSION);
+    } catch (e) { /* private mode */ }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

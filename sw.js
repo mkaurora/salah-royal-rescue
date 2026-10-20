@@ -2,13 +2,14 @@
 // Game files are network-first, past the HTTP cache, so an online launch always gets the newest version; the cached
 // copy is used offline or on a very slow network. Music is cache-first. A new version waits until the page asks it to
 // take over (SKIP_WAITING after a tap on "Update"), so nothing reloads in the middle of a level.
-// BUILD changes whenever index.html changes (node tools/stamp-sw.js), so every deploy is a new SW version.
-const BUILD='25a00c02';
-const C='salah-v7',F=['./','index.html','manifest.json','icon-180.png','icon-192.png','icon-512.png','music/kuwait.m4a','music/morocco.m4a'];
+// BUILD changes whenever index.html / version.js change (node tools/stamp-sw.js), so every deploy is a new SW version.
+const BUILD='ea5bc014';
+const VERSION='7.6',BUILT='20 Oct 2026',CONTENT='01fd575e25'; // written by tools/stamp-sw.js from version.js (CONTENT: hash of the game without version.js)
+const C='salah-v7',F=['./','index.html','version.js','manifest.json','icon-180.png','icon-192.png','icon-512.png','music/kuwait.m4a','music/morocco.m4a'];
 const LEGACY=['salah-v1','salah-v2','salah-v3','salah-v4','salah-v5','salah-v6']; // builds without the update banner: take over at once
 self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(u=>new Request(u,{cache:'reload'})))).then(()=>caches.keys()).then(k=>{if(k.some(x=>LEGACY.includes(x)))return self.skipWaiting()})));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x.startsWith('salah-')&&x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
-self.addEventListener('message',e=>{const d=e.data||{};if(d.type==='SKIP_WAITING')self.skipWaiting();if(d.type==='VERSION'&&e.ports&&e.ports[0])e.ports[0].postMessage({cache:C,build:BUILD})});
+self.addEventListener('message',e=>{const d=e.data||{};if(d.type==='SKIP_WAITING')self.skipWaiting();if(d.type==='VERSION'&&e.ports&&e.ports[0])e.ports[0].postMessage({cache:C,build:BUILD,version:VERSION,built:BUILT})});
 const skip=p=>p.includes('/engineer/')||p.endsWith('/engineer')||p.includes('/learn/')||p.endsWith('/learn');
 function put(req,res){if(res&&res.status===200&&res.type==='basic'){const cp=res.clone();caches.open(C).then(c=>c.put(req,cp))}return res}
 function fromCache(req){return caches.match(req,{ignoreSearch:true}).then(h=>h||(req.mode==='navigate'?caches.match('index.html').then(x=>x||caches.match('./')):h))}

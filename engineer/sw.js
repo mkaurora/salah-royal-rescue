@@ -1,7 +1,10 @@
 /* Service worker: precaches the game shell (+ the first voice clips) so it works fully offline.
  * Other voice clips are cached the first time they are played. */
 'use strict';
-var BUILD = 'c08f2c0a6d';   // written by tools/build-sw.js (hash of all precached files)
+var BUILD = '78cdd53280';   // written by tools/build-sw.js (hash of all precached files)
+var VERSION = '3.3';           // written by tools/build-sw.js from js/version.js (shown in Settings)
+var BUILT = '20 Oct 2026';
+var CONTENT = 'a58991bd7f';           // hash of the game without js/version.js: tells the build whether the version needs a bump
 var CACHE = 'engineer-v3-' + BUILD;
 var PRECACHE = [
   /* PRECACHE:START */
@@ -52,6 +55,7 @@ var PRECACHE = [
   './js/logic/robot.js',
   './js/logic/save.js',
   './js/logic/weekly.js',
+  './js/version.js',
   './js/views/bridges-view.js',
   './js/views/cars-view.js',
   './js/views/circuits-view.js',
@@ -293,6 +297,10 @@ self.addEventListener('install', function (event) {
 
 self.addEventListener('message', function (event) {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  // The page asks a waiting worker which version it is, for the "New version 3.4! Tap to update" banner.
+  if (event.data && event.data.type === 'VERSION' && event.ports && event.ports[0]) {
+    event.ports[0].postMessage({ version: VERSION, built: BUILT, build: BUILD, cache: CACHE });
+  }
 });
 
 self.addEventListener('activate', function (event) {

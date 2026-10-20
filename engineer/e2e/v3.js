@@ -53,7 +53,7 @@ async function newPage(browser, opts) {
 async function main() {
   const browser = await pw.chromium.launch();
   const { server, url } = await start(0);
-  const shot = (page, f) => page.screenshot({ path: path.join(SHOTS, (SMALL ? 'se-' : '') + f) });
+  const shot = (page, f) => page.screenshot({ path: path.join(SHOTS, (SMALL ? 'se-' : /Galaxy|Pixel/.test(DEVICE) ? 'android-' : '') + f) });
   console.log(`\n▶ v3 checks (chromium, ${DEVICE})`);
   try {
     /* ---------- parent mode ---------- */
@@ -80,7 +80,9 @@ async function main() {
         await page.tap('.settings-btn');
         await page.waitForSelector('.overlay.settings.show .parents-btn');
         const v = await page.textContent('.overlay.settings.show .app-version');
-        if (!/^Version 3\.\d/.test(v)) throw new Error('version label: ' + v);
+        if (!/^Version 3\.\d+ \(\d{1,2} [A-Z][a-z]{2} \d{4}\)$/.test(v)) throw new Error('version label: ' + v);
+        const sv = await page.evaluate(() => self.GAME_VERSION.version);
+        if (v.indexOf('Version ' + sv + ' ') !== 0) throw new Error('label ' + v + ' vs js/version.js ' + sv);
         await page.waitForTimeout(700);   // overlay pop-in animation
         const box = await page.locator('.overlay.settings.show .parents-btn').boundingBox();
         const vp = page.viewportSize();
@@ -235,29 +237,56 @@ async function main() {
       await page.waitForSelector('.menu-screen');
       await page.waitForTimeout(700);
 
-      await check("weekly: menu shows This Week's Project (week 1: Dream House, countdown)", async () => {
+      await check("weekly: menu shows This Week's Project (week 1: Dream House, every project open)", async () => {
         await page.waitForSelector('.weekly-card');
         const t = await page.textContent('.weekly-card');
         if (!/This Week's Project/.test(t) || !/Dream House/.test(t)) throw new Error('card text: ' + t);
-        if (!/Next project in 5 days/.test(t)) throw new Error('countdown: ' + t);
+        if (!/Every project is open!/.test(t)) throw new Error('card: ' + t);
         await noOverflow(page, 'menu');
         await shot(page, 'menu-with-weekly.png');
       });
 
-      await check('weekly: fake clock — week 1 open, week 2 locked', async () => {
-        const r = await page.evaluate(() => [0, 1].map((i) => LE.logic.weekly.isProjectUnlocked(LE.app.store.data, i, LE.now())));
-        if (!r[0] || r[1]) throw new Error(JSON.stringify(r));
+      // the hub swaps screens with a short transition: wait until the only weekly screen is project k
+      const hubIs = (k, what) => page.waitForFunction((k) => {
+        const sc = document.querySelectorAll('.weekly-screen');
+        return !document.querySelector('.overlay.week-grid') && sc.length === 1 && sc[0].querySelector('.wk-node') &&
+          sc[0].querySelector('.topbar-title').textContent.indexOf(LE.weeklyProjects[k].title) >= 0;
+      }, k, { timeout: 5000 }).catch(() => { throw new Error(what + ': hub did not show ' + k); });
+
+      await check('weekly: fake clock — all 52 weeks open (52 projects)', async () => {
+        const r = await page.evaluate(() => ({ n: LE.weeklyProjects.length,
+          open: LE.weeklyProjects.map((p, i) => LE.logic.weekly.isProjectUnlocked(LE.app.store.data, i, LE.now())) }));
+        if (r.n !== 52) throw new Error('projects ' + r.n);
+        if (r.open.some((o) => !o)) throw new Error('open: ' + r.open.map((o) => (o ? 1 : 0)).join(''));
         await page.tap('.weekly-card');
         await page.waitForSelector('.weekly-screen .wk-node');
-        if (!(await page.locator('.wk-chip[data-week="1"].locked').count())) throw new Error('week 2 chip not locked');
-        await page.tap('.wk-chip[data-week="1"]');
-        await page.waitForTimeout(300);
-        if (!(await page.locator('.weekly-screen [data-step]').first().count())) throw new Error('left the hub');
-        const title = await page.textContent('.weekly-screen .topbar-title');
-        if (!/Dream House/.test(title)) throw new Error('opened a locked week: ' + title);
-        await page.waitForTimeout(400);
+        if (!(await page.locator('.wk-chip[data-week="29"]:not(.locked)').count())) throw new Error('week 30 chip locked');
+        if (!(await page.locator('.wk-chip[data-week="51"]:not(.locked)').count())) throw new Error('week 52 chip locked');
+        if (await page.locator('.wk-chip.locked').count()) throw new Error('a week chip is locked');
+        await page.waitForTimeout(500);
         await noOverflow(page, 'hub');
         await shot(page, 'weekly-hub.png');
+        await page.evaluate(() => { const c = document.querySelector('.wk-chip[data-week="30"]'); if (c) c.scrollIntoView({ inline: 'center' }); });
+        await page.locator('.wk-chip[data-week="30"]').tap();
+        await hubIs(30, 'week 31 hub (open now)');
+        await page.evaluate(() => LE.app.showWeeklyHub('dream-house'));
+        await hubIs(0, 'back to Dream House');
+        await page.evaluate(() => { const c = document.querySelector('.wk-chips'); if (c) c.scrollLeft = 0; });
+      });
+
+      await check('weekly: 📅 All weeks grid shows 52 of 52 open; a cell opens its week', async () => {
+        await page.tap('.wk-all');
+        await page.waitForSelector('.overlay.week-grid .wg-cell');
+        const g = await page.evaluate(() => ({ cells: document.querySelectorAll('.wg-cell').length,
+          open: document.querySelectorAll('.wg-cell:not(.locked)').length, note: document.querySelector('.wg-note').textContent }));
+        if (g.cells !== 52 || g.open !== 52 || !/52 of 52/.test(g.note)) throw new Error(JSON.stringify(g));
+        await page.waitForTimeout(500);
+        await noOverflow(page, 'week grid');
+        await shot(page, 'weekly-all-weeks.png');
+        await page.tap('.wg-cell[data-week="35"]');
+        await hubIs(35, 'week 36 hub');
+        await page.evaluate(() => LE.app.showWeeklyHub('dream-house'));
+        await hubIs(0, 'back to Dream House');
       });
 
       await check('weekly: step 2 is locked until step 1 is done; step 1 plays and saves stars', async () => {
@@ -287,18 +316,16 @@ async function main() {
         if (!/Rock Away/.test(name)) throw new Error('resumed: ' + name);
       });
 
-      await check('weekly: +7 days on the fake clock opens week 2 (Bridge & Car)', async () => {
+      await check('weekly: +7 days — everything still open; This Week stays on the first unfinished project', async () => {
         await page.goto(url + '?fast=1&menu=1&nosw=1&now=' + WEEK1);
         await page.waitForSelector('.weekly-card');
         const t = await page.textContent('.weekly-card');
-        if (!/Bridge & Car/.test(t)) throw new Error('card: ' + t);
-        const r = await page.evaluate(() => [1, 2].map((i) => LE.logic.weekly.isProjectUnlocked(LE.app.store.data, i, LE.now())));
-        if (!r[0] || r[1]) throw new Error(JSON.stringify(r));
-        await page.tap('.weekly-card');
-        await page.waitForSelector('.wk-chip[data-week="0"]:not(.locked)');
+        if (!/Dream House/.test(t)) throw new Error('card: ' + t);
+        const r = await page.evaluate(() => [29, 30, 51].map((i) => LE.logic.weekly.isProjectUnlocked(LE.app.store.data, i, LE.now())));
+        if (!r[0] || !r[1] || !r[2]) throw new Error(JSON.stringify(r));
       });
 
-      await check('weekly: parent PIN → Weekly tab → unlock week 3 early', async () => {
+      await check('weekly: parent PIN 1994 → Weekly tab says all 52 open, shows the version; "Make this week" jumps to week 41', async () => {
         await page.evaluate(() => LE.app.showMenu());
         await page.waitForSelector('.settings-btn');
         for (let k = 0; k < 5; k++) await page.tap('.menu-title');
@@ -306,14 +333,38 @@ async function main() {
         for (const k of '1994') await page.tap(`[data-pin="${k}"]`);
         await page.waitForSelector('.parent-screen');
         await page.tap('.tab-weekly');
-        await page.locator('.wk-card[data-week="2"] .unlock-week').tap();
-        await page.waitForTimeout(200);
-        const open = await page.evaluate(() => LE.logic.weekly.isProjectUnlocked(LE.app.store.data, 2, LE.now()));
-        if (!open) throw new Error('week 3 still locked');
-        await shot(page, 'parent-weekly.png');
+        const info = await page.textContent('.parent-screen .admin-body');
+        if (!/All 52 weeks are open/.test(info) || /week 53/.test(info)) throw new Error('info text: ' + info.slice(0, 160));
+        const hv = await page.textContent('.parent-screen .admin-version');
+        if (!/Version 3\.\d+ \(/.test(hv)) throw new Error('parent version: ' + hv);
+        const card = page.locator('.wk-card[data-week="40"]');
+        if (await card.locator('.unlock-week').count()) throw new Error('week 41 still offers Unlock now');
+        await card.locator('.jump-week').tap();
+        await page.waitForTimeout(250);
+        const cur = await page.evaluate(() => LE.logic.weekly.currentWeek(LE.app.store.data, LE.now(), LE.weeklyProjects.length, LE.weeklyProjects));
+        if (cur !== 40) throw new Error('this week ' + cur);
+        await card.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+        await page.waitForTimeout(300);
+        await shot(page, 'parent-weekly-unlock.png');
         await page.tap('.admin-close');
         await page.tap('.weekly-card');
-        await page.waitForSelector('.wk-chip[data-week="2"]:not(.locked)');
+        await hubIs(40, 'week 41 is this week');
+        await page.tap('.wk-all');
+        await page.waitForSelector('.overlay.week-grid .wg-cell');
+        const open = await page.evaluate(() => document.querySelectorAll('.wg-cell:not(.locked)').length);
+        if (open !== 52) throw new Error('grid open ' + open);
+        await page.waitForTimeout(400);
+        await shot(page, 'weekly-all-weeks-parent.png');
+        await page.tap('.wg-cell[data-week="40"]');
+        await hubIs(40, 'week 41 hub');
+        await page.evaluate(() => LE.app.store.setCurrentWeekForce(null));
+      });
+
+      await check('weekly: saved progress survives a reload (Dream House stars kept)', async () => {
+        await page.goto(url + '?fast=1&menu=1&nosw=1&now=' + WEEK1);
+        await page.waitForSelector('.weekly-card');
+        const st = await page.evaluate(() => LE.app.store.getStepStars('dream-house', 'plot'));
+        if (st !== 3) throw new Error('stars ' + st);
       });
 
       await check('weekly: no console errors', async () => { if (page.errors.length) throw new Error(page.errors.slice(0, 3).join(' | ')); });
@@ -376,7 +427,7 @@ async function main() {
         const bubble = await page.textContent('.bubble-text');
         const hint = await page.evaluate(() => LE.activeLevel.level.hint);
         if (bubble.indexOf(hint) < 0) throw new Error('hint not shown: ' + bubble);
-        if (await page.locator('.overlay.helper.show').count()) throw new Error('helper panel still open');
+        if (await page.locator('.helper-call.show').count()) throw new Error('helper panel still open');
       };
       {
         const { context, page } = await newPage(browser);
@@ -431,7 +482,7 @@ async function main() {
         await check('ask helper: session with the agent id + level variables, Listening → Talking, End', async () => {
           await openLevel(page);
           await page.tap('.ask-helper');
-          await page.waitForSelector('.overlay.helper.show .helper-face.listening', { timeout: 8000 });
+          await page.waitForSelector('.helper-call.show .helper-face.listening', { timeout: 8000 });
           await page.waitForSelector('.helper-face.speaking', { timeout: 8000 });
           if (!/talking/.test(await page.textContent('.helper-status'))) throw new Error('no talking state');
           await page.waitForTimeout(700);
@@ -443,7 +494,7 @@ async function main() {
           if (!/^js\/vendor\//.test(call.lib)) throw new Error('libsamplerate not local: ' + call.lib);
           await page.tap('.helper-end');
           await page.waitForTimeout(400);
-          if (await page.locator('.overlay.helper.show').count()) throw new Error('panel still open');
+          if (await page.locator('.helper-call.show').count()) throw new Error('panel still open');
           if (!(await page.evaluate(() => window.__ended))) throw new Error('session not ended');
         });
         await check('ask helper: Robot Coder sends hint_only=true; weekly step sends the project step', async () => {
@@ -480,6 +531,151 @@ async function main() {
         });
         await denied.close();
         await check('ask helper (mic browser): no page errors', async () => { if (page.errors.length) throw new Error(page.errors.slice(0, 3).join(' | ')); });
+      } finally { await micBrowser.close(); }
+    }
+
+    /* ---------- Ask Helper shows it on the board: mocked agent calls the client tools; exact restore, no stars ---------- */
+    if (!ONLY || ONLY === 'aidemo') {
+      const micBrowser = await pw.chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
+      try {
+        const context = await micBrowser.newContext({ ...pw.devices[DEVICE], serviceWorkers: 'block', permissions: ['microphone'] });
+        const page = await context.newPage();
+        page.errors = [];
+        page.on('pageerror', (e) => page.errors.push('pageerror: ' + e.message));
+        page.on('console', (m) => { if (m.type() === 'error' && !/net::|Failed to load resource/.test(m.text())) page.errors.push(m.text()); if (/restore differs/.test(m.text())) page.errors.push(m.text()); });
+        await page.route('**/js/vendor/elevenlabs-client.js', (r) => r.fulfill({ contentType: 'application/javascript', body: `
+          window.__calls = []; window.__ctx = [];
+          window.ElevenLabsClient = { Conversation: { startSession: async (o) => {
+            window.__o = o; window.__calls.push({ vars: o.dynamicVariables, tools: Object.keys(o.clientTools || {}) });
+            setTimeout(() => o.onConnect({ conversationId: 'stub' }), 50);
+            setTimeout(() => o.onModeChange({ mode: 'speaking' }), 300);
+            window.__endHelper = () => o.onDisconnect({ reason: 'agent' });
+            return { endSession: async () => { o.onDisconnect({ reason: 'user' }); }, sendContextualUpdate: (t) => window.__ctx.push(t) };
+          } } };` }));
+        await page.goto(url + '?fast=1&menu=1&nosw=1&now=' + WEEK0);
+        await page.waitForSelector('.menu-screen');
+        await page.evaluate(() => { LE.app.store.data.seenTips = new Proxy({}, { get: () => true }); });
+        const CASES = [
+          { name: 'Bridges', w: 'bridges', i: 2, prep: 1, end: 'tap' },
+          { name: 'Machines', w: 'machines', i: 17, prep: 1, end: 'tap', shots: true },
+          { name: 'Circuits', w: 'circuits', i: 3, prep: 2, end: 'agent' },
+          { name: 'Robot Coder (a wrong block to fix first)', w: 'robot', i: 7, prep: 1, wrong: true, end: 'hidden' },
+          { name: 'Construction', w: 'construction', i: 5, prep: 1, end: 'tap' },
+          { name: 'weekly step (Bridge & Car → machines)', weekly: ['bridge-car', 3], prep: 0, end: 'tap' },
+          { name: 'weekly step (Light Town → circuits)', weekly: ['light-town', 1], prep: 1, end: 'agent' }
+        ];
+        for (const c of CASES) {
+          await check('helper demo: ' + c.name + ' — tools point/arrow/highlight/step/all, board shielded, exact restore, no stars, "Your turn!"', async () => {
+            await page.evaluate((c) => {
+              if (c.weekly) LE.app.openWeeklyStep(c.weekly[0], c.weekly[1], { fresh: true });
+              else { LE.app.store.unlockTo(c.w, c.i); LE.app.openLevel(c.w, c.i, { fresh: true }); }
+            }, c);
+            await page.waitForSelector('.level-screen .ask-helper');
+            await page.waitForTimeout(500);
+            // His own progress first: the first moves of the solution (and maybe a wrong block), saved like a real move.
+            await page.evaluate(async (c) => {
+              const g = document.querySelector('.gate-go'); if (g) g.click();
+              await new Promise((r) => setTimeout(r, 200));
+              const inst = LE.activeLevel.inst;
+              const mv = LE.aiDemo.groupSteps(inst.showMe());
+              for (let k = 0; k < c.prep && k < mv.length - 1; k++) for (const st of mv[k]) { if (st.apply) st.apply(); await new Promise((r) => setTimeout(r, 150)); }
+              const t0 = Date.now(); while (inst.busy && Date.now() - t0 < 6000) await new Promise((r) => setTimeout(r, 100));
+              LE.activeLevel.buddy.hide();
+            }, c);
+            if (c.wrong) { await page.tap('.tray-blk[data-type="L"]'); await page.waitForTimeout(400); }
+            const snap = () => page.evaluate(() => ({ board: JSON.stringify(LE.aiDemo.boardOf(LE.activeLevel.inst)), saved: JSON.stringify(LE.app.store.data.inProgress),
+              stars: JSON.stringify(LE.app.store.data.stars) + JSON.stringify(LE.app.store.data.weekly.completed) }));
+            const before = await snap();
+            if (before.board === 'null' || before.saved === '{}') throw new Error('no progress to keep: ' + JSON.stringify(before));
+            const nCalls = await page.evaluate(() => (window.__calls || []).length);
+            await page.tap('.ask-helper');
+            await page.waitForSelector('.helper-call.show .helper-face.speaking', { timeout: 8000 });
+            const call = await page.evaluate((n) => window.__calls[n], nCalls);
+            for (const t of ['point_at', 'draw_arrow', 'highlight', 'demo_next_step', 'demo_all', 'clear_marks']) if (call.tools.indexOf(t) < 0) throw new Error('tool missing: ' + t);
+            if (!call.vars.board || call.vars.board === 'unknown' || !/1\. /.test(call.vars.next_steps) || !/ = /.test(call.vars.targets)) throw new Error('vars: ' + JSON.stringify(call.vars));
+            if (c.wrong && !/take away/.test(call.vars.next_steps)) throw new Error('wrong block not in the steps: ' + call.vars.next_steps);
+            // Salah can't touch the board mid-call (only End works).
+            const hb = await page.locator('.play-host').boundingBox();
+            await page.touchscreen.tap(hb.x + hb.width / 2, hb.y + hb.height * 0.8);
+            await page.touchscreen.tap(hb.x + hb.width * 0.2, hb.y + hb.height * 0.95);
+            await page.waitForTimeout(300);
+            if ((await snap()).board !== before.board) throw new Error('board changed by a tap during the call');
+            // Marks: highlight + arrow + pointing finger on targets of the next move.
+            const r1 = await page.evaluate(async () => {
+              const t = window.__o.clientTools, mv = LE.activeLevel.ai().demo.context().moves[0];
+              if (!mv) return ['NOMOVES', JSON.stringify(LE.aiDemo.boardOf(LE.activeLevel.inst)), JSON.stringify(LE.activeLevel.inst.showMe({ fromCurrent: true }).map((s) => s.from + '>' + s.to)), JSON.stringify(LE.activeLevel.inst.showMe().map((s) => s.from + '>' + s.to))];
+              const a = mv.find((s) => s.from && s.to) || mv[mv.length - 1];
+              const out = [];
+              out.push(await t.highlight({ target: a.to || a.from }));
+              if (a.to) out.push(await t.draw_arrow({ from: a.from, to: a.to }));
+              out.push(await t.point_at({ target: a.from }));
+              out.push(await t.point_at({ target: 'no-such-thing' }));
+              return out;
+            });
+            if (!/^Highlighted /.test(r1[0]) || !/^Pointing at /.test(r1[r1.length - 2]) || !/could not find.*target ids/.test(r1[r1.length - 1])) throw new Error('marks: ' + JSON.stringify(r1));
+            const marks = await page.evaluate(() => ({ rings: document.querySelectorAll('.ai-ring').length, arrows: document.querySelectorAll('.ai-arrow').length, hand: document.getElementById('hand').classList.contains('show') }));
+            if (!marks.rings || !marks.hand) throw new Error('marks not drawn: ' + JSON.stringify(marks));
+            if (c.shots) await shot(page, 'ai-demo-mid.png');
+            // One step, then the rest.
+            const r2 = await page.evaluate(() => window.__o.clientTools.demo_next_step({}));
+            if (!/^Showed: /.test(r2) || !/Next|in place|works/.test(r2)) throw new Error('step: ' + r2);
+            if (c.wrong && !/take away/.test(r2)) throw new Error('wrong block not fixed first: ' + r2);
+            if ((await snap()).board === before.board) throw new Error('the step did not change the board');
+            if (!(await page.evaluate(() => document.querySelectorAll('.ai-ring, .ai-arrow').length === 0))) throw new Error('marks not cleared by the step');
+            await page.waitForTimeout(500);
+            const ctxSent = await page.evaluate(() => window.__ctx.slice(-1)[0] || '');
+            if (!/^BOARD UPDATE/.test(ctxSent)) throw new Error('no contextual update: ' + ctxSent);
+            if (c.shots) {
+              await page.evaluate(async () => { const t = window.__o.clientTools, mv = LE.activeLevel.ai().demo.context().moves[0]; const a = mv.find((s) => s.from && s.to); if (a) { await t.highlight({ target: a.to }); await t.draw_arrow({ from: a.from, to: a.to }); await t.point_at({ target: a.from }); } });
+              await shot(page, 'ai-demo-mid2.png');
+            }
+            const r3 = await page.evaluate(() => window.__o.clientTools.demo_all({}));
+            if (!/works|in place/.test(r3)) throw new Error('demo_all: ' + r3);
+            if (!(await page.evaluate(() => LE.activeLevel.ai().solved))) throw new Error('the demo did not solve it: ' + r3);
+            if (c.shots) await shot(page, 'ai-demo-solved.png');
+            const mid = await snap();
+            if (mid.stars !== before.stars) throw new Error('stars given for the helper demo');
+            if (mid.saved !== before.saved) throw new Error('demo moves were saved');
+            if (await page.locator('.win-stars').count()) throw new Error('win screen shown');
+            const r4 = await page.evaluate(() => window.__o.clientTools.clear_marks({}));
+            if (!/Cleared/.test(r4)) throw new Error(r4);
+            // End the call: tap End / the agent hangs up / the app goes to the background.
+            if (c.end === 'tap') await page.tap('.helper-end');
+            else if (c.end === 'agent') await page.evaluate(() => window.__endHelper());
+            else await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); document.dispatchEvent(new Event('visibilitychange')); delete document.hidden; });
+            await page.waitForTimeout(700);
+            const after = await snap();
+            const rec = await page.evaluate(() => LE.activeLevel.lastAi);
+            if (!rec || !rec.restored || !rec.exact) throw new Error('restore record: ' + JSON.stringify(rec && { restored: rec.restored, exact: rec.exact, before: rec.before, after: rec.after }));
+            if (after.board !== before.board) throw new Error('board not restored:\n' + before.board + '\n' + after.board);
+            if (after.saved !== before.saved) throw new Error('saved progress changed');
+            if (after.stars !== before.stars) throw new Error('stars changed');
+            const left = await page.evaluate(() => ({ bar: !!document.querySelector('.helper-call'), shield: !!document.querySelector('.ai-shield'), marks: !!document.querySelector('.ai-marks'), hand: document.getElementById('hand').classList.contains('show') }));
+            if (left.bar || left.shield || left.marks || left.hand) throw new Error('left over: ' + JSON.stringify(left));
+            const bub = await page.textContent('.bubble.show .bubble-text').catch(() => '');
+            if (!/Your turn/.test(bub)) throw new Error('no "Your turn!": ' + bub);
+            if (c.shots) await shot(page, 'ai-demo-restored.png');
+          });
+        }
+        await check('helper demo: after the restore the board is his again (a tap works)', async () => {
+          await page.evaluate(() => { LE.app.openLevel('robot', 7, { fresh: true }); });
+          await page.waitForSelector('.level-screen .ask-helper');
+          await page.waitForTimeout(400);
+          await page.evaluate(() => { const g = document.querySelector('.gate-go'); if (g) g.click(); LE.activeLevel.buddy.hide(); });
+          await page.tap('.ask-helper');
+          await page.waitForSelector('.helper-call.show .helper-face.speaking', { timeout: 8000 });
+          await page.evaluate(() => window.__o.clientTools.demo_next_step({}));
+          await page.tap('.helper-end');
+          await page.waitForTimeout(600);
+          await page.evaluate(() => LE.activeLevel.buddy.hide());
+          await page.waitForTimeout(300);
+          await page.tap('.tray-blk[data-type="F"]');
+          await page.waitForTimeout(300);
+          const n = await page.evaluate(() => LE.activeLevel.inst.getProgram().length);
+          if (n !== 1) throw new Error('program length ' + n);
+        });
+        await check('helper demo: no page errors', async () => { if (page.errors.length) throw new Error(page.errors.slice(0, 3).join(' | ')); });
+        await context.close();
       } finally { await micBrowser.close(); }
     }
 
@@ -589,6 +785,172 @@ async function main() {
       await r.context.close();
     }
 
+    /* ---------- Car Builder & Race (replaced the Practice Room) ---------- */
+    if (!ONLY || ONLY === 'cars') {
+      const { context, page } = await newPage(browser);
+      // an old save from the Practice Room days: progress + "last screen = practice"
+      await page.goto(url + '?fast=1&menu=1&nosw=1&now=' + WEEK0);
+      await page.waitForSelector('.menu-screen');
+      await page.evaluate(() => {
+        localStorage.setItem('littleEngineerSave', JSON.stringify({ version: 3, stars: { robot: [3, 2] }, practice: { done: { p1: true, p3: true }, state: { current: 'p2', program: [] } },
+          last: { screen: 'practice' } }));
+      });
+
+      // screens swap with a short transition: wait until only the new garage is left
+      const oneGarage = () => page.waitForFunction(() => document.querySelectorAll('.garage-screen').length === 1 && document.querySelector('.garage-screen .cg-car'));
+
+      await check('cars: an old Practice Room save opens the garage (no errors) and keeps its data', async () => {
+        await page.goto(url + '?fast=1&nosw=1&now=' + WEEK0);
+        await page.waitForSelector('.garage-screen .cg-car');
+        const d = await page.evaluate(() => ({ p: LE.app.store.data.practice.done, r: LE.app.store.data.stars.robot, menuBtn: 0 }));
+        if (!d.p.p1 || !d.p.p3 || d.r[0] !== 3) throw new Error(JSON.stringify(d));
+        await page.evaluate(() => LE.app.showMenu());
+        await page.waitForSelector('.car-btn');
+        if (await page.locator('.practice-btn').count()) throw new Error('practice button still in the menu');
+        await page.waitForTimeout(700);
+        await noOverflow(page, 'menu with Car Builder');
+        await shot(page, 'cars-menu.png');
+      });
+
+      await check('cars: garage — starter car + a new car (max 6, saved locally)', async () => {
+        await page.tap('.car-btn');
+        await page.waitForSelector('.garage-screen .cg-car');
+        await page.tap('.cg-new');
+        await page.waitForSelector('.build-screen .cb-part');
+        await page.evaluate(() => LE.cars.showGarage());
+        await oneGarage();
+        if ((await page.locator('.cg-car').count()) !== 2) throw new Error('cars: ' + JSON.stringify(await page.evaluate(() => LE.app.store.getGarage().map((c) => c.name))));
+        await page.evaluate(() => { for (let i = 0; i < 6; i++) LE.app.store.saveCar({ id: 'x' + i, name: 'Extra ' + i, body: 'truck', wheels: 'monster', engine: 'big', spoiler: 'wing', color: 'green', sticker: 'tiger' }); });
+        await page.evaluate(() => LE.cars.showGarage());
+        await oneGarage();
+        if ((await page.locator('.cg-car').count()) !== 6 || (await page.locator('.cg-new').count())) throw new Error('garage limit');
+        await page.evaluate(() => { ['x2', 'x3', 'x4', 'x5'].forEach((id) => LE.app.store.removeCar(id)); LE.app.store.setCurrentCar(LE.app.store.getGarage()[0].id); });
+        await page.evaluate(() => LE.cars.showGarage());
+        await oneGarage();
+        await page.waitForTimeout(500);
+        await noOverflow(page, 'garage');
+        await shot(page, 'cars-garage.png');
+      });
+
+      await check('cars: build — drag monster wheels onto the car, tabs, paint + sticker, stats change', async () => {
+        await page.tap('.cg-car');
+        await page.waitForSelector('.build-screen .cb-tab[data-slot="wheels"]');
+        await page.tap('.cb-tab[data-slot="wheels"]');
+        const bumps0 = Number(await page.getAttribute('.cb-bar[data-stat="bumps"]', 'data-value'));
+        const part = await page.locator('.cb-part[data-id="monster"]').boundingBox(), st = await page.locator('.cb-stage').boundingBox();
+        await page.mouse.move(part.x + part.width / 2, part.y + part.height / 2); await page.mouse.down();
+        await page.mouse.move(part.x + part.width / 2, part.y + 10, { steps: 4 });
+        if (!(await page.locator('.cb-ghost').count())) throw new Error('no drag ghost');
+        await page.mouse.move(st.x + st.width / 2, st.y + st.height / 2, { steps: 10 });
+        if (!(await page.locator('.cb-stage.hot').count())) throw new Error('drop zone not highlighted');
+        await page.mouse.up();
+        await page.waitForTimeout(250);
+        const car = await page.evaluate(() => LE.activeCars.car());
+        if (car.wheels !== 'monster') throw new Error('drag did not fit the wheels: ' + car.wheels);
+        if (Number(await page.getAttribute('.cb-bar[data-stat="bumps"]', 'data-value')) <= bumps0) throw new Error('bumps bar');
+        // a drag that ends off the car does nothing
+        const big = await page.locator('.cb-part[data-id="big"]').boundingBox();
+        await page.mouse.move(big.x + 30, big.y + 30); await page.mouse.down(); await page.mouse.move(big.x + 30, big.y - 2, { steps: 4 });
+        await page.mouse.move(big.x + 30, big.y + 60, { steps: 4 }); await page.mouse.up();
+        if ((await page.evaluate(() => LE.activeCars.car().wheels)) !== 'monster') throw new Error('drop outside changed the car');
+        await page.tap('.cb-tab[data-slot="color"]'); await page.tap('.cb-part[data-id="blue"]');
+        await page.tap('.cb-tab[data-slot="sticker"]'); await page.tap('.cb-part[data-id="tiger"]');
+        await page.tap('.cb-tab[data-slot="spoiler"]'); await page.tap('.cb-part[data-id="wing"]');
+        await page.tap('.cb-tab[data-slot="wheels"]');
+        const saved = await page.evaluate(() => LE.app.store.getCar(LE.app.store.getCurrentCar()));
+        if (saved.color !== 'blue' || saved.sticker !== 'tiger' || saved.spoiler !== 'wing') throw new Error(JSON.stringify(saved));
+        await page.waitForTimeout(500);
+        await noOverflow(page, 'build');
+        await shot(page, 'cars-build.png');
+      });
+
+      await check('cars: tracks — first open, others locked (tap does nothing)', async () => {
+        await page.tap('.cb-race');
+        await page.waitForSelector('.ct-track[data-track="sunny"]');
+        if ((await page.locator('.ct-track.locked').count()) !== 6) throw new Error('locked tracks');
+        await page.tap('.ct-track[data-track="ice"]');
+        await page.waitForTimeout(300);
+        if (await page.locator('.race-screen').count()) throw new Error('locked track opened');
+        await page.waitForTimeout(300);
+        await noOverflow(page, 'tracks');
+        await shot(page, 'cars-tracks.png');
+      });
+
+      await check('cars: race — countdown, side view, smooth under 4× CPU throttle (older Android), results + tip + stars', async () => {
+        const cdp = await context.newCDPSession(page);
+        await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+        await page.tap('.ct-track[data-track="sunny"]');
+        await page.waitForSelector('.race-screen .cr-canvas');
+        await page.waitForFunction(() => LE.activeCars && LE.activeCars.race && LE.activeCars.race.you.x > LE.activeCars.race.len * 0.45, null, { timeout: 30000 });
+        await page.evaluate(() => LE.activeCars.pause());
+        const perf = await page.evaluate(() => LE.activeCars.perf());
+        await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+        console.log('    race draw: ' + perf.frames + ' frames, avg ' + perf.avgMs.toFixed(2) + ' ms, max ' + perf.maxMs.toFixed(1) + ' ms (4× CPU throttle)');
+        if (perf.frames < 10 || perf.avgMs > 8) throw new Error('draw too slow: ' + JSON.stringify(perf));
+        await page.waitForTimeout(300);
+        await shot(page, 'cars-race.png');
+        await page.evaluate(() => LE.activeCars.resume());
+        await page.waitForSelector('.race-results .cr-tip', { timeout: 60000 });
+        const r = await page.evaluate(() => {
+          const car = LE.app.store.getCar(LE.app.store.getCurrentCar()), tr = LE.carsContent.tracks[0];
+          return { want: LE.logic.cars.tip(tr, car).text, got: document.querySelector('.cr-tip').textContent, stars: document.querySelectorAll('.cr-stars .on').length,
+            best: LE.app.store.getTrackStars('sunny'), place: LE.logic.cars.result(tr, car).place };
+        });
+        if (r.got.indexOf(r.want) < 0) throw new Error('tip: ' + r.got);
+        if (r.stars !== [0, 3, 2, 1][r.place] || r.best !== r.stars) throw new Error(JSON.stringify(r));
+        if (!(await page.locator('.cr-new').count())) throw new Error('no "new track" note');
+        await page.waitForTimeout(600);
+        await noOverflow(page, 'results');
+        await shot(page, 'cars-results.png');
+      });
+
+      await check('cars: next track opened; rebuild and race again (hills mid-race shot)', async () => {
+        await page.tap('.cr-tracks');
+        await page.waitForSelector('.ct-track[data-track="hills"]:not(.locked)');
+        await page.tap('.ct-track[data-track="hills"]');
+        await page.waitForFunction(() => LE.activeCars && LE.activeCars.race && LE.activeCars.race.you.x > 95, null, { timeout: 30000 });
+        await page.evaluate(() => LE.activeCars.pause());
+        await page.waitForTimeout(200);
+        await shot(page, 'cars-race-hills.png');
+        await page.evaluate(() => LE.activeCars.resume());
+        await page.waitForSelector('.race-results .cr-build', { timeout: 60000 });
+        await page.tap('.cr-build');
+        await page.waitForSelector('.build-screen .cb-part');
+        await page.tap('.cb-race');
+        await page.tap('.ct-track[data-track="hills"]');
+        await page.waitForSelector('.race-results .cr-again', { timeout: 60000 });
+        await page.tap('.cr-again');
+        await page.waitForSelector('.race-screen .cr-canvas');
+        await page.tap('.race-screen .back');
+        await page.waitForSelector('.tracks-screen');
+      });
+
+      await check('cars: Show me drags the best part for the next track onto the car', async () => {
+        await page.evaluate(() => { const s = LE.app.store; s.saveCar(Object.assign({}, s.getCar(s.getCurrentCar()), { body: 'truck', wheels: 'monster', engine: 'big', spoiler: 'none' })); LE.cars.showBuild(s.getCurrentCar()); });
+        await page.waitForSelector('.build-screen .cb-part');
+        const before = await page.evaluate(() => JSON.stringify(LE.activeCars.car()));
+        await page.tap('.cb-showme');
+        await page.waitForSelector('#hand.show', { timeout: 5000 });
+        await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 30000 });
+        const after = await page.evaluate(() => JSON.stringify(LE.activeCars.car()));
+        if (before === after) throw new Error('no change');
+      });
+
+      await check('cars: remove a car (confirm), back to the menu', async () => {
+        const n0 = await page.evaluate(() => LE.app.store.getGarage().length);
+        await page.tap('.cb-delete');
+        await page.waitForSelector('.overlay.confirm .btn.red');
+        await page.tap('.overlay.confirm .btn.red');
+        await page.waitForSelector('.garage-screen');
+        if ((await page.evaluate(() => LE.app.store.getGarage().length)) !== n0 - 1) throw new Error('not removed');
+        await page.tap('.garage-screen .back');
+        await page.waitForSelector('.menu-screen .car-btn');
+      });
+
+      await check('cars: no console errors', async () => { if (page.errors.length) throw new Error(page.errors.slice(0, 3).join(' | ')); });
+      await context.close();
+    }
+
     /* ---------- Finger scrolling: every scrollable panel must scroll by touch (Royal Rescue bug class:
      *            a document touchmove handler preventDefault-ing everything outside a whitelist) ---------- */
     if (!ONLY || ONLY === 'scroll') {
@@ -668,11 +1030,14 @@ async function main() {
       // world map
       await page.evaluate(() => LE.app.showMap('bridges'));
       await verify('world map', '.map-scroll');
-      // practice room chips
-      await page.evaluate(() => LE.app.showPractice());
+      // Car Builder parts tray (sideways)
+      await page.evaluate(() => LE.cars.showGarage());   // makes the starter car on a first visit
+      await page.waitForSelector('.cg-car');
+      await page.evaluate(() => LE.cars.showBuild(LE.app.store.getGarage()[0].id));
+      await page.waitForSelector('.cb-part');
       await page.waitForTimeout(600);
-      await page.evaluate(() => { document.querySelectorAll('.bubble.show').forEach((b) => b.classList.remove('show')); const b = document.querySelector('.pr-chips'); if (b && b.scrollWidth <= b.clientWidth) b.style.maxWidth = '140px'; });
-      await verify('practice room challenge chips (sideways)', '.pr-chips', 'x');
+      await page.evaluate(() => { document.querySelectorAll('.bubble.show').forEach((b) => b.classList.remove('show')); const t = document.querySelector('.cb-tray'); t.style.maxWidth = '200px'; });
+      await verify('car parts tray (sideways)', '.cb-tray', 'x');
       // kid settings + PIN pad overlays on a very short screen (they scroll inside the card)
       await page.evaluate(() => LE.app.showMenu());
       await page.setViewportSize({ width: 375, height: 420 });

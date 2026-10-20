@@ -11,7 +11,7 @@ const srv=http.createServer((q,r)=>{let u=decodeURIComponent(q.url.split('?')[0]
   let rel=u.slice(BASE.length)||'index.html';if(rel.endsWith('/'))rel+='index.html';const f=path.normalize(path.join(ROOT,rel));
   if(!f.startsWith(ROOT)){r.writeHead(403);return r.end()}
   fs.readFile(f,(e,d)=>{if(e){r.writeHead(404);return r.end()}
-    if(testBuild&&rel==='sw.js')d=Buffer.from(String(d).replace(/const BUILD='[^']*';/,`const BUILD='test${testBuild}';`));
+    if(testBuild&&rel==='sw.js')d=Buffer.from(String(d).replace(/const BUILD='[^']*';/,`const BUILD='test${testBuild}';`).replace(/VERSION='[^']*'/,`VERSION='8.${testBuild}'`));
     if(testBuild&&rel==='index.html')d=Buffer.from(String(d).replace('<head>',`<head><meta name="test-build" content="${testBuild}">`));
     r.writeHead(200,{'Content-Type':TYPES[path.extname(f)]||'application/octet-stream','Cache-Control':'max-age=600'});r.end(d)})}); // like GitHub Pages
 let fails=0;const ok=n=>console.log('  ✔ '+n),bad=(n,e)=>{fails++;console.log('  ✘ '+n+': '+String(e&&e.message||e).split('\n')[0])};
@@ -40,7 +40,7 @@ const SEED={v:2,done:{0:3,1:3,2:2,3:1},best:{0:900},endless:{lv:1,best:0},sound:
       assert((await page.evaluate(async()=>(await navigator.serviceWorker.getRegistration()).updateViaCache))==='none');
       const v=await swBuild();assert(v.cache==='salah-v7',JSON.stringify(v));await progressKept()});
     await check('Update game (How to play): "You have the latest version" when nothing is new',async()=>{
-      await openHow();await page.click('#updBtn');await page.waitForFunction(()=>/latest version/.test(document.getElementById('updMsg').textContent));
+      await openHow();{const vt=await page.textContent('#verTag');assert(/^Version 7\.\d+ \(\d{1,2} [A-Z][a-z]{2} \d{4}\)$/.test(vt),'version label '+vt)}await page.click('#updBtn');await page.waitForFunction(()=>/latest version/.test(document.getElementById('updMsg').textContent));
       assert(/لديك أحدث نسخة/.test(await page.textContent('#updMsg')));
       await page.evaluate(()=>document.getElementById('updRow').scrollIntoView({block:'center'}));await page.waitForTimeout(300);
       await page.screenshot({path:`${SHOTS}/rr-update-button${D.tag}.png`});await page.click('#howOk')});
@@ -50,7 +50,8 @@ const SEED={v:2,done:{0:3,1:3,2:2,3:1},best:{0:900},endless:{lv:1,best:0},sound:
       await page.waitForFunction(()=>updater.hasUpdate(),null,{timeout:30000});await page.waitForTimeout(1500);
       assert(!(await page.locator('#updBanner').count()),'banner shown mid-level');assert((await build())==='0','reloaded mid-level');
       await page.evaluate(()=>openMap());await page.waitForSelector('#updBanner',{timeout:5000});
-      const t=await page.textContent('#updBanner');assert(/New version! Tap to update/.test(t)&&/نسخة جديدة/.test(t),t);
+      await page.waitForFunction(()=>/New version 8\.1! Tap to update/.test(document.getElementById('updBanner').textContent),null,{timeout:5000}).catch(()=>{});
+      const t=await page.textContent('#updBanner');assert(/New version 8\.1! Tap to update/.test(t)&&/نسخة جديدة/.test(t),t);
       await page.waitForTimeout(700);await page.screenshot({path:`${SHOTS}/rr-banner${D.tag}.png`})});
     await check('tapping the banner reloads into the new version; progress kept',async()=>{
       await Promise.all([page.waitForEvent('load',{timeout:20000}),page.click('#updBanner')]);await ready();

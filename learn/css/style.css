@@ -427,6 +427,7 @@ svg { display: block; }
 .admin * { -webkit-user-select: text; user-select: text; }
 .admin-head { display: flex; align-items: center; gap: 10px; padding: 4px calc(var(--sar) + 14px) 8px calc(var(--sal) + 14px); }
 .admin-head h1 { flex: 1; margin: 0; font-size: 20px; font-weight: 800; }
+.admin-version { display: block; font-size: 12px; font-weight: 700; opacity: .7; }
 .admin-tabs { display: flex; gap: 4px; padding: 0 calc(var(--sar) + 10px) 0 calc(var(--sal) + 10px); border-bottom: 1px solid #dde0ea; overflow-x: auto; scrollbar-width: none; flex: none; }
 .admin-tabs::-webkit-scrollbar { display: none; }
 .admin-tabs button { flex: 1 0 auto; padding: 10px 6px; min-height: 44px; font-size: 14px; font-weight: 700; color: #5b6075; border-bottom: 3px solid transparent; }

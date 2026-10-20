@@ -110,8 +110,21 @@
       });
     }
 
+    /** Ask the waiting worker which version it is (for the banner). Resolves { version, built } or null. */
+    function waitingVersion(ms) {
+      var w = reg && reg.waiting;
+      if (!w || typeof MessageChannel === 'undefined') return Promise.resolve(null);
+      return new Promise(function (resolve) {
+        var ch = new MessageChannel(), done = false;
+        function fin(v) { if (!done) { done = true; try { ch.port1.close(); } catch (e) { /* closed */ } resolve(v); } }
+        ch.port1.onmessage = function (e) { fin(e.data && e.data.version ? e.data : null); };
+        try { w.postMessage({ type: 'VERSION' }, [ch.port2]); } catch (e) { fin(null); }
+        wait(ms == null ? 1500 : ms).then(function () { fin(null); });
+      });
+    }
+
     return {
-      register: register, check: check, applyUpdate: applyUpdate, manualUpdate: manualUpdate,
+      register: register, check: check, applyUpdate: applyUpdate, manualUpdate: manualUpdate, waitingVersion: waitingVersion,
       _state: function () { return { reg: reg, wantReload: wantReload, reloaded: reloaded, bannerShown: bannerShown }; },
       _watch: watch, _controllerChange: onControllerChange
     };
@@ -122,7 +135,9 @@
     latest: 'You have the latest version',
     updating: 'Updating… 🚀',
     unsupported: 'You have the latest version',
-    banner: 'New version! Tap to update'
+    banner: 'New version! Tap to update',
+    bannerV: 'New version {v}! Tap to update',
+    updated: 'Updated to version {v} ✨'
   };
 
   return { createUpdater: createUpdater, MESSAGES: MESSAGES };
