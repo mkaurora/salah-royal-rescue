@@ -13,7 +13,11 @@
     science: { name: 'Discovery Lab', sub: 'Science', icon: '🔬', deco: ['🔬', '🧪', '🪐', '🌋', '🦋', '🧲', '🌱', '☀️', '🚀', '💡'] }
   };
   SQ.go = {};
-  SQ.APP_VERSION = '4'; // shown in kid settings; bump together with the SW cache (learn-v4)
+  // The version lives in js/version.js only (bump it there; tools/build-sw.js stamps the date and sw.js).
+  var GV = window.GAME_VERSION || { version: '?', built: '' };
+  SQ.APP_VERSION = GV.version;
+  SQ.APP_BUILT = GV.built;
+  SQ.versionLabel = function () { return 'Version ' + GV.version + (GV.built ? ' (' + GV.built + ')' : ''); };
 
   /* ---------- state ---------- */
   SQ.persist = function () { SQ.save.persist(window.localStorage, SQ.state); };
@@ -169,7 +173,7 @@
     var prow = SQ.h('div', 'parents-row');
     prow.appendChild(pb);
     c.appendChild(prow);
-    c.appendChild(SQ.h('div', 'app-version', 'Version ' + SQ.esc(SQ.APP_VERSION)));
+    c.appendChild(SQ.h('div', 'app-version', SQ.esc(SQ.versionLabel())));
     var row = SQ.h('div', 'row');
     var ov;
     row.appendChild(SQ.btn('OK', 'green', function () { ov.close(); }));
@@ -195,6 +199,13 @@
       b.setAttribute('aria-label', GameUpdate.TEXT.banner);
       SQ.tap(b, function () { b.classList.add('busy'); b.textContent = GameUpdate.TEXT.updating; SQ.updater.apply(); });
       document.body.appendChild(b);
+      // which version is waiting: "New version 4.2! Tap to update"
+      if (SQ.updater.waitingVersion) SQ.updater.waitingVersion().then(function (v) {
+        if (v && v.version && b.parentNode && !b.classList.contains('busy')) {
+          var t = GameUpdate.TEXT.bannerV.replace('{v}', v.version);
+          b.textContent = '✨ ' + t; b.setAttribute('aria-label', t);
+        }
+      });
       return true;
     };
     if (!place()) bannerTimer = setInterval(function () { if (place()) clearInterval(bannerTimer); }, 1000);
@@ -252,6 +263,12 @@
     if ('serviceWorker' in navigator && location.protocol !== 'file:' && params.get('nosw') !== '1') {
       SQ.updater.register('sw.js').then(function () { SQ.updater.poll(); });
     }
+    // after an update, say so once: "Updated to version 4.2"
+    try {
+      var seen = localStorage.getItem('sq-seen-version');
+      if (seen && seen !== SQ.APP_VERSION) setTimeout(function () { SQ.toast(GameUpdate.TEXT.updated.replace('{v}', SQ.APP_VERSION)); }, 800);
+      if (seen !== SQ.APP_VERSION) localStorage.setItem('sq-seen-version', SQ.APP_VERSION);
+    } catch (e) { /* private mode */ }
     var start = params.get('start');
     var m = start && /^(math|english|science)(?::(\d+))?$/.exec(start);
     if (m && m[2] !== undefined) SQ.go.play(m[1], +m[2]);

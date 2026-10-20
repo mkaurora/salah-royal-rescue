@@ -74,7 +74,7 @@
   SQ.go.admin = function (tab, notice) {
     tab = tab || 'levels';
     var s = SQ.h('div', 'screen admin');
-    var head = SQ.h('div', 'admin-head', '<h1>Parent Area</h1>');
+    var head = SQ.h('div', 'admin-head', '<h1>Parent Area<small class="admin-version">' + SQ.esc(SQ.versionLabel ? SQ.versionLabel() : '') + '</small></h1>');
     var close = SQ.h('button', 'a-btn primary admin-close', 'Done');
     SQ.tap(close, function () { SQ.persist(); SQ.go.menu(); });
     head.appendChild(close);

@@ -18,6 +18,7 @@ WORLDS.forEach((w) => {
 const at = (iso) => new Date(iso);
 const WEEK0 = at('2026-10-21T10:00:00Z');
 const plus = (d, days) => new Date(d.getTime() + days * W.DAY);
+const ORIGINAL_IDS = ['dream-house', 'bridge-car', 'delivery-robot', 'light-town', 'gear-factory', 'rescue-bridge', 'crane-tower', 'windmill-farm', 'race-track', 'harbor', 'night-city', 'workshop'];
 
 test('anchor is Monday 2026-10-19 00:00 UTC (week 0)', () => {
   const a = new Date(W.ANCHOR);
@@ -30,18 +31,45 @@ test('anchor is Monday 2026-10-19 00:00 UTC (week 0)', () => {
   assert.strictEqual(W.calendarWeek(W.ANCHOR + 11 * W.WEEK), 11);
 });
 
-test('fake clock: week 0 open, week 1 locked; +7 days opens week 1', () => {
+test('fake clock: all 52 weeks open from the anchor (OPEN_NOW = 52, all weeks opened 20 Oct 2026)', () => {
   const d = S.defaults();
-  assert.ok(W.isProjectUnlocked(d, 0, WEEK0));
-  assert.ok(!W.isProjectUnlocked(d, 1, WEEK0));
-  assert.strictEqual(W.currentWeek(d, WEEK0, projects.length), 0);
-  const next = plus(WEEK0, 7);
-  assert.ok(W.isProjectUnlocked(d, 1, next));
-  assert.ok(!W.isProjectUnlocked(d, 2, next));
-  assert.strictEqual(W.currentWeek(d, next, projects.length), 1);
-  // before the anchor nothing is open; long after, the last project stays "this week"
+  assert.strictEqual(W.OPEN_NOW, 52);
+  assert.strictEqual(projects.length, 52);
+  for (let i = 0; i < 52; i++) assert.ok(W.isProjectUnlocked(d, i, WEEK0), 'week ' + (i + 1) + ' open');
+  assert.ok(!W.isProjectUnlocked(d, 52, WEEK0), 'no week 53');
+  for (let i = 0; i < 52; i++) assert.strictEqual(W.opensOn(i).toISOString(), '2026-10-19T00:00:00.000Z');
+  assert.ok(W.allOpen(d, WEEK0, projects.length));
+  assert.ok(W.allOpen(d, at('2026-10-19T00:00:00Z'), projects.length), 'open from the anchor on');
+  // before the anchor nothing is open
   assert.ok(!W.isProjectUnlocked(d, 0, at('2026-10-01T00:00:00Z')));
-  assert.strictEqual(W.currentWeek(d, at('2027-06-01T00:00:00Z'), projects.length), projects.length - 1);
+});
+
+test('"This week\'s project" = first open project not finished yet (in order); falls back to the newest open one', () => {
+  const st = S.createStore();
+  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length, projects), 0);
+  const finish = (n) => { const p = projects[n], ids = p.steps.map((s) => s.id); ids.forEach((id) => st.setStepStars(p.id, id, 3, ids)); };
+  finish(0); finish(1);
+  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length, projects), 2);
+  for (let n = 2; n < 30; n++) finish(n);
+  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length, projects), 30, 'next unfinished week (all are open)');
+  for (let n = 30; n < 52; n++) finish(n);
+  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length, projects), 51, 'all done → newest open');
+  assert.strictEqual(W.currentWeek(st.data, plus(WEEK0, 7), projects.length, projects), 51, 'still clamped to week 52');
+  assert.strictEqual(W.currentWeek(st.data, at('2027-06-01T00:00:00Z'), projects.length), projects.length - 1);
+});
+
+test('progress saved before the update is kept (same project + step ids)', () => {
+  const mem = {}, storage = { getItem: (k) => (k in mem ? mem[k] : null), setItem: (k, v) => { mem[k] = String(v); }, removeItem: (k) => { delete mem[k]; } };
+  const old = S.createStore(storage);
+  const p0 = projects[0], p3 = projects[3];
+  p0.steps.forEach((s) => old.setStepStars(p0.id, s.id, 3, p0.steps.map((x) => x.id)));
+  old.setStepStars(p3.id, p3.steps[0].id, 2, p3.steps.map((x) => x.id));
+  const again = S.createStore(storage);   // reload from storage (sanitize)
+  assert.strictEqual(again.projectProgress(p0.id).done, true);
+  p0.steps.forEach((s) => assert.strictEqual(again.projectProgress(p0.id).steps[s.id], 3));
+  assert.strictEqual(again.projectProgress(p3.id).steps[p3.steps[0].id], 2);
+  // the first 12 projects keep their original ids so saves on the phones still match
+  assert.deepStrictEqual(projects.slice(0, 12).map((p) => p.id), ORIGINAL_IDS);
 });
 
 test('countdown: days until next Monday 00:00 UTC', () => {
@@ -51,19 +79,21 @@ test('countdown: days until next Monday 00:00 UTC', () => {
   assert.strictEqual(W.untilNextWeek(WEEK0).at.toISOString(), '2026-10-26T00:00:00.000Z');
 });
 
-test('parent: force-unlock a future week and "jump to week"', () => {
+test('parent: early unlock stays harmless with all weeks open, and "jump to week" still works (PIN-protected parent panel)', () => {
   const st = S.createStore();
-  assert.ok(!W.isProjectUnlocked(st.data, 3, WEEK0));
-  st.setWeeklyUnlockedMax(3);
-  for (let i = 0; i <= 3; i++) assert.ok(W.isProjectUnlocked(st.data, i, WEEK0), 'week ' + i);
-  assert.ok(!W.isProjectUnlocked(st.data, 4, WEEK0));
-  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length), 0, 'unlocking does not change this week');
-  st.setCurrentWeekForce(6);
-  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length), 6);
-  assert.ok(W.isProjectUnlocked(st.data, 6, WEEK0), 'jumping opens that week');
-  st.setCurrentWeekForce(null);
+  assert.ok(W.allOpen(st.data, WEEK0, projects.length), 'everything open without a parent unlock');
+  st.setWeeklyUnlockedMax(44);
+  for (let i = 0; i < 52; i++) assert.ok(W.isProjectUnlocked(st.data, i, WEEK0), 'week ' + (i + 1));
+  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length, projects), 0, 'unlocking does not change this week');
+  st.setWeeklyUnlockedMax(projects.length - 1);
+  assert.ok(W.allOpen(st.data, WEEK0, projects.length), 'open all weeks');
   st.setWeeklyUnlockedMax(-1);
-  assert.ok(!W.isProjectUnlocked(st.data, 1, WEEK0));
+  st.setCurrentWeekForce(40);
+  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length, projects), 40);
+  assert.ok(W.isProjectUnlocked(st.data, 40, WEEK0), 'jumping opens that week');
+  st.setCurrentWeekForce(null);
+  assert.ok(W.isProjectUnlocked(st.data, 40, WEEK0), 'all weeks stay open');
+  assert.strictEqual(W.currentWeek(st.data, WEEK0, projects.length, projects), 0);
 });
 
 test('steps open in order; project done when every step has stars', () => {
@@ -81,8 +111,8 @@ test('steps open in order; project done when every step has stars', () => {
   assert.strictEqual(W.projectStars(p, st.projectProgress(p.id)), ids.length * 3);
 });
 
-test('at least 12 projects, one per week, 4–6 steps each, unique ids, short titles, story lines', () => {
-  assert.ok(projects.length >= 12, 'projects: ' + projects.length);
+test('exactly 52 projects, one per week, 4–6 steps each, unique ids, short titles, story lines', () => {
+  assert.strictEqual(projects.length, 52, 'projects: ' + projects.length);
   const pids = new Set();
   projects.forEach((p, i) => {
     assert.strictEqual(p.weekIndex, i, p.id + ' weekIndex');

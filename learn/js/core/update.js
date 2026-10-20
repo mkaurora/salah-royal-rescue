@@ -76,14 +76,28 @@
         });
       }, function () { return 'offline'; });
     }
-    return { register: register, poll: poll, check: check, apply: apply,
+    /** ask the waiting worker which version it is (for the banner): resolves { version, built } or null */
+    function waitingVersion(ms) {
+      var w = waiting || (reg && reg.waiting);
+      if (!w || typeof MessageChannel === 'undefined') return Promise.resolve(null);
+      return new Promise(function (res) {
+        var ch = new MessageChannel(), done = false;
+        function fin(v) { if (!done) { done = true; try { ch.port1.close(); } catch (e) { /* closed */ } res(v); } }
+        ch.port1.onmessage = function (e) { fin(e.data && e.data.version ? e.data : null); };
+        try { w.postMessage({ type: 'VERSION' }, [ch.port2]); } catch (e) { fin(null); }
+        setT(function () { fin(null); }, ms == null ? 1500 : ms);
+      });
+    }
+    return { register: register, poll: poll, check: check, apply: apply, waitingVersion: waitingVersion,
       hasUpdate: function () { return !!waiting; }, registration: function () { return reg; } };
   }
   var TEXT = {
     latest: 'You have the latest version',
     offline: "You're offline, try again later",
     updating: 'Updating…',
-    banner: 'New version! Tap to update'
+    banner: 'New version! Tap to update',
+    bannerV: 'New version {v}! Tap to update',
+    updated: 'Updated to version {v} ✨'
   };
   return { createUpdater: createUpdater, TEXT: TEXT };
 });

@@ -510,7 +510,7 @@ async function offlineFlow(browser, base, dev) {
     await page.reload();
     await page.waitForFunction(() => !!navigator.serviceWorker.controller);
     const keys = await page.evaluate(() => caches.keys());
-    assert(keys.includes('learn-v3') && keys.every((k) => k.startsWith('learn-')), 'cache ' + keys);
+    assert(keys.includes('learn-v4') && keys.every((k) => k.startsWith('learn-')), 'cache ' + keys);
     await ctx.setOffline(true);
     await page.reload();
     await page.waitForSelector('.menu .world-card');
@@ -536,7 +536,7 @@ async function updateFlow(browser, base, dev) {
     await page.goto(base + '?fast=1'); await page.waitForSelector('.menu');
     await page.evaluate(() => navigator.serviceWorker.ready); await page.reload(); await page.waitForFunction(() => !!navigator.serviceWorker.controller);
     assert((await page.evaluate(async () => (await navigator.serviceWorker.getRegistration()).updateViaCache)) === 'none');
-    const v = await swBuild(); assert(v.cache === 'learn-v3', JSON.stringify(v));
+    const v = await swBuild(); assert(v.cache === 'learn-v4', JSON.stringify(v));
     await page.evaluate(() => { SQ.save.setStars(SQ.state, 'math', 0, 3); SQ.save.setStars(SQ.state, 'english', 0, 2); SQ.persist(); });
     assert((await stars()) === 5);
   });
@@ -555,7 +555,9 @@ async function updateFlow(browser, base, dev) {
     assert(!(await page.locator('.update-banner').count()), 'banner shown mid-level');
     assert((await build()) === '0', 'reloaded mid-level');
     await page.evaluate(() => SQ.go.menu()); await page.waitForSelector('.update-banner', { timeout: 5000 });
-    assert(/New version! Tap to update/.test(await page.textContent('.update-banner')));
+    await page.waitForFunction(() => /New version 9\.1! Tap to update/.test(document.querySelector('.update-banner').textContent), null, { timeout: 5000 }).catch(() => {});
+    const bt = await page.textContent('.update-banner');
+    assert(/New version 9\.1! Tap to update/.test(bt), 'banner shows the waiting version: ' + bt);
     await page.waitForTimeout(600); await page.screenshot({ path: `${UPSHOTS}/lq-banner${dev.tag}.png` });
   });
   await check('tapping the banner reloads into the new version; progress kept', async () => {
@@ -588,6 +590,161 @@ async function updateFlow(browser, base, dev) {
   await ctx.close();
 }
 
+/* Visible 🔒 Parents button + finger scrolling everywhere (the hidden hold failed on a real iPhone, and Royal Rescue's
+ * parent panel could not be scrolled because a document touchmove handler cancelled it). */
+async function touchDefaultPrevented(page, selector) {
+  return page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + Math.min(r.height / 2, 200);
+    const mk = (yy) => new Touch({ identifier: 7, target: el, clientX: x, clientY: yy, pageX: x, pageY: yy });
+    const out = {};
+    for (const [type, yy] of [['touchstart', y], ['touchmove', y - 60], ['touchmove', y - 140], ['touchend', y - 140]]) {
+      const t = mk(yy);
+      const ev = new TouchEvent(type, { bubbles: true, cancelable: true, composed: true, touches: type === 'touchend' ? [] : [t], targetTouches: type === 'touchend' ? [] : [t], changedTouches: [t] });
+      el.dispatchEvent(ev);
+      out[type] = (out[type] || false) || ev.defaultPrevented;
+    }
+    return out;
+  }, selector);
+}
+async function fingerScroll(page, cdp, selector, dy) {
+  // A real compositor touch drag (CDP Input.dispatchTouchEvent): it honours touch-action and touchmove preventDefault
+  // just like iOS. (Input.synthesizeScrollGesture with gestureSourceType 'touch' does not scroll at all in this
+  // headless Chromium, even on a plain test page, so it cannot be used as the check.)
+  const box = await page.locator(selector).first().boundingBox();
+  const vh = page.viewportSize().height;
+  const x = Math.round(box.x + box.width / 2);
+  const top = Math.max(box.y, 0) + 30, bottom = Math.min(box.y + box.height, vh) - 30, mid = (top + bottom) / 2;
+  const half = Math.min(Math.abs(dy), bottom - top) / 2; // drag through the middle (headers may overlap the edges)
+  const y0 = Math.round(dy > 0 ? mid + half : mid - half), y1 = Math.round(dy > 0 ? mid - half : mid + half);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y: y0 }] });
+  for (let i = 1; i <= 12; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: Math.round(y0 + (y1 - y0) * i / 12) }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(200);
+}
+async function scrollToEnd(page, cdp, selector) {
+  for (let i = 0; i < 40; i++) {
+    const m = await page.$eval(selector, (e) => ({ top: e.scrollTop, max: e.scrollHeight - e.clientHeight }));
+    if (m.top >= m.max - 2) return m;
+    await fingerScroll(page, cdp, selector, 600);
+  }
+  return page.$eval(selector, (e) => ({ top: e.scrollTop, max: e.scrollHeight - e.clientHeight }));
+}
+/** The element is on screen and a tap at its centre lands on it (not covered, not clipped). */
+async function hittable(page, handleSel) {
+  return page.evaluate((sel) => {
+    const all = [...document.querySelectorAll(sel)].filter((e) => e.getBoundingClientRect().height > 0); const el = all[all.length - 1];
+    const r = el.getBoundingClientRect(); const x = r.left + r.width / 2, y = r.top + Math.min(r.height / 2, 20);
+    const hit = document.elementFromPoint(x, y);
+    return { inView: r.top >= 0 && r.bottom <= innerHeight + 1, hit: !!hit && (hit === el || el.contains(hit)), r: [Math.round(r.top), Math.round(r.bottom), innerHeight] };
+  }, handleSel);
+}
+async function parentsScrollFlow(browser, base, dev) {
+  const { ctx, page } = await newPage(browser, dev.name);
+  const cdp = await ctx.newCDPSession(page);
+  await page.goto(base + '?fast=1&nosw=1&seed=scroll');
+  await page.waitForSelector('.menu');
+  // plenty of report rows / sessions so every tab really overflows
+  await page.evaluate(() => { for (let i = 0; i < 12; i++) { SQ.state.sessions.push({ at: Date.now() - i * 6e4, s: 'math', l: i % 5, ok: 4, n: 5, stars: 2 }); } SQ.persist(); });
+
+  await check('settings show a visible 🔒 Parents button + version under Update game', async () => {
+    await page.tap('.menu .gear-btn');
+    await page.waitForSelector('.kid-settings .parents-btn');
+    const pb = await hittable(page, '.kid-settings .parents-btn');
+    assert(pb.inView && pb.hit, 'Parents button not tappable ' + JSON.stringify(pb));
+    assert(/🔒\s*Parents/.test(await page.textContent('.kid-settings .parents-btn')));
+    { const lbl = await page.textContent('.kid-settings .app-version'); assert(/^Version 4\.\d+ \(\d{1,2} [A-Z][a-z]{2} \d{4}\)$/.test(lbl), 'version label ' + lbl); }
+    const ub = await page.locator('.kid-settings .update-btn').boundingBox(), pbb = await page.locator('.kid-settings .parents-btn').boundingBox();
+    assert(pbb.y > ub.y && pbb.y - ub.y < 140, 'Parents sits right under Update game');
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: path.join(SHOTS, `settings-parents${dev.tag}.png`) });
+  });
+  await check('tap 🔒 Parents → PIN pad → quick 1994 → parent area', async () => {
+    await page.tap('.kid-settings .parents-btn');
+    await page.waitForSelector('.pin-overlay .pin-pad');
+    assert(!(await page.locator('.kid-settings').count()), 'settings closed behind the PIN pad');
+    for (const d of '1994') await page.tap('.pin-pad ' + sel('data-pin', d)); // fast taps (< 350 ms apart) must all count
+    await page.waitForSelector('.screen.admin[data-tab=levels]', { timeout: 3000 });
+  });
+  for (const tab of ['levels', 'questions', 'settings', 'report', 'transfer']) {
+    await check(`parent area "${tab}": scrolls by finger, touchmove not cancelled, last item reachable + tappable`, async () => {
+      await page.tap('.admin-tabs .tab-' + tab);
+      await page.waitForSelector(`.screen.admin[data-tab=${tab}]`);
+      await page.waitForTimeout(250);
+      const body = '.screen.admin:not(.leaving) .admin-body';
+      const m0 = await page.$eval(body, (e) => ({ top: e.scrollTop, max: e.scrollHeight - e.clientHeight, ta: getComputedStyle(e).touchAction, ov: getComputedStyle(e).overflowY }));
+      assert(m0.ov === 'auto' && m0.ta !== 'none', 'css ' + JSON.stringify(m0));
+      const dp = await touchDefaultPrevented(page, body + ' .a-card:last-child');
+      assert(!dp.touchstart && !dp.touchmove, 'touch cancelled ' + JSON.stringify(dp));
+      if (m0.max > 20) {
+        await fingerScroll(page, cdp, body, 250);
+        const m1 = await page.$eval(body, (e) => e.scrollTop);
+        assert(m1 > m0.top + 20, `finger scroll did not move (${m0.top} → ${m1}, max ${m0.max})`);
+        const end = await scrollToEnd(page, cdp, body);
+        assert(end.top >= end.max - 2, 'could not reach the bottom ' + JSON.stringify(end));
+      }
+      const last = body + ' .a-card:last-child > *';
+      const h = await hittable(page, last);
+      assert(h.inView && h.hit, 'last item not reachable ' + JSON.stringify(h));
+      if (tab === 'settings') {
+        await page.tap(body + ' .save-pin');
+        await page.waitForSelector(body + ' .pin-result.a-err');
+        if (!dev.tag) await page.screenshot({ path: path.join(SHOTS, 'parent-settings-bottom.png') });
+      }
+      if (tab === 'transfer') {
+        await page.tap(body + ' .check-code');
+        await page.waitForSelector(body + ' .import-error');
+        await scrollToEnd(page, cdp, body);
+        await page.screenshot({ path: path.join(SHOTS, `parent-transfer-bottom${dev.tag}.png`) });
+      }
+      if (tab === 'report') await page.screenshot({ path: path.join(SHOTS, `parent-report-bottom${dev.tag}.png`) });
+    });
+  }
+  await check('PIN pad overlay scrolls on a very short screen (landscape SE)', async () => {
+    await page.tap('.admin-close'); await page.waitForSelector('.menu');
+    await page.setViewportSize({ width: 667, height: 375 });
+    await page.tap('.menu .gear-btn'); await page.waitForSelector('.kid-settings .parents-btn');
+    const ov = '.overlay';
+    let m = await page.$eval(ov, (e) => ({ max: e.scrollHeight - e.clientHeight }));
+    if (m.max > 2) { await scrollToEnd(page, cdp, ov); }
+    const g = await hittable(page, '.kid-settings .btn.green');
+    assert(g.inView && g.hit, 'settings OK not reachable ' + JSON.stringify(g));
+    await page.tap('.kid-settings .parents-btn'); await page.waitForSelector('.pin-overlay');
+    m = await page.$eval('.pin-overlay', (e) => ({ max: e.scrollHeight - e.clientHeight }));
+    assert(m.max > 2, 'pin pad should overflow in landscape ' + JSON.stringify(m));
+    const top = await page.$eval('.pin-card', (e) => e.getBoundingClientRect().top);
+    assert(top >= 0, 'top of the PIN card is clipped');
+    await scrollToEnd(page, cdp, '.pin-overlay');
+    const c = await hittable(page, '.pin-overlay .cancel-btn');
+    assert(c.inView && c.hit, 'Cancel not reachable ' + JSON.stringify(c));
+    await page.tap('.pin-overlay .cancel-btn');
+  });
+  await check('map scrolls by finger', async () => {
+    await page.setViewportSize(pw.devices[dev.name].viewport);
+    await page.tap('.world-card[data-subject=math]'); await page.waitForSelector('.map-scroll');
+    await page.waitForTimeout(300);
+    const a = await page.$eval('.map-scroll', (e) => ({ top: e.scrollTop, max: e.scrollHeight - e.clientHeight }));
+    assert(a.max > 50, 'map should overflow');
+    const dp = await touchDefaultPrevented(page, '.map-scroll');
+    assert(!dp.touchstart && !dp.touchmove, 'map touch cancelled');
+    const dir = a.top > a.max / 2 ? -1 : 1;
+    await fingerScroll(page, cdp, '.map-scroll', dir * 300);
+    const b = await page.$eval('.map-scroll', (e) => e.scrollTop);
+    assert(Math.abs(b - a.top) > 30, `map did not scroll ${a.top} → ${b}`);
+  });
+  await check('quick double tap on numpad keys counts both digits', async () => {
+    await page.evaluate(() => SQ.go.play('math', 0)); await page.waitForSelector('.qcard[data-qid]');
+    const has = await page.locator('.numpad').count();
+    if (has) {
+      await page.tap('.numpad ' + sel('data-key', '1')); await page.tap('.numpad ' + sel('data-key', '1'));
+      assert((await page.textContent('.numdisplay')).trim().startsWith('11'), 'second tap swallowed');
+    }
+  });
+  await check('no console errors (parents/scroll run)', async () => { assert(!page.errors.length, page.errors.slice(0, 3).join(' | ')); });
+  await ctx.close();
+}
+
 async function winShot(browser, base) {
   // Full-speed animations for the win screenshot (iPhone 13).
   const { ctx, page } = await newPage(browser, 'iPhone 13');
@@ -614,14 +771,18 @@ async function winShot(browser, base) {
   const { server, url } = await start(0);
   const browser = await pw.chromium.launch();
   try {
+    const only = process.env.E2E_ONLY; // e.g. E2E_ONLY=parents runs just the Parents button / scrolling checks
     for (const dev of DEVICES) {
+      if (only === 'parents') { await parentsScrollFlow(browser, url, dev); continue; }
+      if (only === 'update') { await updateFlow(browser, url, dev); continue; }
       await runDevice(browser, url, dev);
       await stuckFlow(browser, url, dev);
       await adminFlow(browser, url, dev);
+      await parentsScrollFlow(browser, url, dev);
       await offlineFlow(browser, url, dev);
       await updateFlow(browser, url, dev);
     }
-    await winShot(browser, url);
+    if (!only) await winShot(browser, url);
   } finally {
     await browser.close();
     server.close();

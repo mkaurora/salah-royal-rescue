@@ -5,6 +5,7 @@
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#1b4fb8">
 <title>Salah's Royal Rescue: City Journey</title>
+<script src="version.js"></script>
 <style>
 :root{--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);
  --font:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold","Nunito",-apple-system,system-ui,sans-serif}
@@ -746,19 +747,35 @@ function validateCur(cur){
         });
       }, function () { return 'offline'; });
     }
-    return { register: register, poll: poll, check: check, apply: apply,
+    /** ask the waiting worker which version it is (for the banner): resolves { version, built } or null */
+    function waitingVersion(ms) {
+      var w = waiting || (reg && reg.waiting);
+      if (!w || typeof MessageChannel === 'undefined') return Promise.resolve(null);
+      return new Promise(function (res) {
+        var ch = new MessageChannel(), done = false;
+        function fin(v) { if (!done) { done = true; try { ch.port1.close(); } catch (e) { /* closed */ } res(v); } }
+        ch.port1.onmessage = function (e) { fin(e.data && e.data.version ? e.data : null); };
+        try { w.postMessage({ type: 'VERSION' }, [ch.port2]); } catch (e) { fin(null); }
+        setT(function () { fin(null); }, ms == null ? 1500 : ms);
+      });
+    }
+    return { register: register, poll: poll, check: check, apply: apply, waitingVersion: waitingVersion,
       hasUpdate: function () { return !!waiting; }, registration: function () { return reg; } };
   }
   var TEXT = {
     latest: 'You have the latest version', latestAr: 'لديك أحدث نسخة',
     offline: "You're offline, try again later", offlineAr: 'أنت غير متصل، حاول لاحقًا',
     updating: 'Updating…', updatingAr: 'جارٍ التحديث…',
-    banner: 'New version! Tap to update', bannerAr: 'نسخة جديدة! اضغط للتحديث'
+    banner: 'New version! Tap to update', bannerAr: 'نسخة جديدة! اضغط للتحديث',
+    bannerV: 'New version {v}! Tap to update', updated: 'Updated to version {v}'
   };
   return { createUpdater: createUpdater, TEXT: TEXT };
 });
 </script>
 <script>
+// The version lives in version.js only (bump it there; tools/stamp-sw.js stamps the date and sw.js).
+const GV=self.GAME_VERSION||{version:'?',built:''};
+function versionLabel(){return 'Version '+GV.version+(GV.built?' ('+GV.built+')':'')}
 "use strict";
 // ================= ART: gems (canvas), Salah + landmarks (SVG) =================
 const PAL=[['#ffb0b0','#f0283a','#7a0816'],['#b4e4ff','#1f8cff','#0a3a94'],['#c4ff9a','#2fc23a','#0b6219'],['#fff7a8','#ffc81e','#a86200'],['#f2c2ff','#a64bf0','#4a1288'],['#ffd8a8','#ff8a1e','#9a3a00']];
@@ -1635,7 +1652,7 @@ function howHTML(){
    <style>#musicCredits a{color:#ffe27a}</style><div class="how" id="musicCredits" style="display:block;font-size:13px;line-height:1.4"><b>🎵 Music credits / حقوق الموسيقى</b><br>
    Kuwait levels: “Traditional Qatari Wedding Ceremony” by Noah Scalin, <a href="https://commons.wikimedia.org/wiki/File:Traditional_Qatari_Wedding_Ceremony.webm" target="_blank" rel="noopener">Wikimedia Commons</a>, licensed <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Excerpt (80 s), looped and volume-adjusted.<br>
    Morocco levels: “وصلة من فن كناوة باب الاحد الرباط” (Gnawa, Bab El Had, Rabat) by RACHID BAYA, <a href="https://commons.wikimedia.org/wiki/File:%D9%88%D8%B5%D9%84%D8%A9_%D9%85%D9%86_%D9%81%D9%86_%D9%83%D9%86%D8%A7%D9%88%D8%A9_%D8%A8%D8%A7%D8%A8_%D8%A7%D9%84%D8%A7%D8%AD%D8%AF_%D8%A7%D9%84%D8%B1%D8%A8%D8%A7%D8%B7.webm" target="_blank" rel="noopener">Wikimedia Commons</a>, licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. This clip is adapted (120 s excerpt, looped, volume-adjusted) and the adapted clip (music/morocco.m4a) is shared under CC BY-SA 4.0.</div>
-   </div><div id="updRow"><button class="btn blue" id="updBtn">🔄 Update game<small class="ar">حدّث اللعبة</small></button><div id="updMsg"></div><button class="btn purple" id="parBtn" style="margin-top:10px">🔒 Parents<small class="ar">للوالدين</small></button><div id="verTag" style="font-size:12px;opacity:.6;margin-top:6px">Version 7.4</div></div>
+   </div><div id="updRow"><button class="btn blue" id="updBtn">🔄 Update game<small class="ar">حدّث اللعبة</small></button><div id="updMsg"></div><button class="btn purple" id="parBtn" style="margin-top:10px">🔒 Parents<small class="ar">للوالدين</small></button><div id="verTag" style="font-size:12px;opacity:.6;margin-top:6px">${esc(versionLabel())}</div></div>
    <button class="btn big wide" id="howOk" style="margin-top:12px">OK! 👍<small class="ar">حسنًا</small></button></div>`}
 function showHow(back){openOv(howHTML());$('howOk').onclick=()=>{sfx.click();closeOv();back&&back()};$('updBtn').onclick=()=>{sfx.click();updateGame()};$('parBtn').onclick=()=>{sfx.click();openPin()}}
 function showPause(){if(!g||g.over)return;g.busy=true;
@@ -1753,6 +1770,7 @@ function drawAdmin(keepScroll){
      <div class="stSeg">${[0,1,2,3].map(k=>`<button class="${k===st?'on':''}" data-st="${i}:${k}" aria-label="Level ${i+1}: ${k} stars">${k?k+'★':'–'}</button>`).join('')}</div>
      <button class="btn sm" data-play="${i}" aria-label="Play level ${i+1}">▶</button></div>`}).join('');
   openOv(`<div class="panel" id="admPanel" style="margin-top:44px;padding:16px"><div class="ribbon ttl" style="flex:none">Parent mode<span class="ar">وضع الوالدين</span></div><div id="admScroll">
+   <div id="admVer" style="font-size:12px;opacity:.7;text-align:center;margin:-2px 0 6px">${esc(versionLabel())}</div>
    ${admUI.msg?`<div class="fact" id="admMsg">${esc(admUI.msg)}</div>`:''}
    <div class="admCard"><b>Now on: ${cur>=LEVELS.length?'all '+LEVELS.length+' levels done':'level '+(cur+1)}</b> · ⭐ ${totalStars}/${LEVELS.length*3} · Endless ∞ ${eo?'on':'off'}</div>
    <div class="admCard"><h3>Put Salah on a level</h3><div class="admRow">
@@ -1816,13 +1834,18 @@ window._t={musicPlan,findMatches,applyGravity,resolveStep,resolveAll,planMove,ha
 })();
 // ---------- updates: "Update game" button (How to play) + "New version!" banner, never mid-level ----------
 const UT=GameUpdate.TEXT;
+// After an update, say so once: "Updated to version 7.7".
+try{const seen=localStorage.getItem('rr-seen-version');if(seen&&seen!==GV.version)setTimeout(()=>toast(`✨ ${UT.updated.replace('{v}',GV.version)}`,3000),900);
+  if(seen!==GV.version)localStorage.setItem('rr-seen-version',GV.version)}catch(e){}
 const updater=GameUpdate.createUpdater({navigator,reload:()=>{try{if(g&&!g.busy&&!g.over)saveCur()}catch(e){}persist();location.reload()},
   ping:()=>fetch('index.html',{cache:'no-store'}).then(r=>{if(!r.ok)throw 0}),onUpdate:()=>showUpdateBanner()});
 let bannerT=0;
 function showUpdateBanner(){clearInterval(bannerT);
   const place=()=>{if($('game').classList.contains('on'))return false;if($('updBanner'))return true;
     const b=document.createElement('button');b.id='updBanner';b.innerHTML=`✨ ${UT.banner}<small class="ar">${UT.bannerAr}</small>`;
-    b.onclick=()=>{b.classList.add('busy');b.innerHTML=`${UT.updating}<small class="ar">${UT.updatingAr}</small>`;updater.apply()};document.body.appendChild(b);return true};
+    b.onclick=()=>{b.classList.add('busy');b.innerHTML=`${UT.updating}<small class="ar">${UT.updatingAr}</small>`;updater.apply()};document.body.appendChild(b);
+    // which version is waiting: "New version 7.7! Tap to update"
+    updater.waitingVersion().then(v=>{if(v&&v.version&&b.parentNode&&!b.classList.contains('busy'))b.innerHTML=`✨ ${esc(UT.bannerV.replace('{v}',v.version))}<small class="ar">${UT.bannerAr}</small>`});return true};
   if(!place())bannerT=setInterval(()=>{if(place())clearInterval(bannerT)},1000)}
 function updateGame(){const b=$('updBtn');if(b)b.disabled=true;
   return updater.check().then(r=>{if(b)b.disabled=false;const el=$('updMsg');if(el)el.innerHTML=`${UT[r]}<span class="ar">${UT[r+'Ar']}</span>`;return r})}

@@ -98,7 +98,7 @@
   function openPanel(tab, notice) {
     tab = tab || 'progress';
     var el = h('div.parent-screen');
-    var head = h('div.admin-head', h('h1', 'Parent Area'), abtn('Done', 'primary admin-close', function () { LE.app.showMenu(); }));
+    var head = h('div.admin-head', h('h1', 'Parent Area', h('small.admin-version', ' ' + (LE.versionLabel ? LE.versionLabel() : ''))), abtn('Done', 'primary admin-close', function () { LE.app.showMenu(); }));
     var tabs = h('div.admin-tabs');
     var body = h('div.admin-body.scroll-y');
     TABS.forEach(function (t) {
@@ -175,8 +175,9 @@
     var cal = W.calendarWeek(now), cur = W.currentWeek(st.data, now, projects.length, projects), max = W.unlockedMax(st.data, now);
     var force = st.getWeekly().currentWeekForce;
     var info = card(body, 'Weekly Big Project',
-      'Weeks 1–' + W.OPEN_NOW + ' are open. After that a new project opens every Monday (week ' + (W.OPEN_NOW + 1) + ' on ' +
-      W.opensOn(W.OPEN_NOW).toISOString().slice(0, 10) + '). Open now: weeks 1–' + (Math.min(max, projects.length - 1) + 1) + ' of ' + projects.length +
+      (W.OPEN_NOW >= projects.length ? 'All ' + projects.length + ' weeks are open. ' :
+        'Weeks 1–' + W.OPEN_NOW + ' are open. After that a new project opens every Monday (week ' + (W.OPEN_NOW + 1) + ' on ' +
+        W.opensOn(W.OPEN_NOW).toISOString().slice(0, 10) + '). ') + 'Open now: weeks 1–' + (Math.min(max, projects.length - 1) + 1) + ' of ' + projects.length +
       '. Showing as "this week": week ' + (cur + 1) + (force !== null ? ' (set by you)' : '') + '.');
     info.appendChild(h('div.a-row',
       abtn('Follow the calendar', 'follow-calendar', function () { st.setCurrentWeekForce(null); st.setWeeklyUnlockedMax(-1); toast('Weeks follow the calendar again.'); refresh(); }),

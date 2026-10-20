@@ -27,7 +27,7 @@ function createServer() {
     fs.readFile(file, (err, data) => {
       if (err) { res.writeHead(404); return res.end('Not found'); }
       // e2e "new deploy": a changed sw.js BUILD stamp and a marker in index.html
-      if (testBuild && rel === 'sw.js') data = Buffer.from(String(data).replace(/var BUILD = '[^']*';/, "var BUILD = 'test" + testBuild + "';"));
+      if (testBuild && rel === 'sw.js') data = Buffer.from(String(data).replace(/var BUILD = '[^']*';/, "var BUILD = 'test" + testBuild + "';").replace(/var VERSION = '[^']*';/, "var VERSION = '9." + testBuild + "';"));
       if (testBuild && rel === 'index.html') data = Buffer.from(String(data).replace('<head>', '<head><meta name="test-build" content="' + testBuild + '">'));
       res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
       res.end(data);

@@ -5,7 +5,10 @@
  * "Update"), so nothing ever reloads in the middle of a level. Only touches caches named learn-*.
  * BUILD changes whenever any app file changes (node tools/build-sw.js), so every deploy is a new SW version. */
 'use strict';
-var BUILD = '13bf610b';
+var BUILD = '24cdf0a8';
+var VERSION = '4.1';   // written by tools/build-sw.js from js/version.js (shown in Settings)
+var BUILT = '20 Oct 2026';
+var CONTENT = 'd2dd686b56';   // hash of the app without js/version.js: tells the build whether the version needs a bump
 var CACHE = 'learn-v4';
 var LEGACY = ['learn-v1', 'learn-v2']; // builds without the update banner: take over at once, they cannot ask
 var PRECACHE = [
@@ -39,6 +42,7 @@ var PRECACHE = [
   './js/ui/art.js',
   './js/ui/fx.js',
   './js/ui/mascot.js',
+  './js/version.js',
   './js/views/admin.js',
   './js/views/map.js',
   './js/views/menu.js',
@@ -256,7 +260,7 @@ self.addEventListener('install', function (event) {
 
 self.addEventListener('message', function (event) {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
-  if (event.data && event.data.type === 'VERSION' && event.ports && event.ports[0]) event.ports[0].postMessage({ cache: CACHE, build: BUILD });
+  if (event.data && event.data.type === 'VERSION' && event.ports && event.ports[0]) event.ports[0].postMessage({ cache: CACHE, build: BUILD, version: VERSION, built: BUILT });
 });
 
 self.addEventListener('activate', function (event) {
