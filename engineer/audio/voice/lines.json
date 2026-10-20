@@ -24,6 +24,14 @@
   "text": "A big gear turns slowly. Put the BIG gear on the belt."
  },
  {
+  "id": "09c2562c",
+  "text": "A big log hides a fossil. Split it!"
+ },
+ {
+  "id": "55345498",
+  "text": "A big rock is in the dino river. Use it!"
+ },
+ {
   "id": "fbc11a9f",
   "text": "A big rock is in the way!"
  },
@@ -34,6 +42,10 @@
  {
   "id": "686737c7",
   "text": "A boat sails under! Build up high, not down low."
+ },
+ {
+  "id": "3f8adfa8",
+  "text": "A bus full of hungry kids is coming!"
  },
  {
   "id": "ffd859b4",
@@ -56,12 +68,20 @@
   "text": "A heavy truck! Make a super strong bridge."
  },
  {
+  "id": "3ad3d374",
+  "text": "A kitten is stuck! Robo goes to help."
+ },
+ {
   "id": "0e67b48c",
   "text": "A lamp goes here."
  },
  {
   "id": "139bae76",
   "text": "A log blocks the way. Split it!"
+ },
+ {
+  "id": "a65d7e9d",
+  "text": "A long road to the castle gate."
  },
  {
   "id": "0fa1fef5",
@@ -96,12 +116,20 @@
   "text": "A road! Now tap Go!"
  },
  {
+  "id": "0d460fbd",
+  "text": "A rock blocks the fire station door!"
+ },
+ {
   "id": "2a7788bd",
   "text": "A rock in the river! Use it to hold the road."
  },
  {
   "id": "e43eca04",
   "text": "A roof needs walls under it!"
+ },
+ {
+  "id": "a22ac559",
+  "text": "A ship sails under the bridge!"
  },
  {
   "id": "8f2c7973",
@@ -114,6 +142,10 @@
  {
   "id": "9bff803f",
   "text": "A straight wire goes here."
+ },
+ {
+  "id": "4ec0db85",
+  "text": "A submarine passes under the bridge."
  },
  {
   "id": "1ec06751",
@@ -144,8 +176,16 @@
   "text": "A truck and tall towers. Hang the road with steel!"
  },
  {
+  "id": "fb47f82a",
+  "text": "A truck carries rocks over the mountain bridge!"
+ },
+ {
   "id": "a4fb0238",
   "text": "A truck on top, a boat below. Use steel!"
+ },
+ {
+  "id": "67db0449",
+  "text": "A very long bridge to the runway."
  },
  {
   "id": "4f481ddd",
@@ -184,6 +224,14 @@
   "text": "Add the door and windows before the roof!"
  },
  {
+  "id": "b687525f",
+  "text": "Ahoy! This week we hunt for pirate treasure."
+ },
+ {
+  "id": "301200d5",
+  "text": "All aboard! This week we build a train station."
+ },
+ {
   "id": "e838f9cb",
   "text": "Almost! Let's try again!"
  },
@@ -206,6 +254,10 @@
  {
   "id": "64286d7f",
   "text": "Awesome job, Salah!"
+ },
+ {
+  "id": "afe2676f",
+  "text": "Bags ride the belt. Catch them with a ramp!"
  },
  {
   "id": "97e6b4b7",
@@ -236,6 +288,10 @@
   "text": "Big blocks must go at the bottom."
  },
  {
+  "id": "6c42a1fb",
+  "text": "Big candy boxes go at the bottom!"
+ },
+ {
   "id": "d75493f6",
   "text": "Big city! Fan FAST, house BRIGHT. Shh, one house sleeps!"
  },
@@ -244,12 +300,28 @@
   "text": "Big gears go slow. A big gear turns slowly. Slow is good when you need to stop in the right spot!"
  },
  {
+  "id": "bd3910aa",
+  "text": "Big rain is coming! This week we keep the town dry."
+ },
+ {
   "id": "693384db",
   "text": "Big stairs! Repeat the step pattern forever."
  },
  {
   "id": "0499b9f2",
   "text": "Biggest at the bottom, smallest on top."
+ },
+ {
+  "id": "341eaba9",
+  "text": "Biggest block at the bottom! Move the blocks that are in the way first."
+ },
+ {
+  "id": "c372d716",
+  "text": "Blast off! The rocket is in space! Amazing!"
+ },
+ {
+  "id": "3cf40744",
+  "text": "Blub blub! This week we build a lab under the sea."
  },
  {
   "id": "4fe2cd00",
@@ -266,6 +338,10 @@
  {
   "id": "f9316c10",
   "text": "Bonk! The log is in the way."
+ },
+ {
+  "id": "2d906a1a",
+  "text": "Brrr! This week we build a base near the North Pole."
  },
  {
   "id": "a794d058",
@@ -292,8 +368,16 @@
   "text": "Build a long wire path over the rocks!"
  },
  {
+  "id": "4302b6e9",
+  "text": "Build a model bridge for the judges!"
+ },
+ {
   "id": "a56bfc6c",
   "text": "Build a road! Drag from a bolt to make a beam. Flat beams on the road line become road for the car."
+ },
+ {
+  "id": "879ca159",
+  "text": "Build a roller coaster with ramps!"
  },
  {
   "id": "7e24f7ad",
@@ -302,6 +386,14 @@
  {
   "id": "413e3da9",
   "text": "Build a tall house with two floors!"
+ },
+ {
+  "id": "965966f6",
+  "text": "Build a tall lookout tower!"
+ },
+ {
+  "id": "3883a91e",
+  "text": "Build a tall pizza shop!"
  },
  {
   "id": "1c2dea31",
@@ -320,12 +412,24 @@
   "text": "Build the arch with a low point in the middle. Then connect the low point to more road dots."
  },
  {
+  "id": "3beed0ce",
+  "text": "Build the biggest sound machine!"
+ },
+ {
   "id": "4fcc33e7",
   "text": "Build the house with a strong roof!"
  },
  {
   "id": "92ce1e1a",
   "text": "Build the house with two windows!"
+ },
+ {
+  "id": "36d5af4b",
+  "text": "Build the moon machine!"
+ },
+ {
+  "id": "0ce01e1f",
+  "text": "Build the ramp to the car park!"
  },
  {
   "id": "306b4ba5",
@@ -344,12 +448,24 @@
   "text": "Build the road. Then one support from each low bolt."
  },
  {
+  "id": "a804e562",
+  "text": "Build the rocket engine machine!"
+ },
+ {
+  "id": "89ad7b7e",
+  "text": "Build the ticket office."
+ },
+ {
   "id": "a4d55ed3",
   "text": "Build the tower on the far X. Big, middle, small!"
  },
  {
   "id": "ecaf1e9a",
   "text": "Build the tower on the X. Big block at the bottom!"
+ },
+ {
+  "id": "cb722be8",
+  "text": "Build the toy train bridge with few coins!"
  },
  {
   "id": "6ac74f26",
@@ -372,12 +488,20 @@
   "text": "Bump the ball into the bucket to lift the box!"
  },
  {
+  "id": "67cc4a61",
+  "text": "Bump the ball to lift the rescue box!"
+ },
+ {
   "id": "ecbef17d",
   "text": "Bye, helper! Back to building!"
  },
  {
   "id": "d35707ea",
   "text": "Cables pull. Tall towers hold the road up with beams that pull, like a swing on a tree."
+ },
+ {
+  "id": "a860444b",
+  "text": "Careful! The cupcakes must go slowly."
  },
  {
   "id": "787ff331",
@@ -388,12 +512,36 @@
   "text": "Chain reaction. One ball bumps the next ball, and that one keeps rolling. Bump, bump, GO!"
  },
  {
+  "id": "220c4c17",
+  "text": "Check the pad, grab every gear and reach the flag!"
+ },
+ {
+  "id": "4df63210",
+  "text": "Choo choo! The train is on time. Great work!"
+ },
+ {
+  "id": "7956ff56",
+  "text": "Clear the plot for a new tower!"
+ },
+ {
   "id": "992279a3",
   "text": "Clear the plot, lift the bricks and build a big house!"
  },
  {
+  "id": "48b1aaa2",
+  "text": "Clear the red Mars road!"
+ },
+ {
+  "id": "80089d80",
+  "text": "Clear the road to the tunnel!"
+ },
+ {
   "id": "08abc81d",
   "text": "Clear the road! Dirt in the hole, rock in the truck."
+ },
+ {
+  "id": "3b6bbf1f",
+  "text": "Clear the snow, lift the bricks, build the base!"
  },
  {
   "id": "6e2dcbe0",
@@ -424,8 +572,16 @@
   "text": "Corner wires. A corner wire turns the power round a bend."
  },
  {
+  "id": "e927444c",
+  "text": "Count the squares before each turn. Grab every gear on the way!"
+ },
+ {
   "id": "a20abf3c",
   "text": "Count the squares to the flag. 1, 2, 3, 4!"
+ },
+ {
+  "id": "eb6e13e9",
+  "text": "Count the squares, then turn at each corner!"
  },
  {
   "id": "8fd18ef3",
@@ -442,6 +598,14 @@
  {
   "id": "09ce96bc",
   "text": "Crane first. A tall house needs the wide foundation."
+ },
+ {
+  "id": "9cbacef7",
+  "text": "Crane first. Then build: foundation, walls, door, windows, and the roof last!"
+ },
+ {
+  "id": "79cd0e50",
+  "text": "Cross the castle moat!"
  },
  {
   "id": "9477d470",
@@ -964,6 +1128,10 @@
   "text": "Did you know? Your TV remote, your toys and your watch can all run on batteries."
  },
  {
+  "id": "324a0a83",
+  "text": "Ding ding! This week we open a toy shop."
+ },
+ {
   "id": "6efc60ac",
   "text": "Dirt goes in the holes!"
  },
@@ -1044,12 +1212,24 @@
   "text": "Drive round the pond and grab the gears!"
  },
  {
+  "id": "5ad26867",
+  "text": "Drive the taxi, pick up everyone and reach the flag!"
+ },
+ {
+  "id": "eae5db77",
+  "text": "Drive through the tunnel and grab every gear!"
+ },
+ {
   "id": "87f5850e",
   "text": "Drive, turn left, and climb to the flag!"
  },
  {
   "id": "2e5b3027",
   "text": "Drop the ball on the seesaw to launch the box!"
+ },
+ {
+  "id": "513213ee",
+  "text": "Drop the ball to launch the splash box!"
  },
  {
   "id": "9edb6d12",
@@ -1076,8 +1256,32 @@
   "text": "Erase and swap. Tap Erase, then tap a beam to take it away. Now you can build a better one!"
  },
  {
+  "id": "266d4879",
+  "text": "Event four: Robo turns the wrong way!"
+ },
+ {
+  "id": "dd43cc82",
+  "text": "Event one: race down the stairs!"
+ },
+ {
+  "id": "df16db0b",
+  "text": "Event three: run round the trees!"
+ },
+ {
+  "id": "dc2611bc",
+  "text": "Event two: grab every gear!"
+ },
+ {
   "id": "84d951f3",
   "text": "Every package is delivered! Robo says thank you!"
+ },
+ {
+  "id": "671b3ef9",
+  "text": "Every pizza is delivered hot! Delicious work!"
+ },
+ {
+  "id": "8ddbacf1",
+  "text": "Everyone is splashing! The water park is a hit!"
  },
  {
   "id": "165dff7e",
@@ -1116,6 +1320,10 @@
   "text": "Fill the holes in the road so the truck can drive!"
  },
  {
+  "id": "1047bf64",
+  "text": "Fill the splash pools!"
+ },
+ {
   "id": "dea7c8ed",
   "text": "Fill the top hole first. Then push the other dirt down."
  },
@@ -1140,6 +1348,10 @@
   "text": "First make the ground flat. Then build a house!"
  },
  {
+  "id": "a796fe6a",
+  "text": "First prize! Your inventions won the science fair!"
+ },
+ {
   "id": "5fd0fafc",
   "text": "First ramp goes right. Second ramp goes left."
  },
@@ -1160,6 +1372,10 @@
   "text": "First, let's start fresh."
  },
  {
+  "id": "2e51e602",
+  "text": "First, the grandest bridge!"
+ },
+ {
   "id": "8b14a572",
   "text": "First, the little house at the edge of town."
  },
@@ -1172,12 +1388,40 @@
   "text": "Fix the wire, then turn on the switch!"
  },
  {
+  "id": "d6eafb5f",
+  "text": "Fling the box up the snowy hill!"
+ },
+ {
   "id": "7550309e",
   "text": "Flip the ramp. Tap a ramp to flip it. Then things roll the other way!"
  },
  {
+  "id": "3ad1b51f",
+  "text": "Float along the river and grab every gear!"
+ },
+ {
   "id": "76ebe7e0",
   "text": "Follow the ball. Right, then left, then right!"
+ },
+ {
+  "id": "cca92a9b",
+  "text": "Follow the path, grab the gold and reach the flag!"
+ },
+ {
+  "id": "219f70a8",
+  "text": "Follow the tracks, grab the ticket and reach the flag!"
+ },
+ {
+  "id": "4512d880",
+  "text": "Follow the trail, grab the fruit and reach the flag!"
+ },
+ {
+  "id": "fde7c85f",
+  "text": "Follow the treasure map to the X!"
+ },
+ {
+  "id": "f0cb3562",
+  "text": "Follow the twisty dino footprints!"
  },
  {
   "id": "09eed9d3",
@@ -1212,6 +1456,14 @@
   "text": "Free play! Tap the board to add things. Then code Robo with blocks!"
  },
  {
+  "id": "b1d65019",
+  "text": "Fruit rides the belt to the basket!"
+ },
+ {
+  "id": "a74fea46",
+  "text": "Fuel balls roll down to the rocket tank."
+ },
+ {
   "id": "49ce9979",
   "text": "Fun! Robo went somewhere new. Try again as much as you like!"
  },
@@ -1222,6 +1474,10 @@
  {
   "id": "367da19a",
   "text": "Gears. Gears have teeth. When two gears touch, one turns the other!"
+ },
+ {
+  "id": "9640ec13",
+  "text": "Get behind the dirt, then push it into the hole!"
  },
  {
   "id": "66fab3cb",
@@ -1268,6 +1524,14 @@
   "text": "Go up from the battery, across the top, and down to the house."
  },
  {
+  "id": "9d8a2267",
+  "text": "Goal! The stadium is full and cheering for you!"
+ },
+ {
+  "id": "dc59acb2",
+  "text": "Gold medal! Robo is the champion, and so are you!"
+ },
+ {
   "id": "105d34e1",
   "text": "Good try! Let's fix it together."
  },
@@ -1276,8 +1540,20 @@
   "text": "Grab both packages on the way to the flag!"
  },
  {
+  "id": "a3d5c3d1",
+  "text": "Grab the apples and reach the flag!"
+ },
+ {
   "id": "5ce70953",
   "text": "Grab the beam, move right three times, then drop it."
+ },
+ {
+  "id": "0872ee10",
+  "text": "Grab the food and reach the flag!"
+ },
+ {
+  "id": "18c7b577",
+  "text": "Grab the fuel and dock at the flag!"
  },
  {
   "id": "3478ce5b",
@@ -1300,12 +1576,20 @@
   "text": "Grab the kit, cross the bridge and reach the flag!"
  },
  {
+  "id": "3b543db3",
+  "text": "Grab the ladder and reach the kitten at the flag!"
+ },
+ {
   "id": "19fdfbe8",
   "text": "Grab the package and drive to the flag!"
  },
  {
   "id": "7a6ccb71",
   "text": "Grab the package, then turn to the flag!"
+ },
+ {
+  "id": "8037f76e",
+  "text": "Grab the pizza and reach the flag!"
  },
  {
   "id": "3e9957f2",
@@ -1326,6 +1610,10 @@
  {
   "id": "7314f366",
   "text": "Great! Robo needs one more step. Add another!"
+ },
+ {
+  "id": "a1132358",
+  "text": "Hang the bridge between the trees!"
  },
  {
   "id": "7fc6367d",
@@ -1380,6 +1668,10 @@
   "text": "Hooray! You did it!"
  },
  {
+  "id": "94ca00e8",
+  "text": "Hot pizza! Robo delivers it fast."
+ },
+ {
   "id": "d5f62d3a",
   "text": "Houses need light switches."
  },
@@ -1408,16 +1700,40 @@
   "text": "Inside a Repeat 8: put If wall Turn Right, then Forward."
  },
  {
+  "id": "197cf940",
+  "text": "It is a stormy night in town."
+ },
+ {
   "id": "ff064b98",
   "text": "It is hot in the park. Let's add a fan!"
+ },
+ {
+  "id": "69555f03",
+  "text": "It is so hot in the jungle!"
  },
  {
   "id": "158efe2f",
   "text": "It slopes the wrong way! Tap the ramp to flip it."
  },
  {
+  "id": "ed272d99",
+  "text": "It snowed! This week we have a snow day."
+ },
+ {
   "id": "3b7b6883",
   "text": "It stopped before the goal. Almost! Try again!"
+ },
+ {
+  "id": "a9b819cf",
+  "text": "La la la! This week we build a music festival."
+ },
+ {
+  "id": "9b9bf726",
+  "text": "Last of all: build the grand hall!"
+ },
+ {
+  "id": "87fc3e2b",
+  "text": "Launch the ball, then roll it to the goal!"
  },
  {
   "id": "723002d9",
@@ -1468,6 +1784,30 @@
   "text": "Lift the box up to the star!"
  },
  {
+  "id": "fb6f7549",
+  "text": "Lift the bricks onto the X, then build the clinic!"
+ },
+ {
+  "id": "e066c436",
+  "text": "Lift the bricks onto the X, then build the grand hall!"
+ },
+ {
+  "id": "3ce3d82f",
+  "text": "Lift the bricks onto the X, then build the mall!"
+ },
+ {
+  "id": "3908f839",
+  "text": "Lift the bricks onto the X, then build the market!"
+ },
+ {
+  "id": "80329303",
+  "text": "Lift the bricks onto the X, then build the music hall!"
+ },
+ {
+  "id": "eafc75fc",
+  "text": "Lift the bricks onto the X, then build the stadium!"
+ },
+ {
   "id": "c6c2d086",
   "text": "Lift the bricks to the plot. Then build!"
  },
@@ -1476,8 +1816,48 @@
   "text": "Lift the bricks, then build a tall dream house!"
  },
  {
+  "id": "044a0b64",
+  "text": "Lift the bricks, then build the clinic!"
+ },
+ {
+  "id": "e7fb01d6",
+  "text": "Lift the bricks, then build the mall!"
+ },
+ {
+  "id": "5be88b08",
+  "text": "Lift the bricks, then build the market!"
+ },
+ {
+  "id": "dcdbde7a",
+  "text": "Lift the bricks, then build the music hall!"
+ },
+ {
+  "id": "3a3ce53b",
+  "text": "Lift the bricks, then build the stadium!"
+ },
+ {
+  "id": "c445759f",
+  "text": "Lift the penguin food box!"
+ },
+ {
+  "id": "b7868874",
+  "text": "Lift the planks up to the treehouse!"
+ },
+ {
   "id": "69674859",
   "text": "Lift the steel beam onto the X!"
+ },
+ {
+  "id": "ee101139",
+  "text": "Lift the suitcase box up!"
+ },
+ {
+  "id": "4256e129",
+  "text": "Lift the water box up high!"
+ },
+ {
+  "id": "7f585696",
+  "text": "Lift the water pump box!"
  },
  {
   "id": "0c83dafa",
@@ -1496,6 +1876,14 @@
   "text": "Light BOTH houses with one path!"
  },
  {
+  "id": "9d4a0b2a",
+  "text": "Light every lamp on the park path!"
+ },
+ {
+  "id": "cd2ac428",
+  "text": "Light one cabin. The other family is sleeping."
+ },
+ {
   "id": "cca97665",
   "text": "Light the house, but let the sleepy house sleep!"
  },
@@ -1504,12 +1892,24 @@
   "text": "Light the house. Keep the sleepy house dark!"
  },
  {
+  "id": "b897f6a7",
+  "text": "Light up the grand city!"
+ },
+ {
   "id": "acae96d1",
   "text": "Light up the house! Fill the gap in the wire."
  },
  {
   "id": "2f89e14b",
   "text": "Like the last one, but If wall: Turn LEFT."
+ },
+ {
+  "id": "4829afc4",
+  "text": "Logs block the road to school!"
+ },
+ {
+  "id": "b1e19fde",
+  "text": "Long ago, people built castles. This week, so do we!"
  },
  {
   "id": "8f9d209f",
@@ -1584,12 +1984,28 @@
   "text": "Make the fan spin! Go round the corners."
  },
  {
+  "id": "36cbd8ba",
+  "text": "Make the ground flat for the Mars base."
+ },
+ {
   "id": "73de7570",
   "text": "Make the path go under the sleepy house, not into it."
  },
  {
+  "id": "89cd15e8",
+  "text": "Make the yard flat, then build the school!"
+ },
+ {
   "id": "18fe2d6d",
   "text": "Many ways. There is often more than one way to the flag. Pick the way that grabs every gear!"
+ },
+ {
+  "id": "0d217043",
+  "text": "Mmm, pizza! This week we run a pizza shop."
+ },
+ {
+  "id": "be04f4fd",
+  "text": "Moon dust is in the way. Push it into the crater!"
  },
  {
   "id": "61ef4447",
@@ -1620,8 +2036,16 @@
   "text": "Move your finger along the path and say each step out loud."
  },
  {
+  "id": "7f3956d1",
+  "text": "Nee-naw! This week we help the fire station."
+ },
+ {
   "id": "d3a16587",
   "text": "Need help? Tap me and I can show you!"
+ },
+ {
+  "id": "e2136745",
+  "text": "Next, the grandest machine!"
  },
  {
   "id": "e1e0a1fe",
@@ -1630,6 +2054,10 @@
  {
   "id": "79d06310",
   "text": "Night is falling on the city. This week we light it up the clever way."
+ },
+ {
+  "id": "51fce78d",
+  "text": "Night time at the airport. The pilots are sleeping!"
  },
  {
   "id": "8ddc05ee",
@@ -1736,6 +2164,10 @@
   "text": "Oh no, a hole in the road! Can you fix it?"
  },
  {
+  "id": "031d6f73",
+  "text": "Oh no, candy got stuck in the gears!"
+ },
+ {
   "id": "1d4a90f8",
   "text": "Oh no, the gears are jammed! Fix them."
  },
@@ -1758,6 +2190,10 @@
  {
   "id": "95731593",
   "text": "One beam from each tower bolt. Then three beams from the rock bolt."
+ },
+ {
+  "id": "8642a521",
+  "text": "One class is napping!"
  },
  {
   "id": "bcface87",
@@ -1808,8 +2244,16 @@
   "text": "One support from each low bolt. Then three beams from the rock bolt."
  },
  {
+  "id": "6ef1f247",
+  "text": "One tower holds the oasis bridge."
+ },
+ {
   "id": "f0718f5b",
   "text": "One wood beam is too weak for the truck. Swap it for steel!"
+ },
+ {
+  "id": "d5d52944",
+  "text": "Only one ice tower holds this bridge."
  },
  {
   "id": "df0b4e93",
@@ -1856,6 +2300,10 @@
   "text": "Pillars. A pillar is a strong rock or post in the river. It holds up the middle of the bridge."
  },
  {
+  "id": "1199a86e",
+  "text": "Plow the path to the flag!"
+ },
+ {
   "id": "24246dd4",
   "text": "Power must go all the way round. Drag the wire into the gap!"
  },
@@ -1870,6 +2318,10 @@
  {
   "id": "f958d2bf",
   "text": "Pulleys. A pulley is a wheel with a rope. Pull one side down and the other side goes up!"
+ },
+ {
+  "id": "59fb4267",
+  "text": "Pump water up from the well!"
  },
  {
   "id": "b5ace068",
@@ -1892,6 +2344,10 @@
   "text": "Push the first dirt down. Then go round and push the other one down."
  },
  {
+  "id": "1ec19562",
+  "text": "Push the red dust into the holes!"
+ },
+ {
   "id": "cadf4e91",
   "text": "Push the rock into the truck and fill the hole!"
  },
@@ -1906,6 +2362,22 @@
  {
   "id": "d8985dc0",
   "text": "Push the rock right, into the truck. Then push the dirt down."
+ },
+ {
+  "id": "990b9570",
+  "text": "Push the sand into the hole!"
+ },
+ {
+  "id": "a97ac285",
+  "text": "Push the sand into the holes!"
+ },
+ {
+  "id": "970fef16",
+  "text": "Push the sandbags into the holes!"
+ },
+ {
+  "id": "1d5c2760",
+  "text": "Push the snow into the holes!"
  },
  {
   "id": "a41391f3",
@@ -2012,6 +2484,10 @@
   "text": "Reach the star 2 steps ahead!"
  },
  {
+  "id": "bfa15247",
+  "text": "Reduce, reuse, recycle! This week we build a recycling plant."
+ },
+ {
   "id": "20813bc1",
   "text": "Repeat 2 times!"
  },
@@ -2080,6 +2556,10 @@
   "text": "Right!"
  },
  {
+  "id": "bae73218",
+  "text": "Roar! This week we build a dinosaur park."
+ },
+ {
   "id": "6024f78b",
   "text": "Robo can check for walls! Turn only when a wall is ahead."
  },
@@ -2088,12 +2568,60 @@
   "text": "Robo can move in!"
  },
  {
+  "id": "92755979",
+  "text": "Robo checks the launch pad."
+ },
+ {
+  "id": "ee74ad40",
+  "text": "Robo climbs the plane stairs."
+ },
+ {
+  "id": "b8eecf31",
+  "text": "Robo delivers lollipops round the bend."
+ },
+ {
+  "id": "4b33c4a1",
+  "text": "Robo drives a bumper car!"
+ },
+ {
+  "id": "ca80338d",
+  "text": "Robo drives the little train."
+ },
+ {
   "id": "6dd0a3ae",
   "text": "Robo drives the rescue kit over the bridge."
  },
  {
+  "id": "1f9359d8",
+  "text": "Robo drives through the dark tunnel."
+ },
+ {
+  "id": "0564a29c",
+  "text": "Robo floats along the lazy river."
+ },
+ {
+  "id": "641718ba",
+  "text": "Robo follows the cookie spiral!"
+ },
+ {
+  "id": "53d9dede",
+  "text": "Robo grabs every raindrop gear!"
+ },
+ {
+  "id": "d9139608",
+  "text": "Robo grabs the acorn at the top!"
+ },
+ {
+  "id": "61f2129f",
+  "text": "Robo grabs the chalk at the end of the hall!"
+ },
+ {
   "id": "a4c6c044",
   "text": "Robo is a delivery robot this week! Grab each package and bring it to the flag."
+ },
+ {
+  "id": "2c7bff82",
+  "text": "Robo is a robot taxi."
  },
  {
   "id": "d489a68b",
@@ -2102,6 +2630,10 @@
  {
   "id": "c15dd94b",
   "text": "Robo looks down. Use just enough blocks!"
+ },
+ {
+  "id": "fa7c1995",
+  "text": "Robo looks for jungle fruit."
  },
  {
   "id": "16ce1d65",
@@ -2116,6 +2648,58 @@
   "text": "Robo only needs 4 steps. Tap extra blocks to take them away."
  },
  {
+  "id": "db14bf37",
+  "text": "Robo picks apples in the orchard."
+ },
+ {
+  "id": "5f5a5bfe",
+  "text": "Robo skis down the slope!"
+ },
+ {
+  "id": "4457c404",
+  "text": "Robo skis the slalom course!"
+ },
+ {
+  "id": "db51d5a8",
+  "text": "Robo solves the grand maze!"
+ },
+ {
+  "id": "a85a005c",
+  "text": "Robo sorts bottles in the biggest maze!"
+ },
+ {
+  "id": "001b02c0",
+  "text": "Robo takes medicine up the big stairs!"
+ },
+ {
+  "id": "d732cb75",
+  "text": "Robo the pirate sees a gold coin on the beach!"
+ },
+ {
+  "id": "e284baac",
+  "text": "Robo visits every shop in the spiral!"
+ },
+ {
+  "id": "85b3d840",
+  "text": "Robo walks along the beach."
+ },
+ {
+  "id": "1008efc2",
+  "text": "Robo walks on the moon. Not too many steps!"
+ },
+ {
+  "id": "933d5246",
+  "text": "Robo walks round the coral pond."
+ },
+ {
+  "id": "f853f932",
+  "text": "Robo walks round the displays!"
+ },
+ {
+  "id": "b5c472af",
+  "text": "Robo walks round the oasis lake!"
+ },
+ {
   "id": "308ce830",
   "text": "Robo walks too far at the start. Tap the first number and make it 3."
  },
@@ -2124,16 +2708,40 @@
   "text": "Robo won the race! You are a coding champion!"
  },
  {
+  "id": "2790ccec",
+  "text": "Robo's dance program has a bug!"
+ },
+ {
   "id": "67f7e096",
   "text": "Rocks block the way too! Go along, then up."
+ },
+ {
+  "id": "0abd2f82",
+  "text": "Rocks fell from the volcano!"
  },
  {
   "id": "396e7fc3",
   "text": "Rocks go in the dump truck!"
  },
  {
+  "id": "ec27609f",
+  "text": "Rocks go in the truck, dirt goes in the holes. Get behind it, then push!"
+ },
+ {
   "id": "47e09373",
   "text": "Rocks Go in the Truck. Rocks are too bumpy to fill holes. Push them into the dump truck!"
+ },
+ {
+  "id": "f30f9ea3",
+  "text": "Rocks in the truck, dirt in the holes!"
+ },
+ {
+  "id": "9adf0c94",
+  "text": "Rocks in the truck, sand in the holes!"
+ },
+ {
+  "id": "6d658eb9",
+  "text": "Rocks in the truck, snow in the holes!"
  },
  {
   "id": "67e6d02a",
@@ -2148,8 +2756,16 @@
   "text": "Roll the first ball into the others."
  },
  {
+  "id": "23a118e0",
+  "text": "Roll the gold ball into the treasure chest!"
+ },
+ {
   "id": "30dae37b",
   "text": "Room for boats. Boats sail under some bridges. Build up high so the boat fits!"
+ },
+ {
+  "id": "23c67e34",
+  "text": "Rumble rumble! This week we visit Volcano Island."
  },
  {
   "id": "6305e5f2",
@@ -2166,6 +2782,14 @@
  {
   "id": "9a037473",
   "text": "Send the ball into the bucket to lift the box!"
+ },
+ {
+  "id": "c90d8d41",
+  "text": "Send the box up with a bubble boost!"
+ },
+ {
+  "id": "7a927cc2",
+  "text": "Send the supplies up, then roll them in!"
  },
  {
   "id": "e9961b45",
@@ -2188,12 +2812,44 @@
   "text": "Short circuit! If power can rush back to the battery with no light in the way, it makes sparks. Always put a light in the path!"
  },
  {
+  "id": "2bad4a32",
+  "text": "Ski down to the flag and grab every gear!"
+ },
+ {
+  "id": "78e7354b",
+  "text": "Ski the slalom, grab every gear and reach the flag!"
+ },
+ {
   "id": "6f83e615",
   "text": "Small gears spin fast. A big gear turning a small gear makes the small one spin faster!"
  },
  {
+  "id": "8b91a047",
+  "text": "Smells yummy! This week we run a bakery."
+ },
+ {
+  "id": "075cceae",
+  "text": "Snow everywhere! Robo plows the path."
+ },
+ {
+  "id": "6c71719d",
+  "text": "Snow holes in the path!"
+ },
+ {
   "id": "21e32a84",
   "text": "So close! You can do it!"
+ },
+ {
+  "id": "3103be8a",
+  "text": "So much candy! The factory is a sweet success!"
+ },
+ {
+  "id": "7494c33b",
+  "text": "Some museum rooms must stay dark."
+ },
+ {
+  "id": "bfe59b71",
+  "text": "Someone put the lamp in the wrong spot!"
  },
  {
   "id": "99d87d68",
@@ -2204,6 +2860,10 @@
   "text": "Sparks! This wire is a shortcut. Drag it back to the box!"
  },
  {
+  "id": "c3a90995",
+  "text": "Splash! This week we build a water park."
+ },
+ {
   "id": "297622bd",
   "text": "Squares squish. Push a square and it squishes flat. Add a beam corner to corner to make triangles!"
  },
@@ -2212,8 +2872,80 @@
   "text": "Stack both blocks on the X!"
  },
  {
+  "id": "3c329d09",
+  "text": "Stack the bell tower blocks!"
+ },
+ {
+  "id": "218b5c01",
+  "text": "Stack the cake layers on the X. Biggest at the bottom!"
+ },
+ {
+  "id": "e3c82bf1",
+  "text": "Stack the cake layers!"
+ },
+ {
+  "id": "6c280de9",
+  "text": "Stack the candy boxes on the X!"
+ },
+ {
   "id": "2ccecb23",
   "text": "Stack the cargo on the X. Biggest at the bottom!"
+ },
+ {
+  "id": "58f9a431",
+  "text": "Stack the castle wall blocks!"
+ },
+ {
+  "id": "c4b852dd",
+  "text": "Stack the cubes on the X. Biggest at the bottom!"
+ },
+ {
+  "id": "f75fb650",
+  "text": "Stack the lighthouse tower!"
+ },
+ {
+  "id": "c8ab4f00",
+  "text": "Stack the moon cargo on the X. Biggest at the bottom!"
+ },
+ {
+  "id": "4a80786c",
+  "text": "Stack the moon cargo!"
+ },
+ {
+  "id": "eb888c68",
+  "text": "Stack the planks on the X. Biggest at the bottom!"
+ },
+ {
+  "id": "953e9117",
+  "text": "Stack the rocket on the X. Biggest at the bottom!"
+ },
+ {
+  "id": "78d2984d",
+  "text": "Stack the rocket parts!"
+ },
+ {
+  "id": "8c3149f0",
+  "text": "Stack the squashed cubes."
+ },
+ {
+  "id": "038779d1",
+  "text": "Stack the statue blocks!"
+ },
+ {
+  "id": "52af6c9f",
+  "text": "Stack the statue on the X. Biggest at the bottom!"
+ },
+ {
+  "id": "592fd57c",
+  "text": "Stack the tower on the X. Biggest at the bottom!"
+ },
+ {
+  "id": "c0696437",
+  "text": "Stack the toy blocks on the X!"
+ },
+ {
+  "id": "0c152fbe",
+  "text": "Start a chain reaction at the fun fair!"
  },
  {
   "id": "d3a41bae",
@@ -2226,6 +2958,10 @@
  {
   "id": "76c25790",
   "text": "Start the belt. Point the wedge at the log. Hang the pulley."
+ },
+ {
+  "id": "0862f3d7",
+  "text": "Start the wave machine!"
  },
  {
   "id": "b521e1cc",
@@ -2258,6 +2994,10 @@
  {
   "id": "d8dbfab1",
   "text": "Step, then turn right, step, then turn left. Again!"
+ },
+ {
+  "id": "05c53807",
+  "text": "Stop the water with sandbags!"
  },
  {
   "id": "6ff6312d",
@@ -2412,6 +3152,22 @@
   "text": "That tower is tall enough!"
  },
  {
+  "id": "6b4e102c",
+  "text": "The ambulance bus must cross!"
+ },
+ {
+  "id": "ae1bb32f",
+  "text": "The animals are happy and fed! Great zoo keeping!"
+ },
+ {
+  "id": "625c48d8",
+  "text": "The arctic base is snug and warm! Cool job!"
+ },
+ {
+  "id": "05e5619c",
+  "text": "The bakery is full of cupcakes! Sweet job!"
+ },
+ {
   "id": "7a09ca04",
   "text": "The ball falls down here. Add the second ramp!"
  },
@@ -2424,8 +3180,16 @@
   "text": "The ball must jump the gap! Make the belt go fast."
  },
  {
+  "id": "e8ab2b3c",
+  "text": "The ball rides the zip line belt!"
+ },
+ {
   "id": "f308102b",
   "text": "The ball will drop here. Drag the ramp to the glowing spot!"
+ },
+ {
+  "id": "55ff6d22",
+  "text": "The band is playing! What a party!"
  },
  {
   "id": "7d92a67d",
@@ -2440,12 +3204,20 @@
   "text": "The belt can drop the ball in the bucket. Lift the box!"
  },
  {
+  "id": "e483a124",
+  "text": "The belt carries Mars rocks to the base."
+ },
+ {
   "id": "e258cb1b",
   "text": "The belt is not moving. Connect it to the motor with gears!"
  },
  {
   "id": "88015d90",
   "text": "The belt must go LEFT. Which pegs need gears?"
+ },
+ {
+  "id": "558f7509",
+  "text": "The big drill needs a gear train!"
  },
  {
   "id": "d674186c",
@@ -2456,8 +3228,16 @@
   "text": "The big machine needs a whole gear train!"
  },
  {
+  "id": "ab5eda13",
+  "text": "The big stage needs power!"
+ },
+ {
   "id": "f59507ce",
   "text": "The biggest bridge of all! A truck is coming."
+ },
+ {
+  "id": "0f114663",
+  "text": "The biggest machine in the museum!"
  },
  {
   "id": "bd7d7a7f",
@@ -2488,12 +3268,28 @@
   "text": "The bricks are here. Let's lift them with the crane!"
  },
  {
+  "id": "7f33876f",
+  "text": "The bridge goes over hot lava!"
+ },
+ {
+  "id": "42726156",
+  "text": "The bridge to the stage is lopsided!"
+ },
+ {
   "id": "8c22885b",
   "text": "The Bulldozer. A bulldozer pushes dirt with its big blade. Push dirt into holes to make the ground flat!"
  },
  {
   "id": "2ce6a769",
   "text": "The bus is back! Use the low bolts and the rock."
+ },
+ {
+  "id": "8f561840",
+  "text": "The cable car hangs from steel cables!"
+ },
+ {
+  "id": "753966a7",
+  "text": "The candy belt is still. Start it up!"
  },
  {
   "id": "462b565a",
@@ -2506,6 +3302,26 @@
  {
   "id": "9c4b3f94",
   "text": "The car rolled to the workshop. Now let's test a ramp!"
+ },
+ {
+  "id": "d9e29dba",
+  "text": "The castle is finished! King Salah of the castle!"
+ },
+ {
+  "id": "48d22202",
+  "text": "The castle needs a big stone beam."
+ },
+ {
+  "id": "3117d1dc",
+  "text": "The castle tower needs a fan and a lamp."
+ },
+ {
+  "id": "e342c883",
+  "text": "The city clock needs a gear train!"
+ },
+ {
+  "id": "17950b7d",
+  "text": "The city parade crosses the big bridge!"
  },
  {
   "id": "dd79b22f",
@@ -2528,6 +3344,18 @@
   "text": "The cross wire. A cross wire joins all four sides. Power can go every way!"
  },
  {
+  "id": "8420d8f0",
+  "text": "The desert road is full of sand!"
+ },
+ {
+  "id": "c9e0ebf0",
+  "text": "The dino fence wire is sparking!"
+ },
+ {
+  "id": "008e9932",
+  "text": "The dinosaurs love their park! Roar-some job!"
+ },
+ {
   "id": "8850dfd0",
   "text": "The dock is messy."
  },
@@ -2538,6 +3366,10 @@
  {
   "id": "95f85fc4",
   "text": "The dream house is finished! You are a real builder!"
+ },
+ {
+  "id": "292b8626",
+  "text": "The escalator belt goes left and fast!"
  },
  {
   "id": "b3218ca8",
@@ -2552,12 +3384,24 @@
   "text": "The fan is slow! Give it its own path."
  },
  {
+  "id": "891c483b",
+  "text": "The fans parade to the stadium!"
+ },
+ {
   "id": "fbb6ff5e",
   "text": "The farm has two fans now."
  },
  {
   "id": "a1b4a564",
   "text": "The farm is buzzing with machines! Great farming!"
+ },
+ {
+  "id": "8cc94e29",
+  "text": "The final countdown maze!"
+ },
+ {
+  "id": "8b6bf441",
+  "text": "The final crater maze!"
  },
  {
   "id": "79b44252",
@@ -2572,8 +3416,28 @@
   "text": "The final tower. Think before you lift!"
  },
  {
+  "id": "7be49461",
+  "text": "The fire alarm needs a switch."
+ },
+ {
+  "id": "aacd9d36",
+  "text": "The fire crew says thank you! You are a hero!"
+ },
+ {
+  "id": "09fddb4a",
+  "text": "The fire truck is very heavy."
+ },
+ {
   "id": "09b250e7",
   "text": "The first part of the track is long and straight."
+ },
+ {
+  "id": "d954ffbd",
+  "text": "The flood bridge costs too many coins!"
+ },
+ {
+  "id": "f3c34692",
+  "text": "The flour truck crosses the grand bridge!"
  },
  {
   "id": "8db31306",
@@ -2584,8 +3448,16 @@
   "text": "The foundation first!"
  },
  {
+  "id": "a62063d0",
+  "text": "The giraffes need a bridge to their tree."
+ },
+ {
   "id": "19c13c7b",
   "text": "The grain box is too heavy to carry."
+ },
+ {
+  "id": "386ab2a9",
+  "text": "The grand finale! This week you show everything you learned."
  },
  {
   "id": "28a0fe33",
@@ -2600,6 +3472,46 @@
   "text": "The hole is far. Push the dirt all the way!"
  },
  {
+  "id": "203b215e",
+  "text": "The hospital is ready to help everyone! Hero!"
+ },
+ {
+  "id": "a8400aba",
+  "text": "The icy river needs a bridge."
+ },
+ {
+  "id": "b6886401",
+  "text": "The igloo town needs power!"
+ },
+ {
+  "id": "0fbfbbb4",
+  "text": "The island is safe! You beat the volcano!"
+ },
+ {
+  "id": "97036e08",
+  "text": "The judges want a tall tower!"
+ },
+ {
+  "id": "9153a51d",
+  "text": "The juice bar needs a fan and a bright lamp!"
+ },
+ {
+  "id": "6d0b9510",
+  "text": "The jungle path loops round and round."
+ },
+ {
+  "id": "ba1562fe",
+  "text": "The jungle river is wide."
+ },
+ {
+  "id": "114c36a3",
+  "text": "The lab is hot! The fans must spin fast."
+ },
+ {
+  "id": "7110d47e",
+  "text": "The lab is ready! The fish say hello!"
+ },
+ {
   "id": "3dac66d7",
   "text": "The lamp is in the wrong spot! Move it into the gap."
  },
@@ -2610,6 +3522,10 @@
  {
   "id": "8d8f3ed4",
   "text": "The last bridge! A bus parade is coming!"
+ },
+ {
+  "id": "dbe0cac5",
+  "text": "The last event: run all the way round the lake!"
  },
  {
   "id": "b42aede1",
@@ -2624,16 +3540,108 @@
   "text": "The last street has three houses by the tower."
  },
  {
+  "id": "cf6422cd",
+  "text": "The launch pad needs power!"
+ },
+ {
+  "id": "b87f09b5",
+  "text": "The lighthouse shines! The ships are safe!"
+ },
+ {
+  "id": "38983ecd",
+  "text": "The lighthouse wire is sparking!"
+ },
+ {
   "id": "43ee4edc",
   "text": "The lights are dim! Can you make them bright?"
+ },
+ {
+  "id": "df35ea29",
+  "text": "The lions are hungry! Robo brings the food."
+ },
+ {
+  "id": "776bb567",
+  "text": "The little pod must dock at the station."
+ },
+ {
+  "id": "cee53558",
+  "text": "The mall is open! Happy shopping!"
+ },
+ {
+  "id": "42fab17d",
+  "text": "The market bus must cross the river!"
+ },
+ {
+  "id": "f1a33b12",
+  "text": "The market is busy and the fruit is fresh! Yum!"
  },
  {
   "id": "554cba6a",
   "text": "The middle is wobbly! Add a support from the low bolt."
  },
  {
+  "id": "b2f31212",
+  "text": "The mixer fan must spin!"
+ },
+ {
+  "id": "216e5cc9",
+  "text": "The monkey rolls a ball to push the box!"
+ },
+ {
+  "id": "9788b18e",
+  "text": "The moon base air fans must spin!"
+ },
+ {
+  "id": "0a356dfc",
+  "text": "The moon base is ready! One small step for Salah!"
+ },
+ {
+  "id": "b07a5411",
+  "text": "The moon bus must cross a deep crater!"
+ },
+ {
+  "id": "5b0a9238",
+  "text": "The museum bus crosses the big arch!"
+ },
+ {
+  "id": "0ccabb19",
+  "text": "The museum is open! Everyone loves it!"
+ },
+ {
+  "id": "eea7229b",
+  "text": "The oven wires are twisted!"
+ },
+ {
   "id": "8012d6be",
   "text": "The package is on the road."
+ },
+ {
+  "id": "46dff4a8",
+  "text": "The palm tree lamp is in the wrong spot!"
+ },
+ {
+  "id": "7ec1d5b4",
+  "text": "The panda needs a little house."
+ },
+ {
+  "id": "f6130d7b",
+  "text": "The park is open! Everyone is having fun!"
+ },
+ {
+  "id": "61714d10",
+  "text": "The park ranger needs a hut."
+ },
+ {
+  "id": "a76d1b27",
+  "text": "The pizza oven is a big machine!"
+ },
+ {
+  "id": "c6f1168f",
+  "text": "The planes take off! Have a great flight!"
+ },
+ {
+  "id": "8e42a2eb",
+  "text": "The planet says thank you! Super recycler!"
  },
  {
   "id": "fc5bf216",
@@ -2660,12 +3668,40 @@
   "text": "The rescue truck is very heavy."
  },
  {
+  "id": "9b799f4f",
+  "text": "The road to the plant has a hole!"
+ },
+ {
   "id": "89469816",
   "text": "The roof goes on last!"
  },
  {
   "id": "75f46a76",
   "text": "The rope needs a wheel to hang on!"
+ },
+ {
+  "id": "a062e859",
+  "text": "The rover drives until it finds the flag."
+ },
+ {
+  "id": "c9b7053e",
+  "text": "The rover finished its mission! Mars says thanks!"
+ },
+ {
+  "id": "aa0d8c99",
+  "text": "The rover has two power switches."
+ },
+ {
+  "id": "65be6de6",
+  "text": "The runway has holes!"
+ },
+ {
+  "id": "32288cfb",
+  "text": "The school is ready for the first day! Great job!"
+ },
+ {
+  "id": "38480731",
+  "text": "The seabed is bumpy."
  },
  {
   "id": "d3a65a67",
@@ -2688,8 +3724,52 @@
   "text": "The shop wire goes round a bend."
  },
  {
+  "id": "6395c90f",
+  "text": "The ski lift carries the box up!"
+ },
+ {
+  "id": "3711d6b6",
+  "text": "The ski lodge fans must spin fast!"
+ },
+ {
+  "id": "123d9754",
+  "text": "The ski slope is bumpy!"
+ },
+ {
+  "id": "99c79ba3",
+  "text": "The sky ride hangs from tall towers."
+ },
+ {
+  "id": "cc2a3167",
+  "text": "The slide bridge needs steel!"
+ },
+ {
   "id": "c0a3619b",
   "text": "The SMALL gear goes on the belt to make it fast."
+ },
+ {
+  "id": "c90ee619",
+  "text": "The smart city needs power everywhere!"
+ },
+ {
+  "id": "bbf33117",
+  "text": "The smart city works by itself! You are a genius!"
+ },
+ {
+  "id": "08038a3b",
+  "text": "The sorting machine needs gears!"
+ },
+ {
+  "id": "50362221",
+  "text": "The space station is dark. Fix the power wire!"
+ },
+ {
+  "id": "47ea18f4",
+  "text": "The space station is ready! You are a space engineer!"
+ },
+ {
+  "id": "3e47467a",
+  "text": "The stadium needs bright flood lights!"
  },
  {
   "id": "6f629d8b",
@@ -2698,6 +3778,10 @@
  {
   "id": "94141d4f",
   "text": "The star is behind Robo!"
+ },
+ {
+  "id": "0426f28f",
+  "text": "The station lamps need more power."
  },
  {
   "id": "a324f798",
@@ -2716,16 +3800,60 @@
   "text": "The T wire splits the path in two. Put it under the middle house."
  },
  {
+  "id": "0c1a6361",
+  "text": "The team bus picks up every player!"
+ },
+ {
   "id": "8433c731",
   "text": "The town is dark! This week we bring the power, one place at a time."
+ },
+ {
+  "id": "f1779d04",
+  "text": "The town stayed dry! You saved it!"
+ },
+ {
+  "id": "2ce11e59",
+  "text": "The toy car rolls through the log!"
+ },
+ {
+  "id": "90618e1e",
+  "text": "The toy robot does not work. Check the batteries!"
+ },
+ {
+  "id": "f89d36c2",
+  "text": "The toy shop is full of happy kids! Super!"
  },
  {
   "id": "a60d9c18",
   "text": "The track climbs up some stairs."
  },
  {
+  "id": "175c5b41",
+  "text": "The train must cross a deep valley."
+ },
+ {
+  "id": "32ff6321",
+  "text": "The treasure cart must cross a little stream."
+ },
+ {
+  "id": "456e035a",
+  "text": "The treasure map says: fill the hole first!"
+ },
+ {
+  "id": "0d2c3013",
+  "text": "The treehouse village is finished! So high up!"
+ },
+ {
   "id": "04164e78",
   "text": "The trees block the way. Go around and grab both gears!"
+ },
+ {
+  "id": "3ad9ac8c",
+  "text": "The tunnel is open! Trains can go through!"
+ },
+ {
+  "id": "21d4562e",
+  "text": "The tunnel needs lights and a fan!"
  },
  {
   "id": "a085ae1d",
@@ -2746,6 +3874,10 @@
  {
   "id": "3e916079",
   "text": "The workshop needs lights."
+ },
+ {
+  "id": "d92e0db7",
+  "text": "The zoo path is long and dark. Light it up!"
  },
  {
   "id": "d9d02d07",
@@ -2816,12 +3948,80 @@
   "text": "This time the path turns the other way!"
  },
  {
+  "id": "337fa306",
+  "text": "This week is the science fair! Show your best inventions."
+ },
+ {
+  "id": "78188bd7",
+  "text": "This week Robo is a Mars rover on the red planet!"
+ },
+ {
   "id": "be6982b6",
   "text": "This week the little car needs a road! Let's build bridges for it."
  },
  {
+  "id": "3843fd36",
+  "text": "This week we build a brand new school!"
+ },
+ {
   "id": "0bb66ecb",
   "text": "This week we build a dream house! First we get the plot ready."
+ },
+ {
+  "id": "2e16a7e9",
+  "text": "This week we build a giant shopping mall."
+ },
+ {
+  "id": "512fac47",
+  "text": "This week we build a lighthouse by the sea."
+ },
+ {
+  "id": "489dcabc",
+  "text": "This week we build a museum full of treasures."
+ },
+ {
+  "id": "410eb3ed",
+  "text": "This week we build a rocket and launch it to space!"
+ },
+ {
+  "id": "da6ef33a",
+  "text": "This week we build a ski resort in the mountains."
+ },
+ {
+  "id": "7401fa73",
+  "text": "This week we build a smart city of the future."
+ },
+ {
+  "id": "3ce84534",
+  "text": "This week we build a stadium for the big football match!"
+ },
+ {
+  "id": "8cd7f633",
+  "text": "This week we build a village up in the trees!"
+ },
+ {
+  "id": "09bbd68d",
+  "text": "This week we cross the desert to a cool oasis."
+ },
+ {
+  "id": "7066a44b",
+  "text": "This week we dig a tunnel through a big mountain."
+ },
+ {
+  "id": "c4aa7ca6",
+  "text": "This week we explore the deep green jungle!"
+ },
+ {
+  "id": "4eb3d5cd",
+  "text": "This week we fly to the moon and build a base!"
+ },
+ {
+  "id": "37b0bd02",
+  "text": "This week we help the doctors and nurses."
+ },
+ {
+  "id": "9a9d5516",
+  "text": "This week we pick fruit and open a farm market."
  },
  {
   "id": "c2be6c49",
@@ -2844,8 +4044,24 @@
   "text": "Three gears in a circle get stuck. Drag the bottom gear away."
  },
  {
+  "id": "7e0d77da",
+  "text": "Three hospital rooms need bright light!"
+ },
+ {
+  "id": "c0148f31",
+  "text": "Three lab rooms need bright lights."
+ },
+ {
   "id": "a3e80ccf",
   "text": "Three ramps! Make a path down to the basket."
+ },
+ {
+  "id": "18a8521e",
+  "text": "Three shops need bright lights!"
+ },
+ {
+  "id": "cc4f1a2a",
+  "text": "Three, two, one, blast off! This week we build a space station."
  },
  {
   "id": "a3bb55c0",
@@ -2870,6 +4086,14 @@
  {
   "id": "12af1326",
   "text": "Towers and a rock! Use them all to hold the bus."
+ },
+ {
+  "id": "a9445434",
+  "text": "Toy blocks arrive! Stack them up."
+ },
+ {
+  "id": "05012b6b",
+  "text": "Toys are hiding behind the shelves!"
  },
  {
   "id": "cb4913b5",
@@ -2952,6 +4176,10 @@
   "text": "Two beams from the tower bolt. Two beams from the low bolt."
  },
  {
+  "id": "aa4218bf",
+  "text": "Two candy shops share one wire."
+ },
+ {
   "id": "a02deb40",
   "text": "Two fans in a row! Add a battery to make them spin FAST."
  },
@@ -2992,12 +4220,20 @@
   "text": "Two switches! Turn BOTH on to light the workshop."
  },
  {
+  "id": "6122dcc3",
+  "text": "Two treehouses need lanterns."
+ },
+ {
   "id": "f378957f",
   "text": "Two triangles! Tap Go!"
  },
  {
   "id": "806bd497",
   "text": "Two Turn Rights make Robo face the other way!"
+ },
+ {
+  "id": "c2483d16",
+  "text": "Two wave fans must spin fast!"
  },
  {
   "id": "e38a5293",
@@ -3056,6 +4292,10 @@
   "text": "Use two Repeat blocks!"
  },
  {
+  "id": "7636844c",
+  "text": "Volcano rocks and holes everywhere!"
+ },
+ {
   "id": "039ffadd",
   "text": "Walk all the way around the lake!"
  },
@@ -3074,6 +4314,10 @@
  {
   "id": "a30f463e",
   "text": "Walk over the gear to grab it. Then reach the flag!"
+ },
+ {
+  "id": "636d5028",
+  "text": "Walk the beach, grab the shells and reach the flag!"
  },
  {
   "id": "eef236cb",
@@ -3112,8 +4356,28 @@
   "text": "Welcome to the Practice Room! Play as much as you like. Try a challenge, or just have fun!"
  },
  {
+  "id": "f58db574",
+  "text": "Welcome to the Robot Olympics! Five events for Robo."
+ },
+ {
+  "id": "5f43f977",
+  "text": "Welcome to the zoo! This week we help the animals."
+ },
+ {
+  "id": "69901b9c",
+  "text": "What a fun snow day! Everyone is warm and cozy!"
+ },
+ {
   "id": "7f4fe75c",
   "text": "What a tall tower! You are a crane champion!"
+ },
+ {
+  "id": "acaf75e3",
+  "text": "What an adventure! You explored the whole jungle!"
+ },
+ {
+  "id": "aad9cad6",
+  "text": "Wheee! This week we build an amusement park."
  },
  {
   "id": "0f7d21ee",
@@ -3146,6 +4410,10 @@
  {
   "id": "d6d5ee34",
   "text": "Whoa, sparks! The power took a shortcut. Put a light in the path."
+ },
+ {
+  "id": "156a4211",
+  "text": "Whoosh! The ski resort is open! Great job!"
  },
  {
   "id": "2f94e5b6",
@@ -3184,12 +4452,36 @@
   "text": "You are amazing!"
  },
  {
+  "id": "581af921",
+  "text": "You finished all 52 projects! You are a GRAND engineer!"
+ },
+ {
+  "id": "d21fb68d",
+  "text": "You found the treasure! Captain Salah!"
+ },
+ {
   "id": "20854a0e",
   "text": "You only need ONE ramp. Point it at the bucket!"
  },
  {
+  "id": "4524bffa",
+  "text": "You reached the oasis! Time for a cool drink!"
+ },
+ {
+  "id": "7a3249cb",
+  "text": "Your first invention: a light show!"
+ },
+ {
   "id": "c21c447c",
   "text": "Your program is full! Try a Repeat block."
+ },
+ {
+  "id": "7db7967c",
+  "text": "Your robot has a bug! Fix it for the judges."
+ },
+ {
+  "id": "32271b4f",
+  "text": "Your second invention splits logs!"
  },
  {
   "id": "6bf401ca",
@@ -3202,5 +4494,13 @@
  {
   "id": "698af710",
   "text": "Your turn! Tap Play!"
+ },
+ {
+  "id": "a9a44cf0",
+  "text": "Yum! This week we run a candy factory."
+ },
+ {
+  "id": "1675858d",
+  "text": "Zoom! This week we build an airport."
  }
 ]
