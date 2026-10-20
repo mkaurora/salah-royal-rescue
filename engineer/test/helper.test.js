@@ -31,10 +31,10 @@ test('no API keys or Anthropic credentials anywhere in the client', () => {
   assert.ok(!/apiKey|api_key|signedUrl|conversationToken|Authorization/.test(ht), 'public agent: only the agent id is sent');
 });
 
-test('dynamic variables: world, level_name, goal, hint, step (+ hint_only for Robot Coder)', () => {
+test('dynamic variables: world, level_name, goal, hint, step, board, next_steps, targets (+ hint_only for Robot Coder)', () => {
   const lv = { name: 'Seesaw', goal: 'Launch the box up to the star!', hint: 'Put the seesaw under the box.' };
   assert.deepStrictEqual(HT.buildVars({ world: 'machines', level: lv }),
-    { world: 'Machines', level_name: 'Seesaw', goal: lv.goal, hint: lv.hint, step: 'none' });
+    { world: 'Machines', level_name: 'Seesaw', goal: lv.goal, hint: lv.hint, step: 'none', board: 'unknown', next_steps: 'unknown', targets: 'none' });
   const robot = HT.buildVars({ world: 'robot', level: { name: 'Turn Left', goal: 'g', hint: 'h' } });
   assert.strictEqual(robot.hint_only, 'true');
   assert.strictEqual(robot.world, 'Robot Coder');

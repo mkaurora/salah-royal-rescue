@@ -89,12 +89,12 @@ function loadSW(existingCaches, online) {
   return { h, calls, store, run: async (k, e) => { let p; e.waitUntil = (x) => (p = x); e.respondWith = (x) => (p = x); h[k](e); return p; } };
 }
 test('sw: precache bypasses the HTTP cache; waits for a tap unless upgrading from a pre-banner build', async () => {
-  const a = loadSW(['learn-v3'], () => true); await a.run('install', {});
+  const a = loadSW(['learn-v3'], () => true); await a.run('install', {}); // upgrading from v3 (has the banner) waits for a tap
   assert.strictEqual(a.calls.skip, 0, 'normal update waits');
   assert.ok(a.calls.fetched.every((r) => r.cache === 'reload'));
   const b = loadSW(['learn-v2'], () => true); await b.run('install', {}); assert.strictEqual(b.calls.skip, 1, 'legacy v2 is replaced at once');
   a.h.message({ data: { type: 'SKIP_WAITING' } }); assert.strictEqual(a.calls.skip, 1);
-  await a.run('activate', {}); assert.deepStrictEqual([...a.store.keys()], ['learn-v3']);
+  await a.run('activate', {}); assert.deepStrictEqual([...a.store.keys()], ['learn-v4']);
 });
 test('sw: app files network-first (no-cache) online, cached offline; navigation falls back to index.html', async () => {
   let on = true; const s = loadSW([], () => on); await s.run('install', {});
@@ -106,7 +106,7 @@ test('sw: app files network-first (no-cache) online, cached offline; navigation 
   assert.strictEqual(await s.run('fetch', { request: { method: 'GET', url: 'https://x/l/?fast=1', mode: 'navigate' } }), 'cached:https://x/l/');
   assert.strictEqual(await s.run('fetch', { request: { method: 'GET', url: 'https://x/l/nope', mode: 'navigate' } }), 'cached:https://x/l/index.html');
 });
-test('sw: BUILD stamp is current (run node tools/build-sw.js) and cache is learn-v3', () => {
+test('sw: BUILD stamp is current (run node tools/build-sw.js) and cache is learn-v4', () => {
   assert.strictEqual(SW.currentBuild(), SW.buildHash());
-  assert.match(fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8'), /var CACHE = 'learn-v3'/);
+  assert.match(fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8'), /var CACHE = 'learn-v4'/);
 });

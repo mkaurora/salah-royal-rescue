@@ -72,6 +72,12 @@ test('service worker: cache engineer-v3, precaches every app file + early voice 
 
 test('no runtime network calls or external URLs in app code (the vendored helper SDK is the only exception)', () => {
   appFiles().filter((f) => /\.(js|css|html)$/.test(f)).forEach((f) => {
+    if (f === 'js/core/visit.js') {   // the one exception: the fire-and-forget "opened" beacon to the family server
+      const v = read(f);
+      assert.deepStrictEqual(v.match(/https?:\/\/[^'"\s]+/g), ['https://salah-family-chat.mkaurora.workers.dev/api/visit']);
+      assert.ok(!/XMLHttpRequest|WebSocket|import\(/.test(v));
+      return;
+    }
     const src = read(f);
     assert.ok(!/https?:\/\/(?!www\.w3\.org)/.test(src), f + ' contains an external URL');
     assert.ok(!/XMLHttpRequest|WebSocket|import\(/.test(src), f + ' makes network calls');

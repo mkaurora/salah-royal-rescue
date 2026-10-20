@@ -53,11 +53,12 @@ async function runBrowser(browserType, name, device) {
     await page.waitForSelector('.menu-screen');
     await page.waitForTimeout(900);
 
-    await check('menu: title, buddy, 5 worlds, Practice Room, settings', async () => {
+    await check('menu: title, buddy, 5 worlds, Car Builder & Race, settings', async () => {
       const t = await page.textContent('.menu-title');
       if (!/Little Engineer/.test(t)) throw new Error('title missing');
       for (const w of WORLDS) if (!(await page.locator('.w-' + w.id).count())) throw new Error('missing world ' + w.id);
-      if (!(await page.locator('.practice-btn').count())) throw new Error('no practice button');
+      if (!(await page.locator('.car-btn').count())) throw new Error('no Car Builder button');
+      if (await page.locator('.practice-btn').count()) throw new Error('Practice Room still in the menu');
       if (!(await page.locator('.menu-buddy .buddy-svg').count())) throw new Error('no buddy');
       if (!(await page.locator('.settings-btn').count())) throw new Error('no settings');
       await shot('menu.png');
@@ -91,7 +92,7 @@ async function runBrowser(browserType, name, device) {
         await page.waitForSelector('.map-screen .level-node');
         const n = await page.locator('.level-node').count();
         if (n < 15) throw new Error('only ' + n + ' levels');
-        if (w.id === 'robot' && !(await page.locator('.practice-strip').count())) throw new Error('no Practice Room button on Robot map');
+        if (w.id === 'robot' && (await page.locator('.practice-strip, .practice-mini').count())) throw new Error('Practice Room button still on the Robot map');
         await page.waitForTimeout(300);
         await shot(w.id + '-map.png');
       });
@@ -208,48 +209,47 @@ async function runBrowser(browserType, name, device) {
       if (n !== 2) throw new Error('program blocks after reload: ' + n);
     });
 
-    await check('Practice Room: loads from menu, buddy, free play + challenges, cheer (no fail)', async () => {
+    await check('Car Builder & Race: opens from the menu slot, garage has a starter car, buddy intro', async () => {
       await page.evaluate(() => LE.app.showMenu());
       await page.waitForTimeout(350);
-      await page.tap('.practice-btn');
-      await page.waitForSelector('.practice-wrap .rb-board');
+      await page.tap('.car-btn');
+      await page.waitForSelector('.garage-screen .cg-car');
       await page.waitForSelector('.buddy-char', { state: 'visible' });
-      const chips = await page.locator('.chip').count();
-      if (chips < 9) throw new Error('challenge chips: ' + chips);
-      await page.waitForTimeout(500);
-      // free play: add a block and run — never fails
-      await page.tap('.tray-blk[data-type="F"]');
-      await page.tap('.go-btn');
-      await page.waitForTimeout(1500);
-      await shot('practice.png');
-      if (await page.locator('.overlay.win').count()) throw new Error('practice must not show level win');
-      await page.tap('[data-chip="p1"]');
-      await page.waitForTimeout(400);
-      await page.tap('.tray-blk[data-type="F"]');
-      await page.tap('.tray-blk[data-type="F"]');
-      await page.tap('.go-btn');
-      await page.waitForSelector('.next-challenge', { timeout: 20000 });
-      const done = await page.evaluate(() => JSON.parse(localStorage.getItem('littleEngineerSave')).practice.done.p1);
-      if (!done) throw new Error('challenge not recorded');
-      await shot('practice-cheer.png');
+      if ((await page.locator('.cg-car').count()) !== 1) throw new Error('starter car missing');
+      await shot('cars-garage.png');
     });
 
-    await check('Practice Room is reachable from the Robot Coder map', async () => {
-      await page.evaluate(() => LE.app.showMap('robot'));
-      await page.waitForSelector('.practice-strip');
-      await page.tap('.practice-strip');
-      await page.waitForSelector('.practice-wrap');
+    await check('Car Builder: a part changes the car + stats; the race ends with stars and a tip', async () => {
+      await page.tap('.cg-car');
+      await page.waitForSelector('.cb-tab[data-slot="engine"]');
+      await page.tap('.cb-tab[data-slot="engine"]');
+      const before = await page.getAttribute('.cb-bar[data-stat="speed"]', 'data-value');
+      await page.tap('.cb-part[data-id="big"]');
+      await page.waitForTimeout(200);
+      const after = await page.getAttribute('.cb-bar[data-stat="speed"]', 'data-value');
+      if (!(Number(after) > Number(before))) throw new Error('speed ' + before + ' → ' + after);
+      await page.tap('.cb-race');
+      await page.waitForSelector('.ct-track[data-track="sunny"]');
+      await page.tap('.ct-track[data-track="sunny"]');
+      await page.waitForSelector('.race-results .cr-tip', { timeout: 60000 });
+      const stars = await page.locator('.cr-stars .on').count();
+      if (stars < 1) throw new Error('no stars');
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('littleEngineerSave')).cars);
+      if (!saved.best.sunny || saved.garage[0].engine !== 'big') throw new Error(JSON.stringify(saved));
+      await shot('cars-results.png');
     });
 
-    await check('Show me works in the Practice Room', async () => {
-      await page.tap('[data-chip="p3"]');
-      await page.waitForTimeout(300);
-      await page.evaluate(() => LE.activeLevel.showMe());
-      await waitDemoDone(page);
-      const n = await page.locator('.rb-strip .blk').count();
-      if (n !== 4) throw new Error('blocks after show me: ' + n);
-      await page.tap('.go-btn');
-      await page.waitForSelector('.next-challenge', { timeout: 20000 });
+    await check('Show me in the Car Builder drags a helpful part onto the car', async () => {
+      await page.tap('.cr-build');
+      await page.waitForSelector('.build-screen .cb-part');
+      await page.evaluate(() => { const s = LE.app.store; s.saveCar(Object.assign({}, s.getCar(s.getCurrentCar()), { wheels: 'monster', engine: 'small' })); });
+      await page.evaluate(() => LE.cars.showBuild(LE.app.store.getCurrentCar()));
+      await page.waitForSelector('.build-screen .cb-part');
+      const before = await page.evaluate(() => JSON.stringify(LE.activeCars.car()));
+      await page.tap('.cb-showme');
+      await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 30000 });
+      const after = await page.evaluate(() => JSON.stringify(LE.activeCars.car()));
+      if (before === after) throw new Error('show me changed nothing');
     });
 
     if (name === 'chromium') {
