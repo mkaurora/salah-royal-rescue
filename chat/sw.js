@@ -1,8 +1,8 @@
 /* Family Chat service worker: precaches the app so it opens instantly (and offline), shows message alerts.
  * Chat data never goes through here: it's fetched from the backend with the device token (not cached). */
 'use strict';
-var BUILD = 'f958402bae';   // written by tools/build-sw.js (hash of all precached files)
-var VERSION = '1.0';           // written by tools/build-sw.js from js/version.js (shown in Settings)
+var BUILD = '383ee643f7';   // written by tools/build-sw.js (hash of all precached files)
+var VERSION = '1.1';           // written by tools/build-sw.js from js/version.js (shown in Settings)
 var BUILT = '20 Oct 2026';
 var CONTENT = '39b564e71c';           // hash of the app without js/version.js: tells the build whether the version needs a bump
 var CACHE = 'familychat-' + BUILD;
@@ -78,8 +78,10 @@ self.addEventListener('push', function (event) {
   event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
     list.forEach(function (c) { c.postMessage({ type: 'PUSH' }); });
     if (self.navigator && self.navigator.setAppBadge) { try { self.navigator.setAppBadge(); } catch (e) { /* unsupported */ } }
+    // A NEW tag for every alert: iOS ignores `renotify`, so re-using one tag let a new alert silently replace the
+    // previous one (no banner, no sound). Opening the app clears them all (clearNotifications in app.js).
     return self.registration.showNotification(title, {
-      body: body, tag: 'family-chat', renotify: true,
+      body: body, tag: 'fc-' + Date.now(),
       icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', data: { url: './' }
     });
   }));

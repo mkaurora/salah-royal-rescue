@@ -1,10 +1,10 @@
 /* Service worker: precaches the game shell (+ the first voice clips) so it works fully offline.
  * Other voice clips are cached the first time they are played. */
 'use strict';
-var BUILD = '78cdd53280';   // written by tools/build-sw.js (hash of all precached files)
-var VERSION = '3.3';           // written by tools/build-sw.js from js/version.js (shown in Settings)
+var BUILD = '1f075cccad';   // written by tools/build-sw.js (hash of all precached files)
+var VERSION = '3.4';           // written by tools/build-sw.js from js/version.js (shown in Settings)
 var BUILT = '20 Oct 2026';
-var CONTENT = 'a58991bd7f';           // hash of the game without js/version.js: tells the build whether the version needs a bump
+var CONTENT = '6ec642478f';           // hash of the game without js/version.js: tells the build whether the version needs a bump
 var CACHE = 'engineer-v3-' + BUILD;
 var PRECACHE = [
   /* PRECACHE:START */
@@ -34,6 +34,7 @@ var PRECACHE = [
   './js/core/helper-talk.js',
   './js/core/ui.js',
   './js/core/updater.js',
+  './js/core/visit.js',
   './js/core/voice-key.js',
   './js/data/bridges-content.js',
   './js/data/bridges-levels.js',

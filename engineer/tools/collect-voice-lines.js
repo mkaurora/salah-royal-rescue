@@ -115,6 +115,19 @@ function weeklyStepLines(p, s, k, lv, content, LINES) {
   return out.filter(Boolean);
 }
 
+/** Car Builder & Race: every spoken line lives in js/data/cars-content.js. */
+function carsLines() {
+  const CC = require(path.join(ROOT, 'js/data/cars-content.js'));
+  const out = [];
+  (function walk(v) {
+    if (typeof v === 'string') out.push(v);
+    else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') Object.keys(v).forEach((k) => walk(v[k]));
+  })([CC.LINES, CC.TIPS]);
+  CC.tracks.forEach((t) => out.push(t.intro));
+  return out;
+}
+
 function staticCollect() {
   const { LINES, lines: shell } = shellLines();
   const groups = { common: new Set(), practice: new Set() };
@@ -131,7 +144,9 @@ function staticCollect() {
     (content.facts || []).forEach((f) => add(null, LINES.didYouKnow + f));
   });
   const robot = require(path.join(ROOT, 'js/data/robot-levels.js'));
-  (robot.practice || []).forEach((c) => add(groups.practice, c.goal));
+  (robot.practice || []).forEach((c) => add(groups.practice, c.goal));   // old Practice Room (data kept; room replaced by the Car Builder)
+  groups.cars = new Set();
+  carsLines().forEach((t) => add(groups.cars, t));
   weeklyStatic(LINES).forEach(({ group, lines }) => {
     const g = groups[group] = groups[group] || new Set();
     lines.forEach((t) => add(g, t));
@@ -188,29 +203,17 @@ async function runtimeCollect() {
     await page.evaluate(() => LE.closeOverlay());
     for (const w of WORLDS) { await page.evaluate((id) => LE.app.showMap(id), w); await page.waitForTimeout(100); }
     note('common', await take(page));
-    // Practice Room: every challenge, Show me → Play → cheer; free play; a miss.
-    await page.evaluate(() => LE.app.showPractice());
-    await page.waitForSelector('.practice-wrap');
-    await page.waitForTimeout(300);
-    const chips = await page.evaluate(() => LE.levels.practice.map((c) => c.id));
-    for (const id of chips) {
-      await clickIf(page, `[data-chip="${id}"]`);
-      await page.waitForTimeout(150);
-      await page.evaluate(() => LE.activeLevel.showMe());
-      await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 30000 });
-      await clickIf(page, '.go-btn');
-      await page.waitForSelector('.next-challenge, .bubble.show', { timeout: 20000 }).catch(() => {});
-      await page.waitForTimeout(1200);
-    }
-    await clickIf(page, '[data-chip="free"]');
-    await page.waitForTimeout(200);
-    await clickIf(page, '.go-btn');
-    await page.waitForTimeout(800);
-    await clickIf(page, '.tray-blk[data-type="F"]');
-    await clickIf(page, '.go-btn');
-    await page.waitForTimeout(1500);
-    await clickIf(page, '.buddy-char');
-    note('practice', await take(page));
+    // Car Builder & Race: garage, build tabs, Show me, a race and its results.
+    await page.evaluate(() => LE.app.showCars());
+    await page.waitForSelector('.cg-car');
+    await clickIf(page, '.cg-car');
+    await page.waitForSelector('.cb-tab');
+    for (const sl of ['body', 'wheels', 'engine', 'spoiler', 'color', 'sticker']) await clickIf(page, `.cb-tab[data-slot="${sl}"]`);
+    await page.evaluate(() => LE.activeCars.showMe());
+    await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 30000 });
+    await page.evaluate(() => LE.cars.showRace(LE.app.store.getCurrentCar(), 'sunny'));
+    await page.waitForSelector('.race-results', { timeout: 60000 });
+    note('cars', await take(page));
     await page.context().close();
   }
 
