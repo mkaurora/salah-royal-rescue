@@ -27,8 +27,29 @@
       seenTips: {},            // tipId -> true
       practice: { done: {}, state: null },
       unlocked: {},            // world -> highest level index opened by a parent (v3)
-      weekly: defaultWeekly()  // weekly big projects (v3)
+      weekly: defaultWeekly(), // weekly big projects (v3)
+      cars: defaultCars()      // Car Builder & Race (v3.2): garage + best stars per track
     };
+  }
+  var MAX_CARS = 6;
+  function defaultCars() { return { garage: [], current: null, best: {} }; }
+  /** Garage cars are plain { id, name, body, wheels, engine, spoiler, color, sticker } strings (parts are checked by the game). */
+  function sanitizeCars(c) {
+    var out = defaultCars();
+    if (!c || typeof c !== 'object') return out;
+    var str = function (v, n) { return typeof v === 'string' && v.length && v.length <= n ? v : null; };
+    if (Array.isArray(c.garage)) {
+      c.garage.forEach(function (car) {
+        if (!car || typeof car !== 'object' || out.garage.length >= MAX_CARS || !str(car.id, 24)) return;
+        if (out.garage.some(function (x) { return x.id === car.id; })) return;
+        var o = { id: car.id, name: str(car.name, 24) || 'My car' };
+        ['body', 'wheels', 'engine', 'spoiler', 'color', 'sticker'].forEach(function (k) { if (str(car[k], 16)) o[k] = car[k]; });
+        out.garage.push(o);
+      });
+    }
+    if (str(c.current, 24) && out.garage.some(function (x) { return x.id === c.current; })) out.current = c.current;
+    if (c.best && typeof c.best === 'object') Object.keys(c.best).forEach(function (k) { if (str(k, 24)) out.best[k] = clampStars(c.best[k]); });
+    return out;
   }
   function defaultSettings() {
     return {
@@ -92,6 +113,7 @@
       }
     }
     if (d.seenTips && typeof d.seenTips === 'object') out.seenTips = d.seenTips;
+    out.cars = sanitizeCars(d.cars);
     if (d.practice && typeof d.practice === 'object') {
       out.practice.done = (d.practice.done && typeof d.practice.done === 'object') ? d.practice.done : {};
       out.practice.state = d.practice.state || null;
@@ -194,6 +216,35 @@
       markPracticeDone: function (id) { data.practice.done[id] = true; persist(); },
       getPracticeState: function () { return data.practice.state; },
       setPracticeState: function (s) { data.practice.state = s; persist(); },
+
+      /* Car Builder & Race */
+      getGarage: function () { return data.cars.garage; },
+      getCar: function (id) { return data.cars.garage.filter(function (c) { return c.id === id; })[0] || null; },
+      /** Add or update a car; false when the garage is full. */
+      saveCar: function (car) {
+        var g = data.cars.garage, i = g.map(function (c) { return c.id; }).indexOf(car.id);
+        if (i < 0 && g.length >= MAX_CARS) return false;
+        var c = sanitizeCars({ garage: [car] }).garage[0];
+        if (!c) return false;
+        if (i < 0) g.push(c); else g[i] = c;
+        persist();
+        return true;
+      },
+      removeCar: function (id) {
+        data.cars.garage = data.cars.garage.filter(function (c) { return c.id !== id; });
+        if (data.cars.current === id) data.cars.current = null;
+        persist();
+      },
+      getCurrentCar: function () { return data.cars.current; },
+      setCurrentCar: function (id) { data.cars.current = id || null; persist(); },
+      getTrackStars: function (trackId) { return data.cars.best[trackId] || 0; },
+      /** Keeps the best result; returns true when it improved. */
+      setTrackStars: function (trackId, stars) {
+        stars = clampStars(stars);
+        if (stars <= (data.cars.best[trackId] || 0)) return false;
+        data.cars.best[trackId] = stars; persist(); return true;
+      },
+      getTrackBest: function () { return data.cars.best; },
 
       /** Wipe progress (keeps the settings — sound, voice, parent PIN — so a reset doesn't blast audio or lock out the parent). */
       reset: function () {
@@ -327,7 +378,7 @@
   }
   /** Progress only (no in-progress boards, no "last screen"); the PIN is not exported. */
   function exportCode(d) {
-    var o = { v: VERSION, s: d.stars, u: d.unlocked, t: d.seenTips, p: d.practice.done, w: d.weekly.completed,
+    var o = { v: VERSION, s: d.stars, u: d.unlocked, t: d.seenTips, p: d.practice.done, w: d.weekly.completed, c: { g: d.cars.garage, b: d.cars.best },
       wm: d.settings.weeklyUnlockedMax };
     var json = JSON.stringify(o);
     return CODE_PREFIX + b64encode(json) + '.' + fnv(json).slice(0, 4);
@@ -342,7 +393,7 @@
       var json = b64decode(body.slice(0, dot));
       if (fnv(json).slice(0, 4) !== body.slice(dot + 1)) return { ok: false, error: 'The code has a typo.' };
       var o = JSON.parse(json);
-      var d = sanitize({ stars: o.s, unlocked: o.u, seenTips: o.t, practice: { done: o.p }, weekly: { completed: o.w },
+      var d = sanitize({ stars: o.s, unlocked: o.u, seenTips: o.t, practice: { done: o.p }, weekly: { completed: o.w }, cars: o.c ? { garage: o.c.g, best: o.c.b } : null,
         settings: { weeklyUnlockedMax: o.wm } });
       return { ok: true, data: d };
     } catch (e) {
@@ -359,6 +410,7 @@
     checkPin: checkPin, setPin: setPin, mathGate: mathGate, checkGate: checkGate,
     exportCode: exportCode, importCode: importCode,
     sanitize: sanitize,
+    MAX_CARS: MAX_CARS,
     createStore: createStore,
     memoryStorage: memoryStorage
   };

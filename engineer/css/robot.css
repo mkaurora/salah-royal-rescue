@@ -1,4 +1,4 @@
-/* Robot Coder + Practice Room */
+/* Robot Coder */
 .rb-wrap { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; position: relative; }
 .rb-board-wrap { flex: 1 1 auto; min-height: 120px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .rb-board { filter: drop-shadow(0 6px 10px rgba(40, 20, 90, .25)); touch-action: none; }
@@ -102,21 +102,4 @@
 .count-picker .pick { width: 48px; height: 48px; border: 0; border-radius: 14px; font-size: 22px; font-weight: 900; color: #fff; background: linear-gradient(180deg, #ffc061, #ff8c1a); box-shadow: 0 3px 0 #c75f00; }
 .count-picker .pick.on { background: linear-gradient(180deg, #6bc1ff, #2f86f0); box-shadow: 0 3px 0 #1a5bb8; }
 
-/* Practice Room */
-.practice-wrap { flex: 1; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
-.pr-chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 6px; flex: none; touch-action: pan-x; scrollbar-width: none; }
-.pr-chips::-webkit-scrollbar { display: none; }
-.chip {
-  flex: none; min-width: 48px; height: 48px; border: 0; border-radius: 16px; padding: 0 12px; font-size: 18px; font-weight: 900;
-  background: #fff; color: #2e7a3b; box-shadow: 0 4px 0 rgba(0,0,0,.15); position: relative;
-}
-.chip.on { background: linear-gradient(180deg, #ffd35c, #ff9f1c); color: #fff; box-shadow: 0 4px 0 #b56a00; text-shadow: 0 1px 0 rgba(0,0,0,.2); }
-.chip.done:not(.on) { background: #e2ffe7; }
-.chip-check { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: #22b14c; color: #fff; font-size: 12px; line-height: 20px; }
-.pr-stamps { display: flex; gap: 6px; align-items: center; flex: none; justify-content: center; }
-.pr-stamp-lbl { font-size: 13px; font-weight: 900; color: #1d6b36; }
-.stamp { width: 56px; height: 52px; border: 0; border-radius: 14px; background: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.15); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 20px; padding: 0; }
-.stamp small { font-size: 10px; font-weight: 900; color: #557; }
-.stamp.on { background: #fff4c2; box-shadow: 0 0 0 3px #ffb31f, 0 3px 0 rgba(0,0,0,.15); }
-.pr-ui { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .rep-count.inf { font-size: 30px; }

@@ -1,0 +1,92 @@
+/* Car Builder & Race (took the Practice Room's menu slot). */
+.cars-screen { background: linear-gradient(180deg, #ffb36b 0%, #ffd9a0 45%, #fff3d6 100%); gap: 8px; }
+.cars-screen .buddy-bar { height: 84px; }
+.cars-screen .bubble { font-size: 17px; }
+.car-canvas { display: block; }
+
+/* garage */
+.cg-summary { flex: none; display: flex; justify-content: space-between; gap: 8px; background: rgba(255,255,255,.75); border-radius: 16px; padding: 8px 14px;
+  font-weight: 900; font-size: 16px; color: #8a3a12; box-shadow: 0 3px 0 rgba(0,0,0,.1); }
+.cg-grid { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; padding: 4px 2px 10px; }
+.cg-car { flex-direction: column; gap: 2px; padding: 8px 6px 6px; min-height: 120px; border-radius: 20px; }
+.cg-car.on { outline: 4px solid #ffd21f; outline-offset: -2px; }
+.cg-name { font-size: 17px; font-weight: 900; }
+.cg-new { flex-direction: column; min-height: 120px; border-radius: 20px; gap: 0; font-size: 17px; }
+.cg-plus { font-size: 40px; line-height: 1; }
+.cg-race { flex: none; }
+
+/* build */
+.cb-stage { flex: 1 1 auto; min-height: 100px; max-height: 220px; display: grid; place-items: center; border-radius: 24px; position: relative;
+  background: radial-gradient(ellipse at 50% 90%, rgba(255,255,255,.85), rgba(255,255,255,.35) 70%); box-shadow: inset 0 -6px 0 rgba(168,48,26,.12); }
+.cb-stage.hot { outline: 4px dashed #22b14c; outline-offset: -4px; background: radial-gradient(ellipse at 50% 90%, #e2ffe7, rgba(255,255,255,.45) 70%); }
+.cb-stage.bump .cb-car { animation: cbBump .35s ease; }
+@keyframes cbBump { 40% { transform: scale(1.08) rotate(-2deg); } 100% { transform: none; } }
+.cb-bars { flex: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; background: rgba(255,255,255,.7); border-radius: 16px; padding: 6px 4px; }
+.cb-bar { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.cb-bar-ico { font-size: 18px; line-height: 1; }
+.cb-bar-name { font-size: 11px; font-weight: 900; color: #6b3a1a; }
+.cb-dots { display: flex; gap: 2px; }
+.cb-dots i { width: 9px; height: 9px; border-radius: 50%; background: #e6d6c8; }
+.cb-dots i.on { background: #ff7a1c; }
+.cb-bar[data-stat="weight"] .cb-dots i.on { background: #8a6cf0; }
+.cb-tabs { flex: none; display: flex; gap: 5px; padding: 2px; }   /* all six tabs always fit (no sideways scroll) */
+.cb-tray::-webkit-scrollbar { display: none; }
+.cb-tab { appearance: none; border: 0; flex: 1 1 0; min-width: 0; height: 50px; border-radius: 14px; background: rgba(255,255,255,.6); font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-size: 11px; font-weight: 900; color: #6b3a1a; box-shadow: 0 3px 0 rgba(0,0,0,.12); }
+.cb-tab-ico { font-size: 20px; line-height: 1; }
+.cb-tab.on { background: #fff; outline: 3px solid #ff8a1c; }
+.cb-tray { flex: none; display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; touch-action: pan-x; scrollbar-width: none; padding: 4px 2px 8px; min-height: 104px; }
+.cb-part { flex: none; width: 86px; height: 94px; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.15); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.cb-part.on { outline: 4px solid #22b14c; outline-offset: -2px; background: #f0fff3; }
+.cb-part.pressed { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.15); }
+.cb-part-ico { font-size: 34px; line-height: 1; }
+.cb-part-name { font-size: 13px; font-weight: 900; color: #3b2a20; }
+.cb-swatch { width: 42px; height: 42px; border-radius: 50%; border: 3px solid rgba(0,0,0,.15); }
+.cb-ghost { position: fixed; left: 0; top: 0; z-index: 80; pointer-events: none; width: 80px; height: 80px; display: grid; place-items: center;
+  background: rgba(255,255,255,.85); border-radius: 18px; box-shadow: 0 10px 20px rgba(0,0,0,.25); font-size: 40px; }
+.cb-bottom { flex: none; display: flex; gap: 10px; }
+.cb-bottom .cb-race { flex: 1; }
+.cb-delete { width: 60px; font-size: 22px; }
+.cb-showme span { font-size: 26px; }
+
+/* tracks */
+.ct-car { flex: none; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; font-weight: 900; color: #8a3a12; }
+.ct-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 4px 2px 10px; }
+.ct-track { flex: none; justify-content: flex-start; gap: 12px; min-height: 64px; border-radius: 20px; padding: 8px 14px; }
+.ct-icon { font-size: 32px; width: 44px; text-align: center; }
+.ct-name { flex: 1; font-size: 20px; text-align: left; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+.ct-stars { font-size: 22px; color: #f5a300; letter-spacing: 1px; text-shadow: 0 1px 0 rgba(0,0,0,.2); }
+.ct-track.locked { --c1: #e9edf4; --c2: #cfd6e3; --c3: #a3adc0; color: #66708a; }
+
+/* race */
+.race-screen { background: linear-gradient(180deg, #4d5bd6, #8a96f0); }
+.cr-hud { flex: none; padding: 2px 34px 2px 18px; }
+.cr-line { position: relative; height: 34px; border-radius: 17px; background: rgba(255,255,255,.85); box-shadow: inset 0 -3px 0 rgba(0,0,0,.08); }
+.cr-mark { position: absolute; top: 2px; transform: translateX(-50%); font-size: 22px; transition: none; }
+.cr-mark.you { z-index: 2; font-size: 26px; top: 0; }
+.cr-flag { position: absolute; right: -28px; top: 2px; font-size: 24px; }
+.cr-host { flex: 1; min-height: 0; position: relative; border-radius: 22px; overflow: hidden; box-shadow: 0 6px 0 rgba(0,0,0,.18); }
+.cr-canvas { display: block; }
+.cr-count { position: absolute; inset: 0; display: grid; place-items: center; font-size: 96px; font-weight: 900; color: #fff; pointer-events: none;
+  text-shadow: 0 6px 0 rgba(0,0,0,.25); opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s; }
+.cr-count.show { opacity: 1; transform: scale(1); }
+.race-results .overlay-card { text-align: center; gap: 8px; }
+.cr-medal { font-size: 72px; line-height: 1; }
+.cr-place { margin: 0; }
+.cr-stars { font-size: 40px; color: #d7dbe4; letter-spacing: 4px; }
+.cr-stars .on { color: #ffc21f; text-shadow: 0 2px 0 #c98a00; }
+.cr-tip { display: flex; align-items: center; gap: 10px; text-align: left; background: #fff6cf; border-radius: 16px; padding: 10px 12px; font-size: 17px; font-weight: 800; color: #5a4300; }
+.cr-tip-ico { font-size: 28px; flex: none; }
+.cr-new { font-weight: 900; color: #22914a; font-size: 18px; }
+.cr-buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 4px; }
+.cr-buttons .btn { flex: 1 1 40%; font-size: 17px; padding: 10px 12px; }
+.cr-buttons .cr-again { flex-basis: 100%; }
+
+@media (max-height: 700px) {
+  .cars-screen .buddy-bar { height: 70px; }
+  .cars-screen .bubble { font-size: 15px; }
+  .cb-tray { min-height: 92px; } .cb-part { width: 76px; height: 82px; } .cb-part-ico { font-size: 28px; }
+  .cb-tab { height: 44px; } .cb-bars { padding: 4px; }
+  .ct-track { min-height: 54px; } .cr-medal { font-size: 56px; } .cr-stars { font-size: 32px; }
+}

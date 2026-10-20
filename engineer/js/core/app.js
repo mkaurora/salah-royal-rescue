@@ -29,7 +29,6 @@
     tapGo: { Go: 'Your turn! Tap Go! ▶', Play: 'Your turn! Tap Play! ▶' },
     praise: ['Hooray! You did it!', 'Awesome job, Salah!', 'Wow! Super engineer!', 'You are amazing!'],
     didYouKnow: 'Did you know? ',
-    practiceWelcome: 'Welcome to the Practice Room! Play as much as you like. Try a challenge, or just have fun!',
     weeklyLocked: 'This project is not open yet. Come back next week!',
     weeklyStepLocked: 'Finish the step before this one first!',
     helperOffline: 'I can\'t reach the helper right now. Here is a hint!',
@@ -435,8 +434,9 @@
       grid.appendChild(card);
     });
     var weeklyCard = LE.weeklyHub ? LE.weeklyHub.menuCard() : null;
-    var practice = LE.button('practice-btn', '', function () { showPractice(); }, { label: 'Practice Room' });
-    practice.append(h('div.practice-icon', { html: LE.worldIcon('practice') }), h('div', h('div.practice-title', 'Practice Room'), h('div.practice-sub', 'Play with Robo — no stars, just fun!')));
+    // Car Builder & Race (took the Practice Room's slot)
+    var carsBtn = LE.button('car-btn', '', function () { showCars(); }, { label: 'Car Builder & Race' });
+    carsBtn.append(h('div.car-icon', '🏎️'), h('div', h('div.car-title', 'Car Builder & Race'), h('div.car-sub', 'Build a car, then race it!')));
     var settings = gearButton();
     el.append(
       h('div.menu-sky', h('div.cloud.c1'), h('div.cloud.c2'), h('div.cloud.c3')),
@@ -445,7 +445,7 @@
       h('div.menu-hero', buddyWrap, hello),
       weeklyCard,
       grid,
-      practice
+      carsBtn
     );
     buddyWrap.addEventListener('click', function () {
       LE.sound.play('pop');
@@ -462,9 +462,7 @@
     var w = world(worldId);
     store.setLast({ screen: 'map', world: worldId });
     var el = h('div.map-screen.theme-' + worldId);
-    var extra = worldId === 'robot'
-      ? LE.button('icon practice-mini', '<span>🧪</span>', function () { showPractice(); }, { label: 'Practice Room' })
-      : null;
+    var extra = null;
     var scroller = h('div.map-scroll');
     var inner = h('div.map-inner');
     scroller.appendChild(inner);
@@ -473,9 +471,6 @@
       topbar(h('span', h('span', w.name), fiveTaps(h('span.topbar-stars', { html: LE.starSVG(true) + got + '/' + (w.levels.length * 3) }))), showMenu, extra),
       scroller
     );
-    if (worldId === 'robot') {
-      el.appendChild(LE.button('practice-strip', '<span class="ps-ico">🧪</span> Practice Room', function () { showPractice(); }));
-    }
     show({ el: el });
 
     // Layout: snake path, 3 nodes per row.
@@ -1100,72 +1095,8 @@
     }
   }
 
-  /* ---------- Practice Room ---------- */
-  function showPractice() {
-    store.setLast({ screen: 'practice' });
-    var el = h('div.level-screen.practice-screen.theme-practice');
-    var bar = topbar(h('span.lvl-title', h('span', '🧪 Practice Room')), showMenu);
-    var buddyBar = h('div.buddy-bar');
-    var host = h('div.play-host');
-    el.append(bar, buddyBar, host);
-    var buddy = new LE.Buddy(buddyBar);
-    var alive = true, demoRunning = false, listeners = {};
-    var inst;
-    var ctx = {
-      buddy: buddy,
-      say: function (t, o) { return buddy.say(t, o); },
-      sfx: function (n) { LE.sound.play(n); },
-      emit: function (name, d) { (listeners[name] || []).slice().forEach(function (f) { f(d); }); },
-      fx: LE.fx, store: store, fast: LE.FAST,
-      isDemo: function () { return demoRunning; },
-      showMe: function () { showMe(); }
-    };
-    show({ el: el, destroy: function () { alive = false; buddy.destroy(); if (inst && inst.destroy) inst.destroy(); } });
-    inst = LE.views.practice.create(host, ctx);
-    LE.activeLevel = { world: 'practice', inst: inst, ctx: ctx, showMe: function () { return showMe(); }, buddy: buddy };
-    buddy.onTap = function () {
-      if (demoRunning) return;
-      buddy.say(inst.goal(), {
-        buttons: inst.canShowMe() ? [{ label: '👉 Show me', cls: 'orange showme-btn', onTap: function () { showMe(); } },
-                                     { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }]
-                                  : [{ label: '👍 OK', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }]
-      });
-    };
-    async function showMe() {
-      if (demoRunning || !alive || !inst.canShowMe()) return;
-      if (inst.busy && inst.stop) inst.stop();
-      demoRunning = true;
-      var shield = h('div.demo-shield');
-      el.appendChild(shield);
-      try {
-        var steps = inst.showMe();
-        buddy.say(LINES.watch);
-        await LE.wait(600);
-        for (var i = 0; i < steps.length && alive; i++) {
-          let s = steps[i];
-          if (s.from && s.to) await LE.hand.drag(function () { return inst.target(s.from); }, function () { return inst.target(s.to); }, inst.ghost && inst.ghost(s.from));
-          else if (s.from) { await LE.hand.moveTo(function () { return inst.target(s.from); }, 450); await LE.hand.tap(); }
-          if (!alive) return;
-          if (s.apply) s.apply();
-          await LE.wait(s.pause || 260);
-        }
-      } finally { demoRunning = false; shield.remove(); }
-      if (!alive) return;
-      await buddy.afterSpeech();
-      if (!alive) return;
-      buddy.say(LINES.tapGo.Play);
-      LE.hand.loop(function () { return inst.target('go'); });
-      var off = function () {};
-      listeners.run = [function () { LE.hand.stop(); listeners.run = []; }];
-      return off;
-    }
-    setTimeout(function () {
-      if (!alive) return;
-      buddy.say(LINES.practiceWelcome, {
-        buttons: [{ label: '👍 OK', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }]
-      });
-    }, 400 / LE.speed);
-  }
+  /* ---------- Car Builder & Race (js/views/cars-view.js; replaced the Practice Room, whose saved data is kept untouched) ---------- */
+  function showCars() { LE.cars.showGarage(); }
 
   /** Resume a weekly step only if it is still open (the clock or a parent may have changed things). */
   function resumeWeeklyStep(pid, k) {
@@ -1174,7 +1105,7 @@
     else showWeeklyHub(pid);
   }
 
-  LE.app = { showMenu: showMenu, showMap: showMap, openLevel: openLevel, showPractice: showPractice, openSettings: openSettings, store: store,
+  LE.app = { showMenu: showMenu, showMap: showMap, openLevel: openLevel, showCars: showCars, openSettings: openSettings, store: store,
     showScreen: show, topbar: topbar, confirmDialog: confirmDialog,
     openWeeklyStep: openWeeklyStep, showWeekly: showWeekly, showWeeklyHub: showWeeklyHub };
 
@@ -1211,7 +1142,7 @@
       if (!noResume && last && last.screen === 'level' && world(last.world).levels[last.level]) openLevel(last.world, last.level);
       else if (!noResume && last && last.screen === 'weekly-step' && weeklyProject(last.project)) resumeWeeklyStep(last.project, last.step);
       else if (!noResume && last && last.screen === 'weekly' && weeklyProject(last.project)) showWeeklyHub(last.project);
-      else if (!noResume && last && last.screen === 'practice') showPractice();
+      else if (!noResume && last && (last.screen === 'cars' || last.screen === 'practice')) showCars();   // old Practice Room saves land in the garage
       else if (!noResume && last && last.screen === 'map' && world(last.world).levels.length) showMap(last.world);
       else showMenu();
     } catch (e) {
