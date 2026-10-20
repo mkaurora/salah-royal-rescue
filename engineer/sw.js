@@ -1,7 +1,7 @@
 /* Service worker: precaches the game shell (+ the first voice clips) so it works fully offline.
  * Other voice clips are cached the first time they are played. */
 'use strict';
-var BUILD = 'ddae5cd869';   // written by tools/build-sw.js (hash of all precached files)
+var BUILD = 'c08f2c0a6d';   // written by tools/build-sw.js (hash of all precached files)
 var CACHE = 'engineer-v3-' + BUILD;
 var PRECACHE = [
   /* PRECACHE:START */
