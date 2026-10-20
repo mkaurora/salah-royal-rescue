@@ -19,7 +19,7 @@
   var ANCHOR = Date.UTC(2026, 9, 19);       // Monday 19 Oct 2026, 00:00 UTC
   var DAY = 24 * 60 * 60 * 1000;
   var WEEK = 7 * DAY;
-  var OPEN_NOW = 30;                         // weeks 1..30 open right away (Oct 2026)
+  var OPEN_NOW = 52;                         // all 52 weeks open (Mohammed, 20 Oct 2026)
 
   function ms(now) { return typeof now === 'number' ? now : (now && now.getTime) ? now.getTime() : Date.now(); }
 

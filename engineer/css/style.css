@@ -143,14 +143,14 @@ svg { display: block; }
 .world-card.w-construction { grid-column: 1 / -1; flex-direction: row; gap: 12px; padding: 6px 16px; animation-delay: .25s; }
 .world-card.w-construction .world-icon { flex: 0 0 auto; width: 96px; height: 100%; }
 .world-card.w-construction .cn-menu-text { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex: 1; }
-.practice-btn {
-  --c1: var(--green1); --c2: var(--green2); --c3: var(--green3);
+.car-btn {
+  --c1: #ff8a5c; --c2: #f0532e; --c3: #a8301a;
   width: 100%; max-width: 440px; justify-content: flex-start; padding: 8px 14px; z-index: 2; flex: none; min-height: 76px; gap: 12px;
   animation: popIn .5s .28s both; text-align: left;
 }
-.practice-icon svg { width: 70px; height: 52px; }
-.practice-title { font-size: 23px; }
-.practice-sub { font-size: 14px; font-weight: 800; opacity: .95; }
+.car-icon { flex: none; width: 70px; height: 56px; display: grid; place-items: center; font-size: 44px; background: rgba(255,255,255,.25); border-radius: 16px; text-shadow: none; }
+.car-title { font-size: 23px; }
+.car-sub { font-size: 14px; font-weight: 800; opacity: .95; }
 .settings-btn svg { width: 30px; height: 30px; }
 @keyframes popIn { from { opacity: 0; transform: scale(.6); } 70% { transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
 
@@ -203,8 +203,6 @@ svg { display: block; }
 .ln-name { position: absolute; top: 96px; left: 50%; transform: translateX(-50%); white-space: nowrap; max-width: 116px; overflow: hidden; text-overflow: ellipsis; font-size: clamp(10px, 3vw, 12px); font-weight: 900; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); pointer-events: none; }
 .ln-buddy { position: absolute; width: 46px; height: 58px; top: -50px; right: -22px; pointer-events: none; }
 .ln-buddy .buddy-svg { width: 100%; height: 100%; }
-.practice-strip { --c1: var(--green1); --c2: var(--green2); --c3: var(--green3); margin: 8px auto 2px; width: 100%; max-width: 440px; min-height: 60px; font-size: 22px; flex: none; }
-.practice-mini { font-size: 24px; }
 
 /* ---------- Level screen ---------- */
 .level-screen { background: var(--level-bg, linear-gradient(180deg, #59c3ff, #b8ecff)); }
@@ -288,7 +286,7 @@ svg { display: block; }
 @media (max-height: 700px) {
   .menu-buddy { width: 84px; height: 104px; }
   .menu-title .t2 { font-size: 36px; }
-  .practice-btn { min-height: 64px; }
+  .car-btn { min-height: 64px; }
   .buddy-bar { height: 64px; }
   .bubble { font-size: 16px; min-height: 54px; }
 }
@@ -301,11 +299,10 @@ svg { display: block; }
 .theme-bridges { --level-bg: linear-gradient(180deg, #5cc2ff 0%, #a5e3ff 60%, #d8f5ff 100%); --map-bg: linear-gradient(180deg, #4ab3f5, #9fe0ff 70%, #7ccf6a 70.2%, #5bb84a); --node1: #ffc061; --node2: #ff8c1a; --node3: #b35b00; }
 .theme-machines { --level-bg: linear-gradient(180deg, #ffd27a 0%, #ffb15c 100%); --map-bg: linear-gradient(180deg, #ffcf71, #ff9a5a); --node1: #ff8a7a; --node2: #e8484f; --node3: #9e1f2c; --road: #ffeccc; }
 .theme-circuits { --level-bg: linear-gradient(180deg, #232a6b 0%, #3b2f7a 100%); --map-bg: linear-gradient(180deg, #1e2a5a, #3b2f7a); --node1: #8a96ff; --node2: #4b52e0; --node3: #262a8a; --road: #3dd6ff; }
-.theme-robot, .theme-practice { --level-bg: linear-gradient(180deg, #b08cff 0%, #d9c7ff 100%); --map-bg: linear-gradient(180deg, #9a7bff, #d7c6ff); --node1: #c7a3ff; --node2: #8a5cf6; --node3: #5428b8; }
-.theme-practice { --level-bg: linear-gradient(180deg, #4fd18b 0%, #b9f5c8 100%); }
+.theme-robot { --level-bg: linear-gradient(180deg, #b08cff 0%, #d9c7ff 100%); --map-bg: linear-gradient(180deg, #9a7bff, #d7c6ff); --node1: #c7a3ff; --node2: #8a5cf6; --node3: #5428b8; }
 .theme-construction { --level-bg: linear-gradient(180deg, #8fd3ff 0%, #c9ecff 55%, #f3e3c0 100%); --map-bg: linear-gradient(180deg, #7cc8f5, #bfe6ff 62%, #d9a866 62.2%, #b98342); --node1: #ffd84a; --node2: #f5a300; --node3: #a86400; --road: #fff3d0; }
 
-/* Small phones (iPhone SE): 5 world cards + Practice Room must fit — shrink the hero a bit */
+/* Small phones (iPhone SE): 5 world cards + Car Builder must fit — shrink the hero a bit */
 @media (max-height: 600px) {
   .menu-screen { gap: 6px; }
   .menu-top { height: 44px; }
@@ -319,10 +316,10 @@ svg { display: block; }
   .world-card { padding: 4px 6px 6px; border-radius: 22px; }
   .world-name { font-size: 18px; }
   .world-stars { font-size: 13px; }
-  .practice-btn { min-height: 56px; padding: 4px 12px; }
-  .practice-icon svg { width: 54px; height: 40px; }
-  .practice-title { font-size: 20px; }
-  .practice-sub { font-size: 12px; }
+  .car-btn { min-height: 56px; padding: 4px 12px; }
+  .car-icon { width: 54px; height: 44px; font-size: 34px; }
+  .car-title { font-size: 20px; }
+  .car-sub { font-size: 12px; }
   .win-title { font-size: 30px !important; }
 }
 

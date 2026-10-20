@@ -40,6 +40,18 @@
   "text": "A big spiral full of gears. Grab them all!"
  },
  {
+  "id": "6ed42735",
+  "text": "A bigger engine is faster, but heavier!"
+ },
+ {
+  "id": "c02fc2af",
+  "text": "A bigger engine makes you faster on a flat road!"
+ },
+ {
+  "id": "1dbc18a2",
+  "text": "A bigger engine makes your car faster!"
+ },
+ {
   "id": "686737c7",
   "text": "A boat sails under! Build up high, not down low."
  },
@@ -64,6 +76,10 @@
   "text": "A Flat Road. Trucks need a flat road. Fill every hole so the truck can drive!"
  },
  {
+  "id": "f0cea811",
+  "text": "A gentle engine kept your wheels gripping the ice!"
+ },
+ {
   "id": "1bc73333",
   "text": "A heavy truck! Make a super strong bridge."
  },
@@ -74,6 +90,14 @@
  {
   "id": "0e67b48c",
   "text": "A lamp goes here."
+ },
+ {
+  "id": "cd45518e",
+  "text": "A lighter body climbs hills more easily!"
+ },
+ {
+  "id": "6f2209e4",
+  "text": "A lighter car climbs hills more easily! Try a smaller engine."
  },
  {
   "id": "139bae76",
@@ -94,6 +118,14 @@
  {
   "id": "880315ad",
   "text": "A low bolt on one side only. Make the other side strong!"
+ },
+ {
+  "id": "97bfe4aa",
+  "text": "A new car! Drag parts onto it."
+ },
+ {
+  "id": "d715ff5c",
+  "text": "A new track is open!"
  },
  {
   "id": "72505f73",
@@ -138,6 +170,14 @@
  {
   "id": "439d9700",
   "text": "A small gear spins faster than a big gear!"
+ },
+ {
+  "id": "01c94475",
+  "text": "A spoiler adds weight. On a flat road you can leave it off."
+ },
+ {
+  "id": "8cc99a59",
+  "text": "A spoiler presses the car down. It helps on hills and ice!"
  },
  {
   "id": "9bff803f",
@@ -210,6 +250,10 @@
  {
   "id": "2700bac4",
   "text": "Add a battery to make both houses BRIGHT!"
+ },
+ {
+  "id": "e9de8e07",
+  "text": "Add a sticker!"
  },
  {
   "id": "95b4f559",
@@ -306,6 +350,14 @@
  {
   "id": "693384db",
   "text": "Big stairs! Repeat the step pattern forever."
+ },
+ {
+  "id": "9d3a6d16",
+  "text": "Big wheels are heavy! Smaller wheels climb hills more easily."
+ },
+ {
+  "id": "999552a5",
+  "text": "Big wheels helped on the bumps!"
  },
  {
   "id": "0499b9f2",
@@ -492,6 +544,10 @@
   "text": "Bump the ball to lift the rescue box!"
  },
  {
+  "id": "9132e755",
+  "text": "Bumpy road! Bigger wheels roll over bumps more easily."
+ },
+ {
   "id": "ecbef17d",
   "text": "Bye, helper! Back to building!"
  },
@@ -510,6 +566,10 @@
  {
   "id": "d8357f2a",
   "text": "Chain reaction. One ball bumps the next ball, and that one keeps rolling. Bump, bump, GO!"
+ },
+ {
+  "id": "6efcb922",
+  "text": "Change your car and race again, any time!"
  },
  {
   "id": "220c4c17",
@@ -1164,6 +1224,10 @@
   "text": "Drag it to a glowing spot!"
  },
  {
+  "id": "75bc4c14",
+  "text": "Drag parts onto your car. Then tap Race!"
+ },
+ {
   "id": "c4177bea",
   "text": "Drag the foundation onto the plot!"
  },
@@ -1338,6 +1402,10 @@
  {
   "id": "79b22305",
   "text": "Finish the step before this one first!"
+ },
+ {
+  "id": "5e96ca0d",
+  "text": "Finish the track before this one to open it."
  },
  {
   "id": "821cbb5c",
@@ -1596,6 +1664,10 @@
   "text": "Grab, move right two times, then drop."
  },
  {
+  "id": "61887aa0",
+  "text": "Great building! Your car was just right for this track!"
+ },
+ {
   "id": "f5b754be",
   "text": "Great! Now drag a wire into the gap."
  },
@@ -1664,6 +1736,14 @@
   "text": "Hi Salah! What shall we build today?"
  },
  {
+  "id": "97e94560",
+  "text": "Hill Hop has big hills. Up and down we go!"
+ },
+ {
+  "id": "351f5b5b",
+  "text": "Hills need power! Try a bigger engine."
+ },
+ {
   "id": "7cc69d74",
   "text": "Hooray! You did it!"
  },
@@ -1682,6 +1762,10 @@
  {
   "id": "be705010",
   "text": "I love building things!"
+ },
+ {
+  "id": "be25281f",
+  "text": "Ice Lake is slippery! Careful on the ice."
  },
  {
   "id": "e0d00087",
@@ -1722,6 +1806,10 @@
  {
   "id": "3b7b6883",
   "text": "It stopped before the goal. Almost! Try again!"
+ },
+ {
+  "id": "7a044419",
+  "text": "Jungle Jumble has bumps and hills. What will you build?"
  },
  {
   "id": "a9b819cf",
@@ -2012,6 +2100,10 @@
   "text": "Motors. A motor turns power into spinning! Put one in the loop to make the fan go."
  },
  {
+  "id": "e68b5939",
+  "text": "Mountain Pass goes up, up, up! Then down!"
+ },
+ {
   "id": "77984076",
   "text": "Move a tile. Wrong spot? Drag a tile on the board to a new square. Drag it to the box to put it away."
  },
@@ -2184,6 +2276,10 @@
   "text": "Oh no! This wire points the wrong way. Tap it to turn it!"
  },
  {
+  "id": "a6ca68a2",
+  "text": "On ice, too much power makes the wheels spin. Try a smaller engine!"
+ },
+ {
   "id": "0a5e0803",
   "text": "One battery is upside down! Flip it and fix the wire."
  },
@@ -2286,6 +2382,18 @@
  {
   "id": "67932138",
   "text": "Perfect! Now tap Play."
+ },
+ {
+  "id": "85c655e7",
+  "text": "Pick a body. Light cars are quick. The truck is tough!"
+ },
+ {
+  "id": "0f98304d",
+  "text": "Pick a colour. Make it yours!"
+ },
+ {
+  "id": "cf0d121e",
+  "text": "Pick a race track!"
  },
  {
   "id": "4e662484",
@@ -2768,6 +2876,10 @@
   "text": "Rumble rumble! This week we visit Volcano Island."
  },
  {
+  "id": "82ee2c89",
+  "text": "Second place! Great racing!"
+ },
+ {
   "id": "6305e5f2",
   "text": "See the bolts? Drag a beam from bolt to bolt!"
  },
@@ -2820,8 +2932,20 @@
   "text": "Ski the slalom, grab every gear and reach the flag!"
  },
  {
+  "id": "8837fd74",
+  "text": "Slippery! A spoiler helps the wheels grip the ice."
+ },
+ {
   "id": "6f83e615",
   "text": "Small gears spin fast. A big gear turning a small gear makes the small one spin faster!"
+ },
+ {
+  "id": "0203ef47",
+  "text": "Small wheels are fast on smooth roads. Big wheels roll over bumps!"
+ },
+ {
+  "id": "4924f976",
+  "text": "Smaller wheels are lighter and faster on smooth roads."
  },
  {
   "id": "8b91a047",
@@ -3010,6 +3134,10 @@
  {
   "id": "f15241ca",
   "text": "Stuck? Now I can show you how!"
+ },
+ {
+  "id": "d31ac87e",
+  "text": "Sunny Road is flat and fast. Ready to race?"
  },
  {
   "id": "a558e030",
@@ -3348,6 +3476,10 @@
   "text": "The desert road is full of sand!"
  },
  {
+  "id": "c72db081",
+  "text": "The desert road is very bumpy. Hold on tight!"
+ },
+ {
   "id": "c9e0ebf0",
   "text": "The dino fence wire is sparking!"
  },
@@ -3458,6 +3590,10 @@
  {
   "id": "386ab2a9",
   "text": "The grand finale! This week you show everything you learned."
+ },
+ {
+  "id": "8b8d9ab0",
+  "text": "The Grand Prix has a bit of everything! Good luck, engineer!"
  },
  {
   "id": "28a0fe33",
@@ -3804,6 +3940,10 @@
   "text": "The team bus picks up every player!"
  },
  {
+  "id": "3955b625",
+  "text": "The tough truck body is great on bumpy roads!"
+ },
+ {
   "id": "8433c731",
   "text": "The town is dark! This week we bring the power, one place at a time."
  },
@@ -3886,6 +4026,10 @@
  {
   "id": "3d790036",
   "text": "There is a rock in the river. Use it!"
+ },
+ {
+  "id": "7d42c914",
+  "text": "Third place! You finished the race!"
  },
  {
   "id": "07fcbdcd",
@@ -4064,6 +4208,10 @@
   "text": "Three, two, one, blast off! This week we build a space station."
  },
  {
+  "id": "dce8a3e6",
+  "text": "Three, two, one, go!"
+ },
+ {
   "id": "a3bb55c0",
   "text": "Tie the road to the top. Drag down the middle!"
  },
@@ -4106,6 +4254,14 @@
  {
   "id": "d63da434",
   "text": "Try a Repeat block for this long road."
+ },
+ {
+  "id": "31c37e7b",
+  "text": "Try a spoiler! It helps on the hills."
+ },
+ {
+  "id": "c6d789d1",
+  "text": "Try the racer body. It slips through the air!"
  },
  {
   "id": "d86af1b0",
@@ -4332,6 +4488,10 @@
   "text": "Watch me!"
  },
  {
+  "id": "4ed6c4df",
+  "text": "Watch! This part is good for the next track."
+ },
+ {
   "id": "b5b97c27",
   "text": "We are low on coins!"
  },
@@ -4342,6 +4502,10 @@
  {
   "id": "2ee924e5",
   "text": "Welcome back!"
+ },
+ {
+  "id": "e457d848",
+  "text": "Welcome to the Car Builder! Build a car, then race it!"
  },
  {
   "id": "25beba7f",
@@ -4468,8 +4632,20 @@
   "text": "You reached the oasis! Time for a cool drink!"
  },
  {
+  "id": "e04d8512",
+  "text": "You won! Hooray!"
+ },
+ {
+  "id": "0419f1b0",
+  "text": "Your car is already great for the next track. Tap Race!"
+ },
+ {
   "id": "7a3249cb",
   "text": "Your first invention: a light show!"
+ },
+ {
+  "id": "57283a9d",
+  "text": "Your garage is full! Change a car, or remove one."
  },
  {
   "id": "c21c447c",
@@ -4482,6 +4658,18 @@
  {
   "id": "32271b4f",
   "text": "Your second invention splits logs!"
+ },
+ {
+  "id": "98488738",
+  "text": "Your spoiler helped you up the hills!"
+ },
+ {
+  "id": "d85b3271",
+  "text": "Your spoiler pressed the wheels onto the ice. Good grip!"
+ },
+ {
+  "id": "a532c854",
+  "text": "Your strong, light car zoomed up the hills!"
  },
  {
   "id": "6bf401ca",
