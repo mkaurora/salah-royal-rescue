@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#14205a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Road Racer">
+<meta name="description" content="Road Racer — drive, dodge and race through five worlds!">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<title>Road Racer</title>
+<link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="game" aria-label="Road Racer game"></canvas>
+
+  <div id="hud" class="hud" hidden>
+    <div class="hud-left">
+      <div class="hp"><span class="hp-icon">❤️</span><div class="bar"><i class="hp-fill"></i></div></div>
+      <div class="lives" aria-label="lives"></div>
+      <div class="fuel" hidden><span>⛽</span><div class="bar"><i class="fuel-fill"></i></div></div>
+    </div>
+    <div class="hud-mid">
+      <div class="progress"><div class="track"><i class="prog-fill"></i></div><div class="marks"></div><span class="car-dot">🚗</span><span class="flag">🏁</span></div>
+      <div class="timer" hidden>⏱️ <b>0</b></div>
+      <div class="boss" hidden><span class="boss-icon"></span><div class="bar"><i class="boss-fill"></i></div></div>
+    </div>
+    <div class="hud-right">
+      <div class="coins"><span class="coin-icon"></span><b>0</b><small class="coin-goal"></small></div>
+      <button class="pause-btn" aria-label="Pause">⏸</button>
+    </div>
+    <div class="callout" aria-live="polite"></div>
+    <div class="countdown"></div>
+  </div>
+
+  <div id="controls" class="controls" hidden>
+    <div class="steer">
+      <button class="ctl left" data-ctl="left" aria-label="Steer left"><span>◀</span></button>
+      <button class="ctl right" data-ctl="right" aria-label="Steer right"><span>▶</span></button>
+    </div>
+    <div class="pedals">
+      <button class="ctl brake" data-ctl="brake" aria-label="Brake"><span>BRAKE</span></button>
+      <button class="ctl gas" data-ctl="gas" aria-label="Gas"><span>GAS</span></button>
+    </div>
+  </div>
+
+  <div id="screens"></div>
+  <div id="wipe" class="wipe"></div>
+  <div id="toast" class="toast" role="status"></div>
+</div>
+
+<script src="./js/version.js"></script>
+<script src="./js/core/visit.js"></script>
+<script src="./js/logic/rng.js"></script>
+<script src="./js/data/levels.js"></script>
+<script src="./js/data/garage.js"></script>
+<script src="./js/logic/stars.js"></script>
+<script src="./js/logic/track.js"></script>
+<script src="./js/logic/sim.js"></script>
+<script src="./js/logic/autopilot.js"></script>
+<script src="./js/logic/progress.js"></script>
+<script src="./js/curriculum/math.js"></script>
+<script src="./js/curriculum/english.js"></script>
+<script src="./js/curriculum/science.js"></script>
+<script src="./js/curriculum/art.js"></script>
+<script src="./js/logic/quiz.js"></script>
+<script src="./js/core/updater.js"></script>
+<script src="./js/audio/audio.js"></script>
+<script src="./js/render/paint.js"></script>
+<script src="./js/render/themes.js"></script>
+<script src="./js/render/cars.js"></script>
+<script src="./js/render/sprites.js"></script>
+<script src="./js/render/sky.js"></script>
+<script src="./js/render/fx.js"></script>
+<script src="./js/render/road.js"></script>
+<script src="./js/ui/dom.js"></script>
+<script src="./js/ui/input.js"></script>
+<script src="./js/ui/hud.js"></script>
+<script src="./js/ui/quiz.js"></script>
+<script src="./js/ui/screens.js"></script>
+<script src="./js/ui/garage.js"></script>
+<script src="./js/ui/parents.js"></script>
+<script src="./js/main.js"></script>
+</body>
+</html>
