@@ -1,5 +1,9 @@
 [
  {
+  "id": "89d5bbb2",
+  "text": "A ball that starts higher goes faster, and rolls farther."
+ },
+ {
   "id": "b1885305",
   "text": "A battery goes here."
  },
@@ -16,8 +20,20 @@
   "text": "A big bus full of kids! Make it strong."
  },
  {
+  "id": "5c463881",
+  "text": "A big crane with three bolts. Reach far out and lift the heavy box!"
+ },
+ {
   "id": "d4395364",
   "text": "A big gear here!"
+ },
+ {
+  "id": "cb394539",
+  "text": "A big gear here."
+ },
+ {
+  "id": "9d93d199",
+  "text": "A big gear turning a small gear makes it spin fast. The middle gears only change the direction."
  },
  {
   "id": "999841af",
@@ -44,10 +60,6 @@
   "text": "A bigger engine is faster, but heavier!"
  },
  {
-  "id": "c02fc2af",
-  "text": "A bigger engine makes you faster on a flat road!"
- },
- {
   "id": "1dbc18a2",
   "text": "A bigger engine makes your car faster!"
  },
@@ -72,6 +84,14 @@
   "text": "A cross wire goes here."
  },
  {
+  "id": "dbb5b154",
+  "text": "A double gear here."
+ },
+ {
+  "id": "f3ba4266",
+  "text": "A double gear is turned by its small gear and turns the next one with its big gear. Use three gears."
+ },
+ {
   "id": "30f3d78c",
   "text": "A Flat Road. Trucks need a flat road. Fill every hole so the truck can drive!"
  },
@@ -80,8 +100,20 @@
   "text": "A gentle engine kept your wheels gripping the ice!"
  },
  {
+  "id": "4cd64cb7",
+  "text": "A gentle ramp is longer, but each push is easier."
+ },
+ {
+  "id": "9a533920",
+  "text": "A heavy truck! Build a bridge that holds it, and watch your coins."
+ },
+ {
   "id": "1bc73333",
   "text": "A heavy truck! Make a super strong bridge."
+ },
+ {
+  "id": "b8cbe6fa",
+  "text": "A house must stand up to strong wind! Build up to every gold star."
  },
  {
   "id": "3ad3d374",
@@ -90,6 +122,10 @@
  {
   "id": "0e67b48c",
   "text": "A lamp goes here."
+ },
+ {
+  "id": "8d1704d5",
+  "text": "A lever is a long bar that rests on a point. The point is called the fulcrum."
  },
  {
   "id": "cd45518e",
@@ -102,6 +138,10 @@
  {
   "id": "139bae76",
   "text": "A log blocks the way. Split it!"
+ },
+ {
+  "id": "2e84f21c",
+  "text": "A long bridge over two rocks for the bus. Use the rocks well!"
  },
  {
   "id": "a65d7e9d",
@@ -124,12 +164,20 @@
   "text": "A new car! Drag parts onto it."
  },
  {
+  "id": "29d4e29f",
+  "text": "A new tier is open! Great work, engineer!"
+ },
+ {
   "id": "d715ff5c",
   "text": "A new track is open!"
  },
  {
   "id": "72505f73",
   "text": "A ramp goes here!"
+ },
+ {
+  "id": "d02edc5f",
+  "text": "A ramp is a slope. It lifts heavy things a little at a time."
  },
  {
   "id": "875855f1",
@@ -160,12 +208,20 @@
   "text": "A roof needs walls under it!"
  },
  {
+  "id": "62bcbf42",
+  "text": "A see-saw is a bar on a fulcrum. That is a lever!"
+ },
+ {
   "id": "a22ac559",
   "text": "A ship sails under the bridge!"
  },
  {
   "id": "8f2c7973",
   "text": "A small gear here!"
+ },
+ {
+  "id": "9c2c8dea",
+  "text": "A small gear here."
  },
  {
   "id": "439d9700",
@@ -182,6 +238,10 @@
  {
   "id": "9bff803f",
   "text": "A straight wire goes here."
+ },
+ {
+  "id": "bdcc7f11",
+  "text": "A strong tower with braces, then an arm made of triangles. The bottom of the tower works hardest."
  },
  {
   "id": "4ec0db85",
@@ -208,6 +268,10 @@
   "text": "A tall house needs the wide foundation."
  },
  {
+  "id": "81e475f4",
+  "text": "A three floor tower in a hurricane! Strong and cheap."
+ },
+ {
   "id": "0abdd7ed",
   "text": "A triangle roof is stronger!"
  },
@@ -224,6 +288,14 @@
   "text": "A truck on top, a boat below. Use steel!"
  },
  {
+  "id": "f942e77d",
+  "text": "A two floor house in a big storm. Brace it and keep the coins low!"
+ },
+ {
+  "id": "73a420db",
+  "text": "A two floor tower. Will it survive the earthquake?"
+ },
+ {
   "id": "67db0449",
   "text": "A very long bridge to the runway."
  },
@@ -236,12 +308,20 @@
   "text": "A Wide Foundation. A tall house needs a wide, strong foundation. It holds the whole house up!"
  },
  {
+  "id": "b0251fdd",
+  "text": "A wide school with four bolts. Make it earthquake strong!"
+ },
+ {
   "id": "9a32258f",
   "text": "A wider gap! Build the road and hold it up."
  },
  {
   "id": "c2ebe542",
   "text": "A window."
+ },
+ {
+  "id": "d64dacdc",
+  "text": "A wire straight from plus to minus is a short circuit. Sparks! Never do that with real batteries."
  },
  {
   "id": "e7e4375a",
@@ -278,6 +358,30 @@
  {
   "id": "e838f9cb",
   "text": "Almost! Let's try again!"
+ },
+ {
+  "id": "18c01ec4",
+  "text": "An easy push means the load moves up only a little. Engineers pick the best spot!"
+ },
+ {
+  "id": "2b51f403",
+  "text": "An If block asks a question."
+ },
+ {
+  "id": "460b196c",
+  "text": "And down the other side."
+ },
+ {
+  "id": "446d290b",
+  "text": "And on to the other wall."
+ },
+ {
+  "id": "34e2d24a",
+  "text": "And one from the other low bolt."
+ },
+ {
+  "id": "e10be3a2",
+  "text": "And this floor."
  },
  {
   "id": "a2189c10",
@@ -380,20 +484,32 @@
   "text": "Boats sail under this bridge."
  },
  {
-  "id": "bbfa02b6",
-  "text": "Bonk! Robo bumped into something. Let's try again!"
+  "id": "1c6e01ca",
+  "text": "Bonk! Robo bumped into something. Check your plan!"
  },
  {
-  "id": "448a51b7",
-  "text": "Bonk! That was funny! Change a block and run again."
+  "id": "bbfa02b6",
+  "text": "Bonk! Robo bumped into something. Let's try again!"
  },
  {
   "id": "f9316c10",
   "text": "Bonk! The log is in the way."
  },
  {
+  "id": "800c48ef",
+  "text": "Bonus! A huge earthquake. One steel beam can save it!"
+ },
+ {
+  "id": "26d2c677",
+  "text": "Bonus! A super storm. Use one steel beam in the right place!"
+ },
+ {
   "id": "2d906a1a",
   "text": "Brrr! This week we build a base near the North Pole."
+ },
+ {
+  "id": "08df4cc7",
+  "text": "Budget. Engineers build strong AND cheap. Fewer coins means more stars!"
  },
  {
   "id": "a794d058",
@@ -410,6 +526,14 @@
  {
   "id": "67d06e9a",
   "text": "Build a bridge with few coins!"
+ },
+ {
+  "id": "780755fa",
+  "text": "Build a crane that reaches the star and lifts the box!"
+ },
+ {
+  "id": "2c8ad1df",
+  "text": "Build a house up to all the gold stars. It must survive the wind test!"
  },
  {
   "id": "2b1f23b3",
@@ -456,8 +580,16 @@
   "text": "Build a tower of three on the X. Biggest at the bottom!"
  },
  {
+  "id": "74037bca",
+  "text": "Build a wall. Drag up from the bolt!"
+ },
+ {
   "id": "9d22a064",
   "text": "Build in Order. First the foundation, then the walls, then the door and windows. The roof goes on last!"
+ },
+ {
+  "id": "011b7932",
+  "text": "Build something first! Drag from a bolt."
  },
  {
   "id": "76227a50",
@@ -486,6 +618,10 @@
  {
   "id": "306b4ba5",
   "text": "Build the road and hold it up!"
+ },
+ {
+  "id": "b0af97ea",
+  "text": "Build the road first. Drag from bolt to dot!"
  },
  {
   "id": "fbdad239",
@@ -580,6 +716,10 @@
   "text": "Choo choo! The train is on time. Great work!"
  },
  {
+  "id": "51676d44",
+  "text": "Circuit quiz! Tap the right answer."
+ },
+ {
   "id": "7956ff56",
   "text": "Clear the plot for a new tower!"
  },
@@ -604,6 +744,10 @@
   "text": "Clear the snow, lift the bricks, build the base!"
  },
  {
+  "id": "f6a3cb31",
+  "text": "Climb the stairs and grab every gear. Use a loop with the right count!"
+ },
+ {
   "id": "6e2dcbe0",
   "text": "Climb the stairs to the flag!"
  },
@@ -616,8 +760,16 @@
   "text": "Climb the stairs! The steps repeat."
  },
  {
+  "id": "d87f9635",
+  "text": "Close to the rock, a small push lifts a big load."
+ },
+ {
   "id": "2fb91b41",
   "text": "Coins. Every beam costs a coin. Use fewer coins to get 3 stars!"
+ },
+ {
+  "id": "268d21c1",
+  "text": "Colour tiles. If red asks: is Robo standing on red? Coloured tiles can tell him where to turn."
  },
  {
   "id": "68bbe65b",
@@ -626,6 +778,14 @@
  {
   "id": "48a46155",
   "text": "Connect the motor to the belt with a gear!"
+ },
+ {
+  "id": "06dace45",
+  "text": "Conveyor belts carry Robo! Plan where the belt will drop him."
+ },
+ {
+  "id": "ed1689e1",
+  "text": "Conveyor belts. When Robo stops on a belt, it carries him along. Plan where he lands!"
  },
  {
   "id": "cf30aad7",
@@ -664,8 +824,16 @@
   "text": "Crane first. Then build: foundation, walls, door, windows, and the roof last!"
  },
  {
+  "id": "97caecc1",
+  "text": "Crane test. A crane arm sticks far out. Triangles keep it from bending when it lifts."
+ },
+ {
   "id": "79cd0e50",
   "text": "Cross the castle moat!"
+ },
+ {
+  "id": "9013f8fe",
+  "text": "Debugging. A bug is a mistake in a program. Run it, watch where Robo goes wrong, and fix that block."
  },
  {
   "id": "9477d470",
@@ -688,6 +856,10 @@
   "text": "Did you know? A bug is a mistake in a program. Fixing it is called debugging!"
  },
  {
+  "id": "abe87e75",
+  "text": "Did you know? A clock uses many tiny gears to move its hands."
+ },
+ {
   "id": "0b66f18e",
   "text": "Did you know? A doorknob is a wheel and axle!"
  },
@@ -702,6 +874,14 @@
  {
   "id": "4ec0ed0c",
   "text": "Did you know? A flashlight is a tiny circuit: a battery, a switch and a bulb."
+ },
+ {
+  "id": "745bc202",
+  "text": "Did you know? A function is a set of steps with a name. Programmers use them again and again."
+ },
+ {
+  "id": "28ab506a",
+  "text": "Did you know? A light switch opens and closes the loop in the wires of your house."
  },
  {
   "id": "56dfa379",
@@ -724,6 +904,14 @@
   "text": "Did you know? A screw is really a ramp wrapped around a pole."
  },
  {
+  "id": "1f687ac5",
+  "text": "Did you know? A screw is really a ramp wrapped around a rod!"
+ },
+ {
+  "id": "00c1851f",
+  "text": "Did you know? A see-saw is a lever. So are scissors and a bottle opener!"
+ },
+ {
   "id": "c931e0d3",
   "text": "Did you know? A seesaw on the playground is a lever!"
  },
@@ -744,12 +932,24 @@
   "text": "Did you know? An axe and a knife are wedges. Their sharp edges push things apart."
  },
  {
+  "id": "27c15dfe",
+  "text": "Did you know? An If block lets a program choose what to do."
+ },
+ {
+  "id": "941eec9c",
+  "text": "Did you know? Archimedes said: give me a lever long enough and I can move the world!"
+ },
+ {
   "id": "76ede36c",
   "text": "Did you know? Architects draw plans called blueprints before building starts."
  },
  {
   "id": "c6a61be7",
   "text": "Did you know? Army ants can hold on to each other to make a bridge with their own bodies."
+ },
+ {
+  "id": "7d5a964c",
+  "text": "Did you know? Bicycles use gears to help you ride up hills."
  },
  {
   "id": "4eddac7e",
@@ -788,6 +988,10 @@
   "text": "Did you know? Bulldozers roll on tracks, so they don't sink in soft mud."
  },
  {
+  "id": "6e3aab7b",
+  "text": "Did you know? Car gearboxes use gears to go slow and strong, or fast."
+ },
+ {
   "id": "d9db1d0e",
   "text": "Did you know? Clocks use lots of tiny gears to move their hands."
  },
@@ -802,6 +1006,10 @@
  {
   "id": "fb5a75e4",
   "text": "Did you know? Coders try to use as few steps as they can. Short programs are easier to fix!"
+ },
+ {
+  "id": "9468d2a6",
+  "text": "Did you know? Computers follow instructions exactly, one step at a time."
  },
  {
   "id": "ab3daebc",
@@ -852,6 +1060,10 @@
   "text": "Did you know? Elevators go up and down with pulleys and strong ropes."
  },
  {
+  "id": "a7773938",
+  "text": "Did you know? Engineers always build a bit stronger than they need, just to be safe."
+ },
+ {
   "id": "fc0510ba",
   "text": "Did you know? Engineers call ramps, levers, wedges, pulleys, wheels and screws simple machines."
  },
@@ -872,12 +1084,24 @@
   "text": "Did you know? Engineers test small bridge models in wind tunnels before they build the real one."
  },
  {
+  "id": "11a43c0e",
+  "text": "Did you know? Engineers test small models in wind tunnels before they build the real thing."
+ },
+ {
   "id": "cf0263b5",
   "text": "Did you know? Every app you use started with someone writing code."
  },
  {
+  "id": "0d261211",
+  "text": "Did you know? Factory conveyor belts can move things all day long without getting tired."
+ },
+ {
   "id": "4823a7b4",
   "text": "Did you know? Factory robots can build cars all day without getting tired."
+ },
+ {
+  "id": "a90c951e",
+  "text": "Did you know? Fire trucks are very heavy, so bridges for them must be extra strong."
  },
  {
   "id": "845d0691",
@@ -888,8 +1112,16 @@
   "text": "Did you know? Flagpoles use a pulley to raise the flag to the top."
  },
  {
+  "id": "a16649d6",
+  "text": "Did you know? Friction is what helps your shoes grip the ground."
+ },
+ {
   "id": "6d8f2385",
   "text": "Did you know? Gears that touch always turn in opposite directions."
+ },
+ {
+  "id": "308054fa",
+  "text": "Did you know? Good programmers plan first, then they code."
  },
  {
   "id": "55f1ef48",
@@ -902,6 +1134,10 @@
  {
   "id": "c9f0acf0",
   "text": "Did you know? In Peru, people weave a rope bridge out of grass. They make a new one every year!"
+ },
+ {
+  "id": "f64f1880",
+  "text": "Did you know? Japan has many earthquakes, so its buildings are made to shake without falling."
  },
  {
   "id": "81814949",
@@ -920,8 +1156,16 @@
   "text": "Did you know? Loops help programmers write less and do more!"
  },
  {
+  "id": "a3b0b5e0",
+  "text": "Did you know? Loops save work: one block can do the same thing many times."
+ },
+ {
   "id": "775d7ee0",
   "text": "Did you know? Lots of robots have a computer inside that works like a tiny brain."
+ },
+ {
+  "id": "c2aa259b",
+  "text": "Did you know? Mars rovers get their plan for the whole day before they start driving."
  },
  {
   "id": "5a4b3e64",
@@ -932,12 +1176,24 @@
   "text": "Did you know? Most houses stand on a foundation made of concrete."
  },
  {
+  "id": "a32e191e",
+  "text": "Did you know? Most lights in a home are wired in parallel, so each one is bright."
+ },
+ {
+  "id": "66eabb01",
+  "text": "Did you know? Never play with plugs or wall sockets. Real electricity is dangerous!"
+ },
+ {
   "id": "5525fec3",
   "text": "Did you know? Never put anything in a wall socket real electricity is strong and dangerous!"
  },
  {
   "id": "70a2023a",
   "text": "Did you know? Old windmills used big wooden gears to grind wheat into flour."
+ },
+ {
+  "id": "8db69b28",
+  "text": "Did you know? One of the first computer bugs was a real moth stuck inside a computer!"
  },
  {
   "id": "e37ceff6",
@@ -950,6 +1206,10 @@
  {
   "id": "80900fea",
   "text": "Did you know? Potholes start when water gets into little cracks in the road."
+ },
+ {
+  "id": "8fe29af2",
+  "text": "Did you know? Programmers spend lots of time finding and fixing bugs. That is called debugging."
  },
  {
   "id": "aa9cb57d",
@@ -968,12 +1228,24 @@
   "text": "Did you know? Robots follow programs step by step, just like Robo!"
  },
  {
+  "id": "bfff7fb0",
+  "text": "Did you know? Robots in big warehouses follow codes and lines on the floor."
+ },
+ {
   "id": "0b38321b",
   "text": "Did you know? Robots on Mars drive themselves around rocks."
  },
  {
+  "id": "0c97dff3",
+  "text": "Did you know? Roof trusses are triangles that hold up the roof of a house."
+ },
+ {
   "id": "e4f8c0f5",
   "text": "Did you know? Scissors are two levers stuck together."
+ },
+ {
+  "id": "141f233f",
+  "text": "Did you know? Self-driving cars check their sensors many times every second."
  },
  {
   "id": "a5eb0dda",
@@ -1000,6 +1272,10 @@
   "text": "Did you know? Some bridges float on top of the water on big hollow blocks."
  },
  {
+  "id": "880d17e0",
+  "text": "Did you know? Some buildings in earthquake places stand on giant rubber pads."
+ },
+ {
   "id": "e4c9f013",
   "text": "Did you know? Some bulldozers are heavier than 20 elephants!"
  },
@@ -1018,6 +1294,10 @@
  {
   "id": "6814ee49",
   "text": "Did you know? Some lights in a hallway can be switched on and off from two different places!"
+ },
+ {
+  "id": "f38abf0e",
+  "text": "Did you know? Some robot vacuums turn when they bump into a wall, just like an If wall block!"
  },
  {
   "id": "f5f522aa",
@@ -1052,6 +1332,10 @@
   "text": "Did you know? Steel bridges get a tiny bit longer on hot days and shorter on cold days."
  },
  {
+  "id": "706ec571",
+  "text": "Did you know? Steel is much stronger than wood, but it is heavier and costs more."
+ },
+ {
   "id": "b0424907",
   "text": "Did you know? Street lights turn on by themselves when it gets dark outside."
  },
@@ -1060,12 +1344,24 @@
   "text": "Did you know? Supermarket checkouts have a little belt that carries your food."
  },
  {
+  "id": "bc139667",
+  "text": "Did you know? Tall buildings sway a little in strong wind. That is on purpose!"
+ },
+ {
+  "id": "97035458",
+  "text": "Did you know? The ancient Egyptians may have used long ramps to build the pyramids."
+ },
+ {
   "id": "7f0ba9e5",
   "text": "Did you know? The big flat shovel on a bulldozer is called a blade."
  },
  {
   "id": "9f7ecf93",
   "text": "Did you know? The Eiffel Tower is made of iron triangles, just like a truss bridge."
+ },
+ {
+  "id": "acd2cdac",
+  "text": "Did you know? The Eiffel Tower is made of thousands of iron pieces joined in triangles."
  },
  {
   "id": "25ef9c81",
@@ -1098,6 +1394,10 @@
  {
   "id": "19f830ec",
   "text": "Did you know? The Sydney Harbour Bridge is called The Coat Hanger because of its arch shape."
+ },
+ {
+  "id": "c263bc34",
+  "text": "Did you know? The tallest building in the world is in Dubai. It is over 800 meters tall!"
  },
  {
   "id": "d1785fd6",
@@ -1136,12 +1436,20 @@
   "text": "Did you know? Tower cranes can lift loads as heavy as several cars."
  },
  {
+  "id": "77c71126",
+  "text": "Did you know? Tower cranes use a heavy counterweight so they do not tip over."
+ },
+ {
   "id": "9d18dec8",
   "text": "Did you know? Toy cars, robots and drones all use little electric motors."
  },
  {
   "id": "bbcf9f00",
   "text": "Did you know? Traffic lights use simple programs to change colors."
+ },
+ {
+  "id": "e0741277",
+  "text": "Did you know? Triangles are used in cranes, towers and bridges because they keep their shape."
  },
  {
   "id": "1d2320af",
@@ -1154,6 +1462,10 @@
  {
   "id": "2598595e",
   "text": "Did you know? Video games are made of code lots and lots of it!"
+ },
+ {
+  "id": "9b963ff8",
+  "text": "Did you know? Wheelchair ramps are gentle, so they are easy to roll up."
  },
  {
   "id": "273b9edc",
@@ -1312,6 +1624,18 @@
   "text": "Each wedge points at its log. Flip the bottom one!"
  },
  {
+  "id": "8a1440b2",
+  "text": "Earthquake test. In an earthquake the ground shakes. Every floor needs a triangle!"
+ },
+ {
+  "id": "6c7cd3c1",
+  "text": "Electricity needs a closed loop, from the battery, through the bulb, and back."
+ },
+ {
+  "id": "12eec0d9",
+  "text": "Electricity needs a closed loop. Bulbs in a row share the power."
+ },
+ {
   "id": "88cf2938",
   "text": "Engineers never give up!"
  },
@@ -1336,6 +1660,10 @@
   "text": "Event two: grab every gear!"
  },
  {
+  "id": "f490373a",
+  "text": "Every floor needs a triangle brace. Squares fall down when they shake."
+ },
+ {
   "id": "84d951f3",
   "text": "Every package is delivered! Robo says thank you!"
  },
@@ -1346,6 +1674,10 @@
  {
   "id": "8ddbacf1",
   "text": "Everyone is splashing! The water park is a hit!"
+ },
+ {
+  "id": "6e65ac64",
+  "text": "Fan FAST, house BRIGHT, with a switch. A plain wire in the middle makes sparks!"
  },
  {
   "id": "165dff7e",
@@ -1392,12 +1724,20 @@
   "text": "Fill the top hole first. Then push the other dirt down."
  },
  {
+  "id": "dba9dbf6",
+  "text": "Find the beam at the bottom that squishes the most, and make it steel."
+ },
+ {
   "id": "5eeb4ec6",
   "text": "Find the gap in the road. Drag one beam across it."
  },
  {
   "id": "e33853f3",
   "text": "Find the pattern. Look for a part that happens again. Put that part inside a Repeat!"
+ },
+ {
+  "id": "4655fe3f",
+  "text": "Finish the stage before this one first!"
  },
  {
   "id": "79b22305",
@@ -1516,14 +1856,6 @@
   "text": "Foundation, walls, door, windows. The roof goes on last!"
  },
  {
-  "id": "0fde1235",
-  "text": "Free play! Tap the board to add gears, stars and rocks. Then code Robo!"
- },
- {
-  "id": "9690e046",
-  "text": "Free play! Tap the board to add things. Then code Robo with blocks!"
- },
- {
   "id": "b1d65019",
   "text": "Fruit rides the belt to the basket!"
  },
@@ -1532,16 +1864,24 @@
   "text": "Fuel balls roll down to the rocket tank."
  },
  {
-  "id": "49ce9979",
-  "text": "Fun! Robo went somewhere new. Try again as much as you like!"
- },
- {
   "id": "d89067db",
   "text": "Gear jam! Three gears in a circle all push against each other. They get stuck!"
  },
  {
+  "id": "980d60e6",
+  "text": "Gear quiz! Tap the right answer."
+ },
+ {
+  "id": "a574b663",
+  "text": "Gears are wheels with teeth. When one gear turns, its teeth push the next gear."
+ },
+ {
   "id": "367da19a",
   "text": "Gears. Gears have teeth. When two gears touch, one turns the other!"
+ },
+ {
+  "id": "7d3bf4d8",
+  "text": "Gentle ramps are easy to push up. Slippery floors let things roll far."
  },
  {
   "id": "9640ec13",
@@ -1554,6 +1894,10 @@
  {
   "id": "60909702",
   "text": "Get ready, then loop. Blocks before a Repeat happen first. Turn Robo the right way, then start the loop!"
+ },
+ {
+  "id": "d4df93e7",
+  "text": "Get three stars on more stages to open the next tier!"
  },
  {
   "id": "7dccc7e5",
@@ -1728,6 +2072,10 @@
   "text": "Here is a hint!"
  },
  {
+  "id": "c43d7ed3",
+  "text": "Here is an easier version. You can win up to two stars."
+ },
+ {
   "id": "8f7b873e",
   "text": "Hi Salah!"
  },
@@ -1764,8 +2112,20 @@
   "text": "I love building things!"
  },
  {
+  "id": "4df51c61",
+  "text": "Ice is slippery. Carpet has more friction, so the ball stops sooner."
+ },
+ {
   "id": "be25281f",
   "text": "Ice Lake is slippery! Careful on the ice."
+ },
+ {
+  "id": "a878f3e6",
+  "text": "Ice rolls too far. Try carpet, and choose how high to start."
+ },
+ {
+  "id": "2504eb35",
+  "text": "If and Else. If the answer is yes, Robo does the top part. Else, he does the bottom part."
  },
  {
   "id": "e0d00087",
@@ -1774,6 +2134,14 @@
  {
   "id": "f1e719b6",
   "text": "If wall ahead. Robo can look first! The blocks inside If wall only happen when a wall is in front."
+ },
+ {
+  "id": "90a2c6d4",
+  "text": "In a row, the bulbs share the power, so they glow dim."
+ },
+ {
+  "id": "58735800",
+  "text": "In one row, bulbs share the power and glow dim. On their own paths, each bulb is bright."
  },
  {
   "id": "eb1b3063",
@@ -1808,8 +2176,20 @@
   "text": "It stopped before the goal. Almost! Try again!"
  },
  {
+  "id": "5003ce7a",
+  "text": "Join the walls across the top."
+ },
+ {
   "id": "7a044419",
   "text": "Jungle Jumble has bumps and hills. What will you build?"
+ },
+ {
+  "id": "cef50908",
+  "text": "Keep going to the next dot."
+ },
+ {
+  "id": "08b49938",
+  "text": "Keys and doors. Walk over a key to pick it up. A door opens when Robo has a key."
  },
  {
   "id": "a9b819cf",
@@ -1836,8 +2216,16 @@
   "text": "Launch the box, then help it roll to the star!"
  },
  {
+  "id": "28a029ad",
+  "text": "Lean the tower toward the box and fill it with triangles. Every square needs a brace."
+ },
+ {
   "id": "1cf20383",
   "text": "Left!"
+ },
+ {
+  "id": "7fc44e19",
+  "text": "Let's learn something new first!"
  },
  {
   "id": "5eaa9dda",
@@ -1854,6 +2242,18 @@
  {
   "id": "b35fde24",
   "text": "Let's try a hint first!"
+ },
+ {
+  "id": "ff0e1d6e",
+  "text": "Level 2! This truck is very heavy. Fewer coins means more stars!"
+ },
+ {
+  "id": "fa0d2e21",
+  "text": "Level 2! You are a real engineer now. Pick a track!"
+ },
+ {
+  "id": "89f048a3",
+  "text": "Lever quiz! Tap the right answer."
  },
  {
   "id": "080299a0",
@@ -1932,6 +2332,10 @@
   "text": "Lift the planks up to the treehouse!"
  },
  {
+  "id": "f46c6ef3",
+  "text": "Lift the rock up onto the shelf! You may add helper weights."
+ },
+ {
   "id": "69674859",
   "text": "Lift the steel beam onto the X!"
  },
@@ -2004,8 +2408,16 @@
   "text": "Long beams from the deep bolts. Make a low point under the middle."
  },
  {
+  "id": "a01ba048",
+  "text": "Long ramps are easier. Slippery floors are easier too. The shortest ramp that works gets 3 stars."
+ },
+ {
   "id": "bf8b7f56",
   "text": "Long road first. Then fan out beams from each rock bolt."
+ },
+ {
+  "id": "fe019df9",
+  "text": "Look at the picture, then tap the right answer."
  },
  {
   "id": "d24f3329",
@@ -2030,6 +2442,10 @@
  {
   "id": "2e844329",
   "text": "Make BOTH fans spin FAST!"
+ },
+ {
+  "id": "f3193e83",
+  "text": "Make BOTH houses bright! Give each house its own path."
  },
  {
   "id": "2a839b5b",
@@ -2072,6 +2488,14 @@
   "text": "Make the fan spin! Go round the corners."
  },
  {
+  "id": "b2ba20ef",
+  "text": "Make the fan turn the other way, and SUPER fast! Try the double gear."
+ },
+ {
+  "id": "5d997a3a",
+  "text": "Make the fan turn the same way as the motor, and fast!"
+ },
+ {
   "id": "36cbd8ba",
   "text": "Make the ground flat for the Mars base."
  },
@@ -2086,6 +2510,10 @@
  {
   "id": "18fe2d6d",
   "text": "Many ways. There is often more than one way to the flag. Pick the way that grabs every gear!"
+ },
+ {
+  "id": "c959287f",
+  "text": "Meet My move! You build it once, and use it many times."
  },
  {
   "id": "0d217043",
@@ -2108,8 +2536,16 @@
   "text": "Move a tile. Wrong spot? Drag a tile on the board to a new square. Drag it to the box to put it away."
  },
  {
+  "id": "fce7bd47",
+  "text": "Move it closer to the heavy rock."
+ },
+ {
   "id": "a63495c3",
   "text": "Move it to the X. Tap right three times!"
+ },
+ {
+  "id": "1f2b4e83",
+  "text": "Move the fulcrum here."
  },
  {
   "id": "581eccc4",
@@ -2126,6 +2562,34 @@
  {
   "id": "463af84c",
   "text": "Move your finger along the path and say each step out loud."
+ },
+ {
+  "id": "21f39923",
+  "text": "My move has a bug! Find the wrong block and fix it."
+ },
+ {
+  "id": "e4799fca",
+  "text": "My move is Forward, Forward, Right. Use My move three times."
+ },
+ {
+  "id": "8df1bb01",
+  "text": "My move: If red, Right. Else: If blue, Left. Then Forward. Main: Repeat forever My move."
+ },
+ {
+  "id": "8d24c414",
+  "text": "My move: Left, Forward, then turn around, Forward, and Left again."
+ },
+ {
+  "id": "9511d1eb",
+  "text": "My move!"
+ },
+ {
+  "id": "8dc69014",
+  "text": "My move. My move is a function: you build some steps once, and use them again with one block."
+ },
+ {
+  "id": "d4136d33",
+  "text": "Near the rock is easy but the rock goes up only a little. Try the fulcrum two spots from the rock, plus one helper weight."
  },
  {
   "id": "7f3956d1",
@@ -2168,6 +2632,10 @@
   "text": "Nothing to grab here!"
  },
  {
+  "id": "eb73faee",
+  "text": "Now a helper weight."
+ },
+ {
   "id": "f1e4a078",
   "text": "Now a lap round the pond!"
  },
@@ -2200,12 +2668,24 @@
   "text": "Now it points to the basket. Tap Go!"
  },
  {
+  "id": "0ba94f7b",
+  "text": "Now let's use it!"
+ },
+ {
+  "id": "752787f3",
+  "text": "Now plan the rest: Forward, Forward, Right, Forward, Forward."
+ },
+ {
   "id": "ab274ea4",
   "text": "Now put the lamp there instead!"
  },
  {
   "id": "3e101376",
   "text": "Now tap down to push the dirt!"
+ },
+ {
+  "id": "4f19c3eb",
+  "text": "Now tap Go and let Robo push!"
  },
  {
   "id": "3e7d4c1f",
@@ -2216,12 +2696,28 @@
   "text": "Now tap Play to run it!"
  },
  {
+  "id": "49bfe174",
+  "text": "Now tap the main program."
+ },
+ {
   "id": "46ab476f",
   "text": "Now the belt carries boxes."
  },
  {
+  "id": "24c778d3",
+  "text": "Now the end test. Tap Go!"
+ },
+ {
   "id": "4a670737",
   "text": "Now the gears touch. Tap Go!"
+ },
+ {
+  "id": "926ebb2c",
+  "text": "Now the other wall."
+ },
+ {
+  "id": "6916e426",
+  "text": "Now the roof! Up to the star."
  },
  {
   "id": "cabbe0f7",
@@ -2246,6 +2742,14 @@
  {
   "id": "6adb92bb",
   "text": "Now we press Play!"
+ },
+ {
+  "id": "5804a2da",
+  "text": "Now we press Run!"
+ },
+ {
+  "id": "4d511c7d",
+  "text": "Now we press Test!"
  },
  {
   "id": "6e43df62",
@@ -2300,8 +2804,20 @@
   "text": "One gear starts the belt. Then hang the pulley."
  },
  {
+  "id": "401629c5",
+  "text": "One gear turns the fan the wrong way. Use two, and make the last one small."
+ },
+ {
+  "id": "98283d27",
+  "text": "One more brace from the other bolt."
+ },
+ {
   "id": "83b43711",
   "text": "One more corner on the other side!"
+ },
+ {
+  "id": "d4db479c",
+  "text": "One more piece to the other side!"
  },
  {
   "id": "bc3b2db4",
@@ -2322,6 +2838,10 @@
  {
   "id": "eadd5b4e",
   "text": "One side is: Forward, Forward, Forward, Turn Right. Repeat it 3 times!"
+ },
+ {
+  "id": "d0c792b3",
+  "text": "One stair is Forward, Left, Forward, Right. How many stairs are there?"
  },
  {
   "id": "bba41215",
@@ -2400,12 +2920,28 @@
   "text": "Pick the triangle roof. Triangles are strong!"
  },
  {
+  "id": "2831f42e",
+  "text": "Pick this ramp."
+ },
+ {
   "id": "fb3e66c9",
   "text": "Pick wood."
  },
  {
   "id": "3a5a704e",
   "text": "Pillars. A pillar is a strong rock or post in the river. It holds up the middle of the bridge."
+ },
+ {
+  "id": "355e72cb",
+  "text": "Plan the whole path first. Robo only moves when you press Run!"
+ },
+ {
+  "id": "2cae490e",
+  "text": "Plan the whole path, then Run. Count the squares to the flag!"
+ },
+ {
+  "id": "9ee7697c",
+  "text": "Plan, then Run. Real coders plan the whole program first. Then they run it and watch."
  },
  {
   "id": "1199a86e",
@@ -2418,6 +2954,10 @@
  {
   "id": "24bcb6d4",
   "text": "Power only goes where wires go. The sleepy house only lights up if a wire loop goes through it. Go around it!"
+ },
+ {
+  "id": "fc92bf67",
+  "text": "Prop up the road with steel from the low bolt."
  },
  {
   "id": "9b7d5388",
@@ -2450,6 +2990,10 @@
  {
   "id": "6bf5b960",
   "text": "Push the first dirt down. Then go round and push the other one down."
+ },
+ {
+  "id": "937678c9",
+  "text": "Push the heavy box into the truck! Pick the ramp length and the floor."
  },
  {
   "id": "1ec19562",
@@ -2512,12 +3056,20 @@
   "text": "Put Forward inside a Repeat. Make it repeat 6 times."
  },
  {
+  "id": "4eaebc1b",
+  "text": "Put Forward, Forward, Right into My move."
+ },
+ {
   "id": "f91ced66",
   "text": "Put one corner in each top corner square."
  },
  {
   "id": "6eebadb6",
   "text": "Put ONE Forward inside a Repeat. Tap the number to make it 6."
+ },
+ {
+  "id": "c276262d",
+  "text": "Put some gears in first! Tap an empty spot."
  },
  {
   "id": "4e693d45",
@@ -2544,12 +3096,24 @@
   "text": "Put the cross wire in the middle, then a wire next to the battery."
  },
  {
+  "id": "4cb017d4",
+  "text": "Put the fulcrum close to the heavy thing."
+ },
+ {
+  "id": "53775355",
+  "text": "Put the fulcrum under the plank, not under the rock or Robo!"
+ },
+ {
   "id": "99948ce4",
   "text": "Put the gear on the empty peg between the two gears."
  },
  {
   "id": "e660a848",
   "text": "Put the ramp where the ball lands."
+ },
+ {
+  "id": "91efedd6",
+  "text": "Put the right block in its place."
  },
  {
   "id": "b56d9759",
@@ -2584,12 +3148,24 @@
   "text": "Ramp first, then the wedge by the log, then hang the pulley."
  },
  {
+  "id": "b6ada499",
+  "text": "Ramp quiz! Tap the right answer."
+ },
+ {
   "id": "3ee1b545",
   "text": "Ramps. A ramp is a slope. Things roll down it, all by themselves!"
  },
  {
   "id": "59d3248c",
   "text": "Reach the star 2 steps ahead!"
+ },
+ {
+  "id": "21ebd01d",
+  "text": "Ready for the wind test? Tap Test!"
+ },
+ {
+  "id": "9f5cfc37",
+  "text": "Red tiles mean turn right. Blue tiles mean turn left. Code it with If!"
  },
  {
   "id": "bfa15247",
@@ -2644,8 +3220,16 @@
   "text": "Repeat forever until Robo finds the flag!"
  },
  {
+  "id": "e9149883",
+  "text": "Repeat forever: If red, Right. If blue, Left. Then Forward."
+ },
+ {
   "id": "718e8157",
   "text": "Repeat forever: If wall Turn Right, then Forward."
+ },
+ {
+  "id": "bb7c302c",
+  "text": "Repeat forever: If wall, Right. Else, Forward."
  },
  {
   "id": "acf3e5a7",
@@ -2658,6 +3242,10 @@
  {
   "id": "055fdbcd",
   "text": "Repeat. Repeat does the blocks inside it again and again. Tap the number to change it!"
+ },
+ {
+  "id": "486458a4",
+  "text": "Ride the belt to the key, then open the door. Plan it all!"
  },
  {
   "id": "11a10b8c",
@@ -2674,6 +3262,10 @@
  {
   "id": "8d3878d6",
   "text": "Robo can move in!"
+ },
+ {
+  "id": "f8e2bc09",
+  "text": "Robo can only push a little. Move the fulcrum so he can lift the rock!"
  },
  {
   "id": "92755979",
@@ -2748,6 +3340,10 @@
   "text": "Robo must turn at the corner!"
  },
  {
+  "id": "be8ae245",
+  "text": "Robo must turn. Tap Right!"
+ },
+ {
   "id": "9ee832d4",
   "text": "Robo needs 2 Forward blocks. Then press Play!"
  },
@@ -2782,6 +3378,10 @@
  {
   "id": "d732cb75",
   "text": "Robo the pirate sees a gold coin on the beach!"
+ },
+ {
+  "id": "69d3c4a6",
+  "text": "Robo turns Right two times. The second turn should be Left."
  },
  {
   "id": "e284baac",
@@ -2852,6 +3452,10 @@
   "text": "Rocks in the truck, snow in the holes!"
  },
  {
+  "id": "67597760",
+  "text": "Roll the ball so it stops on the star! Pick the ramp height and the floor."
+ },
+ {
   "id": "67e6d02a",
   "text": "Roll the ball to push the box into the goal!"
  },
@@ -2870,6 +3474,10 @@
  {
   "id": "30dae37b",
   "text": "Room for boats. Boats sail under some bridges. Build up high so the boat fits!"
+ },
+ {
+  "id": "e891095b",
+  "text": "Rough floors like carpet and sand slow things down. That is friction. Ice is slippery!"
  },
  {
   "id": "23c67e34",
@@ -2932,6 +3540,10 @@
   "text": "Ski the slalom, grab every gear and reach the flag!"
  },
  {
+  "id": "aac819fa",
+  "text": "Slide the fulcrum very close to the rock."
+ },
+ {
   "id": "8837fd74",
   "text": "Slippery! A spoiler helps the wheels grip the ice."
  },
@@ -2990,6 +3602,10 @@
  {
   "id": "297622bd",
   "text": "Squares squish. Push a square and it squishes flat. Add a beam corner to corner to make triangles!"
+ },
+ {
+  "id": "a0622de6",
+  "text": "Squares wobble in the wind. Add a triangle brace!"
  },
  {
   "id": "2dd0e9ad",
@@ -3068,6 +3684,10 @@
   "text": "Stack the toy blocks on the X!"
  },
  {
+  "id": "b29e0dc9",
+  "text": "Stand the road on the rock bolts. The right side needs a triangle above the road."
+ },
+ {
   "id": "0c152fbe",
   "text": "Start a chain reaction at the fun fair!"
  },
@@ -3088,6 +3708,10 @@
   "text": "Start the wave machine!"
  },
  {
+  "id": "9406a6eb",
+  "text": "Start this high."
+ },
+ {
   "id": "b521e1cc",
   "text": "Steel beam first, it is the biggest. Then the red box."
  },
@@ -3106,6 +3730,14 @@
  {
   "id": "50bac815",
   "text": "Steel is extra strong. Let's use it!"
+ },
+ {
+  "id": "a45a8ce8",
+  "text": "Steel props are not enough. Add a little triangle under the road near the right side."
+ },
+ {
+  "id": "a0151c36",
+  "text": "Steel props from the bolts. Put small triangles under the road on the right side."
  },
  {
   "id": "234c8c05",
@@ -3172,12 +3804,20 @@
   "text": "Tap a world to start!"
  },
  {
+  "id": "2a83f335",
+  "text": "Tap an empty spot to put a gear there. Tap again to change it."
+ },
+ {
   "id": "7ad2336d",
   "text": "Tap Erase, then tap the wood support. Build it again with steel."
  },
  {
   "id": "0e937487",
   "text": "Tap Erase. Then tap the beam to take it away."
+ },
+ {
+  "id": "4898965b",
+  "text": "Tap Forward two times."
  },
  {
   "id": "bd35a94f",
@@ -3194,6 +3834,10 @@
  {
   "id": "e8d397bb",
   "text": "Tap Play!"
+ },
+ {
+  "id": "8a83a9da",
+  "text": "Tap Run!"
  },
  {
   "id": "6135f23b",
@@ -3222,6 +3866,10 @@
  {
   "id": "532408b6",
   "text": "Tap the number"
+ },
+ {
+  "id": "a319b8a9",
+  "text": "Tap the question to change it."
  },
  {
   "id": "b70ec9a4",
@@ -3272,8 +3920,16 @@
   "text": "Tap to turn. Tap a wire to turn it. Turn it until it joins up with its friends."
  },
  {
+  "id": "2f91a1a8",
+  "text": "Teach Robo a move once, then use it again and again!"
+ },
+ {
   "id": "5a158693",
   "text": "That beam got squished! Add more support. Or try steel!"
+ },
+ {
+  "id": "c18c701f",
+  "text": "That ramp is too long! It hits the wall."
  },
  {
   "id": "8e2439a1",
@@ -3310,6 +3966,10 @@
  {
   "id": "e8ab2b3c",
   "text": "The ball rides the zip line belt!"
+ },
+ {
+  "id": "a5f62317",
+  "text": "The ball stopped too soon! Start higher, or pick a smoother floor."
  },
  {
   "id": "f308102b",
@@ -3350,6 +4010,10 @@
  {
   "id": "d674186c",
   "text": "The big finale! This week we build a super workshop for Robo."
+ },
+ {
+  "id": "0a071920",
+  "text": "The big gear turns this way. Which way does the small gear turn?"
  },
  {
   "id": "93c728c6",
@@ -3492,6 +4156,10 @@
   "text": "The dock is messy."
  },
  {
+  "id": "8b424b9c",
+  "text": "The door is locked! Get the key first, then go to the flag."
+ },
+ {
   "id": "f963db76",
   "text": "The door."
  },
@@ -3512,8 +4180,20 @@
   "text": "The factory is running! Gears are spinning everywhere!"
  },
  {
+  "id": "171e2f27",
+  "text": "The fan goes in the middle gap. A wire goes in the bottom gap. Then turn on the switch."
+ },
+ {
   "id": "1f728f7c",
   "text": "The fan is slow! Give it its own path."
+ },
+ {
+  "id": "834b636e",
+  "text": "The fan sits on the last gear. Look at the arrow it needs!"
+ },
+ {
+  "id": "841fa7c9",
+  "text": "The fan turns the wrong way! Add or take away one gear."
  },
  {
   "id": "891c483b",
@@ -3544,6 +4224,10 @@
   "text": "The final maze! Turn Robo first, then use the wall trick."
  },
  {
+  "id": "51753f49",
+  "text": "The final test! A three floor tower in a giant earthquake."
+ },
+ {
   "id": "460d60bf",
   "text": "The final tower. Think before you lift!"
  },
@@ -3556,8 +4240,16 @@
   "text": "The fire crew says thank you! You are a hero!"
  },
  {
+  "id": "0b258fa2",
+  "text": "The fire truck is the heaviest of all! Get it across."
+ },
+ {
   "id": "09fddb4a",
   "text": "The fire truck is very heavy."
+ },
+ {
+  "id": "1e25ebee",
+  "text": "The fire truck must cross a wide river with one rock. Hurry!"
  },
  {
   "id": "09b250e7",
@@ -3712,6 +4404,10 @@
   "text": "The market is busy and the fruit is fresh! Yum!"
  },
  {
+  "id": "f1e75e44",
+  "text": "The master puzzle! Put an If inside My move, and loop it forever."
+ },
+ {
   "id": "554cba6a",
   "text": "The middle is wobbly! Add a support from the low bolt."
  },
@@ -3808,6 +4504,10 @@
   "text": "The road to the plant has a hole!"
  },
  {
+  "id": "2ce5c3ef",
+  "text": "The rock did not go high enough! Move the fulcrum a little away from the rock."
+ },
+ {
   "id": "89469816",
   "text": "The roof goes on last!"
  },
@@ -3830,6 +4530,10 @@
  {
   "id": "65be6de6",
   "text": "The runway has holes!"
+ },
+ {
+  "id": "39310382",
+  "text": "The same house. Make the brace that works hardest out of steel."
  },
  {
   "id": "32288cfb",
@@ -3882,6 +4586,10 @@
  {
   "id": "c0a3619b",
   "text": "The SMALL gear goes on the belt to make it fast."
+ },
+ {
+  "id": "6cecadbc",
+  "text": "The small gear has fewer teeth, so it spins faster."
  },
  {
   "id": "c90ee619",
@@ -3938,6 +4646,10 @@
  {
   "id": "0c1a6361",
   "text": "The team bus picks up every player!"
+ },
+ {
+  "id": "007f96ca",
+  "text": "The timer ran out, but keep going! You can still win."
  },
  {
   "id": "3955b625",
@@ -4024,6 +4736,18 @@
   "text": "There are many ways to the flag. Pick the way with the gears!"
  },
  {
+  "id": "505f3fda",
+  "text": "There are three kinds of levers: a see-saw, a wheelbarrow and a fishing rod. Each has the fulcrum, the load and the push in a different order."
+ },
+ {
+  "id": "0a34a353",
+  "text": "There is a gap in the loop, so the electricity cannot flow."
+ },
+ {
+  "id": "c4ed9637",
+  "text": "There is a gap! Gears must touch to turn."
+ },
+ {
   "id": "3d790036",
   "text": "There is a rock in the river. Use it!"
  },
@@ -4034,6 +4758,10 @@
  {
   "id": "07fcbdcd",
   "text": "This belt must go the other way."
+ },
+ {
+  "id": "d48417d0",
+  "text": "This block is the bug. Tap it to take it out."
  },
  {
   "id": "b5648b63",
@@ -4080,6 +4808,14 @@
   "text": "This one is not needed."
  },
  {
+  "id": "88aa3861",
+  "text": "This one is tricky! Want to try an easier version?"
+ },
+ {
+  "id": "d328202c",
+  "text": "This program has a bug! Run it, then fix just one block."
+ },
+ {
   "id": "0a787e78",
   "text": "This project is not open yet. Come back next week!"
  },
@@ -4090,6 +4826,10 @@
  {
   "id": "5928dbb5",
   "text": "This time the path turns the other way!"
+ },
+ {
+  "id": "d44da04c",
+  "text": "This triangle is the fulcrum. Tap a spot to move it!"
  },
  {
   "id": "337fa306",
@@ -4184,6 +4924,10 @@
   "text": "Three Forward, Turn Right, then two Forward."
  },
  {
+  "id": "542f1038",
+  "text": "Three gears hide in little rooms. Make a move that grabs one and comes back!"
+ },
+ {
   "id": "71f15266",
   "text": "Three gears in a circle get stuck. Drag the bottom gear away."
  },
@@ -4216,8 +4960,28 @@
   "text": "Tie the road to the top. Drag down the middle!"
  },
  {
+  "id": "f606eecf",
+  "text": "Too far! Start lower, or pick a rougher floor."
+ },
+ {
   "id": "153ec53d",
   "text": "Too fast and the ball flies past! Make the belt slow."
+ },
+ {
+  "id": "998fe007",
+  "text": "Too fast! A bigger last gear spins slower."
+ },
+ {
+  "id": "e9b86b3a",
+  "text": "Too hard to push! Make the ramp longer, or pick a more slippery floor."
+ },
+ {
+  "id": "338a8333",
+  "text": "Too heavy! Move the fulcrum closer to the rock, or add a helper weight."
+ },
+ {
+  "id": "2a233e7c",
+  "text": "Too heavy! Move the fulcrum closer to the rock."
  },
  {
   "id": "f9ee642e",
@@ -4228,8 +4992,20 @@
   "text": "Too many blocks! Tap a block to take it away."
  },
  {
+  "id": "cdacd889",
+  "text": "Too slow! A small gear turned by a big gear spins faster."
+ },
+ {
   "id": "d9b1a5e8",
   "text": "Too wobbly! Add beams to make triangles."
+ },
+ {
+  "id": "ef9d0d37",
+  "text": "Touching gears always turn opposite ways."
+ },
+ {
+  "id": "69fee9a2",
+  "text": "Touching gears turn opposite ways. Small gears spin faster."
  },
  {
   "id": "12af1326",
@@ -4244,8 +5020,16 @@
   "text": "Toys are hiding behind the shelves!"
  },
  {
+  "id": "88daa41a",
+  "text": "Triangles all the way up. One steel beam at the bottom right takes the big push."
+ },
+ {
   "id": "cb4913b5",
   "text": "Triangles are strong! A triangle can not squish. Engineers use triangles to make bridges strong."
+ },
+ {
+  "id": "9357279c",
+  "text": "Triangles on both floors. Use steel only where the wind pushes hardest, low on the right."
  },
  {
   "id": "cf3ef6d8",
@@ -4258,6 +5042,26 @@
  {
   "id": "31c37e7b",
   "text": "Try a spoiler! It helps on the hills."
+ },
+ {
+  "id": "c55a67c8",
+  "text": "Try it! Make the ramp steep or gentle. Steep is short, but much harder to push."
+ },
+ {
+  "id": "e8e8e2c0",
+  "text": "Try it! Tap a spot to move the fulcrum. Close to the heavy box, a small push lifts it."
+ },
+ {
+  "id": "6f1fca53",
+  "text": "Try it! Tap Go to test your gears."
+ },
+ {
+  "id": "df51f37d",
+  "text": "Try it! Tap the switch to open and close the loop."
+ },
+ {
+  "id": "e1fd78d9",
+  "text": "Try it! Tap to add gears to the chain. Watch which way the last gear turns."
  },
  {
   "id": "c6d789d1",
@@ -4332,6 +5136,10 @@
   "text": "Two beams from the tower bolt. Two beams from the low bolt."
  },
  {
+  "id": "2a662f9f",
+  "text": "Two bulbs in one row. How do they glow?"
+ },
+ {
   "id": "aa4218bf",
   "text": "Two candy shops share one wire."
  },
@@ -4340,12 +5148,28 @@
   "text": "Two fans in a row! Add a battery to make them spin FAST."
  },
  {
+  "id": "6f09fab4",
+  "text": "Two Forward puts Robo on the belt. It takes him down to the gear. Then turn and walk home."
+ },
+ {
+  "id": "dff798a2",
+  "text": "Two Forward, Right, two Forward, Right, two Forward."
+ },
+ {
   "id": "1fd04a98",
   "text": "Two Forward, Turn Left, then three Forward."
  },
  {
   "id": "46c74fcf",
   "text": "Two Forward, Turn Left, two Forward."
+ },
+ {
+  "id": "771a39e2",
+  "text": "Two Forward. The belt takes Robo to the key. Turn Left, go up past the gear, and turn Right to the door."
+ },
+ {
+  "id": "635ebc6c",
+  "text": "Two gears that touch always turn opposite ways."
  },
  {
   "id": "81caf853",
@@ -4388,12 +5212,24 @@
   "text": "Two Turn Rights make Robo face the other way!"
  },
  {
+  "id": "fa6bdcbc",
+  "text": "Two walls, a top beam, a roof, and two triangle braces from the bolts."
+ },
+ {
   "id": "c2483d16",
   "text": "Two wave fans must spin fast!"
  },
  {
+  "id": "cb86c00f",
+  "text": "Under the middle house, use the T wire to split the path in two. A corner goes under the last house."
+ },
+ {
   "id": "e38a5293",
   "text": "Up!"
+ },
+ {
+  "id": "1a8a1a6f",
+  "text": "Use all three bolts. Triangles on every floor, and one steel beam low on the right."
  },
  {
   "id": "8aaadd1b",
@@ -4404,8 +5240,20 @@
   "text": "Use corner wires to light the shop!"
  },
  {
+  "id": "8c436c26",
+  "text": "Use If and Else: if a wall is ahead, turn. Else, go forward!"
+ },
+ {
   "id": "b273a11f",
   "text": "Use If wall to follow the path."
+ },
+ {
+  "id": "50e6371d",
+  "text": "Use My move in the main program!"
+ },
+ {
+  "id": "7fc28ca8",
+  "text": "Use My move three times!"
  },
  {
   "id": "f36b6354",
@@ -4476,6 +5324,10 @@
   "text": "Walk the beach, grab the shells and reach the flag!"
  },
  {
+  "id": "114f12b2",
+  "text": "Walk to the key. Two Rights turn Robo around. Then a loop of Forward."
+ },
+ {
   "id": "eef236cb",
   "text": "Walls need a foundation first!"
  },
@@ -4486,6 +5338,10 @@
  {
   "id": "6674a50d",
   "text": "Watch me!"
+ },
+ {
+  "id": "ec0a6f89",
+  "text": "Watch the first My move. Robo must turn Left to go up the hill."
  },
  {
   "id": "4ed6c4df",
@@ -4514,10 +5370,6 @@
  {
   "id": "cd775f76",
   "text": "Welcome to the gear factory! Gears and belts make everything move."
- },
- {
-  "id": "e3a6af0f",
-  "text": "Welcome to the Practice Room! Play as much as you like. Try a challenge, or just have fun!"
  },
  {
   "id": "f58db574",
@@ -4556,6 +5408,26 @@
   "text": "Wheels on the box!"
  },
  {
+  "id": "beebd7b1",
+  "text": "Where does the ball roll the farthest?"
+ },
+ {
+  "id": "c77c31e2",
+  "text": "Where should the fulcrum go to lift the heavy rock with a small push?"
+ },
+ {
+  "id": "286dbde6",
+  "text": "Which gear spins faster?"
+ },
+ {
+  "id": "0d031846",
+  "text": "Which one is a lever?"
+ },
+ {
+  "id": "93fc6a98",
+  "text": "Which ramp is easier to push the box up?"
+ },
+ {
   "id": "70e8efaf",
   "text": "Which way is Robo looking? Forward always goes the way Robo is looking. Look for the orange nose!"
  },
@@ -4580,24 +5452,36 @@
   "text": "Whoosh! The ski resort is open! Great job!"
  },
  {
+  "id": "accf4914",
+  "text": "Will this bulb light up?"
+ },
+ {
+  "id": "7534dd09",
+  "text": "Wind test. Wind pushes a house sideways. Triangle braces stop it from falling over."
+ },
+ {
   "id": "2f94e5b6",
   "text": "Windows go in the walls. Put the roof on last."
+ },
+ {
+  "id": "e2b02ddf",
+  "text": "Wood props are too weak for this truck. Tap Steel!"
  },
  {
   "id": "b366b9c0",
   "text": "Wood road. Then steel beams from the tower bolts to the road dots."
  },
  {
-  "id": "6a4e2dda",
-  "text": "Woohoo! Robo found the star! Move things around and play again!"
+  "id": "2897b799",
+  "text": "Wood road. Then two steel props from the low bolts."
+ },
+ {
+  "id": "44cdb1f7",
+  "text": "Wow, that was fast! Want to try the bonus challenge?"
  },
  {
   "id": "0de26908",
   "text": "Wow! Super engineer!"
- },
- {
-  "id": "d77c2f37",
-  "text": "Yay! You did it!"
  },
  {
   "id": "985e7c8b",
@@ -4614,6 +5498,10 @@
  {
   "id": "a991c6e0",
   "text": "You are amazing!"
+ },
+ {
+  "id": "bc9a23c2",
+  "text": "You do not need every square. Make a chain of triangles that reaches both stars."
  },
  {
   "id": "581af921",
@@ -4646,6 +5534,14 @@
  {
   "id": "57283a9d",
   "text": "Your garage is full! Change a car, or remove one."
+ },
+ {
+  "id": "ccd230f1",
+  "text": "Your plan is ready. Tap Run!"
+ },
+ {
+  "id": "91ee44f2",
+  "text": "Your program is full! Try a loop or My move."
  },
  {
   "id": "c21c447c",
@@ -4682,6 +5578,14 @@
  {
   "id": "698af710",
   "text": "Your turn! Tap Play!"
+ },
+ {
+  "id": "4ab95507",
+  "text": "Your turn! Tap Run!"
+ },
+ {
+  "id": "ed4d2c2a",
+  "text": "Your turn! Tap Test!"
  },
  {
   "id": "a9a44cf0",

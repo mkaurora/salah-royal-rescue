@@ -95,8 +95,8 @@
     /* ----- Geometry ----- */
     var V = { W: 300, H: 300, cell: 40, g: null, xmid: 0, cx: 150, base: 0, waterTop: 0 };
     function layout() {
-      var r = stage.getBoundingClientRect();
-      var W = Math.max(200, Math.floor(r.width)), H = Math.max(200, Math.floor(r.height));
+      // clientWidth/Height are not scaled by the screen's entrance animation (getBoundingClientRect is)
+      var W = Math.max(200, Math.floor(stage.clientWidth)), H = Math.max(200, Math.floor(stage.clientHeight));
       var gap = level.right - level.left;
       var cell = Math.min(W / (gap + 1.9), (H - 50) / (level.rows + 0.6), 82);
       V.W = W; V.H = H; V.cell = cell;
@@ -531,8 +531,8 @@
       g.globalAlpha = car.alpha;
       g.translate(x, y - car.hop * s * 0.4);
       g.rotate(ang + car.rot);
-      var big = vehicle === 'truck' || vehicle === 'bus';
-      var W = s * (vehicle === 'bus' ? 1.2 : vehicle === 'truck' ? 1.15 : 0.9), H = s * (big ? 0.5 : 0.36);
+      var big = vehicle === 'truck' || vehicle === 'bus' || vehicle === 'firetruck';
+      var W = s * (vehicle === 'bus' || vehicle === 'firetruck' ? 1.2 : vehicle === 'truck' ? 1.15 : 0.9), H = s * (big ? 0.5 : 0.36);
       var wr = s * (big ? 0.13 : 0.11);
       // shadow
       if (!car.fall) { g.fillStyle = 'rgba(0,0,0,.2)'; g.beginPath(); g.ellipse(0, 0, W * 0.45, s * 0.04, 0, 0, 7); g.fill(); }
@@ -547,7 +547,22 @@
       }
       var sq = car.squash || 0;
       g.scale(1 + sq * 0.12, 1 - sq * 0.12);
-      if (vehicle === 'truck') {
+      if (vehicle === 'firetruck') {
+        // Level 2 (v4): red fire truck with a ladder and a blue light
+        g.fillStyle = '#ff3b3b'; g.strokeStyle = '#8a1212'; g.lineWidth = 2.5;
+        LE.rr(g, -W / 2, -H * 0.85 - wr * 0.2, W * 0.7, H * 0.85, 6); g.fill(); g.stroke();
+        LE.rr(g, W * 0.18, -H - wr * 0.2, W * 0.32, H, 7); g.fill(); g.stroke();
+        g.fillStyle = '#bfe9ff'; LE.rr(g, W * 0.28, -H * 0.9 - wr * 0.2, W * 0.17, H * 0.34, 4); g.fill();
+        g.strokeStyle = '#e8eef9'; g.lineWidth = 3;
+        g.beginPath(); g.moveTo(-W * 0.46, -H * 0.98 - wr * 0.2); g.lineTo(W * 0.14, -H * 1.12 - wr * 0.2); g.stroke();
+        g.beginPath(); g.moveTo(-W * 0.46, -H * 0.88 - wr * 0.2); g.lineTo(W * 0.14, -H * 1.02 - wr * 0.2); g.stroke();
+        g.lineWidth = 2;
+        for (var k0 = 0; k0 < 6; k0++) { var rx = -W * 0.42 + k0 * W * 0.1; g.beginPath(); g.moveTo(rx, -H * 0.89 - wr * 0.2 - k0 * H * 0.023); g.lineTo(rx, -H * 0.99 - wr * 0.2 - k0 * H * 0.023); g.stroke(); }
+        g.fillStyle = Math.floor(t * 4) % 2 ? '#3d8bff' : '#bfe0ff'; LE.rr(g, W * 0.27, -H * 1.14 - wr * 0.2, W * 0.12, H * 0.14, 3); g.fill();
+        g.fillStyle = '#ffe14d'; g.fillRect(-W / 2 + 3, -H * 0.4 - wr * 0.2, W * 0.68 - 6, H * 0.09);
+        face(W * 0.38, -H * 0.66 - wr * 0.2, s * 0.6);
+        wheel(-W * 0.32); wheel(-W * 0.12); wheel(W * 0.34);
+      } else if (vehicle === 'truck') {
         // cargo box + cab (cab at the front = right)
         g.fillStyle = '#ffc83d'; g.strokeStyle = '#8a5a00'; g.lineWidth = 2.5;
         LE.rr(g, -W / 2, -H - wr * 0.2, W * 0.64, H, 6); g.fill(); g.stroke();
@@ -886,7 +901,7 @@
 
     /* ----- Running ----- */
     function carStart() {
-      var half = vehicle === 'bus' ? 0.62 : vehicle === 'truck' ? 0.6 : 0.47;
+      var half = vehicle === 'bus' || vehicle === 'firetruck' ? 0.62 : vehicle === 'truck' ? 0.6 : 0.47;
       var margin = (X(level.left)) / V.cell;          // visible cliff width in cells
       return Math.max(level.left - 0.6, Math.min(level.left - 0.2, level.left - margin + half + 0.06));
     }

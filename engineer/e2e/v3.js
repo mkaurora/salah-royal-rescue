@@ -80,7 +80,7 @@ async function main() {
         await page.tap('.settings-btn');
         await page.waitForSelector('.overlay.settings.show .parents-btn');
         const v = await page.textContent('.overlay.settings.show .app-version');
-        if (!/^Version 3\.\d+ \(\d{1,2} [A-Z][a-z]{2} \d{4}\)$/.test(v)) throw new Error('version label: ' + v);
+        if (!/^Version [34]\.\d+ \(\d{1,2} [A-Z][a-z]{2} \d{4}\)$/.test(v)) throw new Error('version label: ' + v);
         const sv = await page.evaluate(() => self.GAME_VERSION.version);
         if (v.indexOf('Version ' + sv + ' ') !== 0) throw new Error('label ' + v + ' vs js/version.js ' + sv);
         await page.waitForTimeout(700);   // overlay pop-in animation
@@ -336,7 +336,7 @@ async function main() {
         const info = await page.textContent('.parent-screen .admin-body');
         if (!/All 52 weeks are open/.test(info) || /week 53/.test(info)) throw new Error('info text: ' + info.slice(0, 160));
         const hv = await page.textContent('.parent-screen .admin-version');
-        if (!/Version 3\.\d+ \(/.test(hv)) throw new Error('parent version: ' + hv);
+        if (!/Version [34]\.\d+ \(/.test(hv)) throw new Error('parent version: ' + hv);
         const card = page.locator('.wk-card[data-week="40"]');
         if (await card.locator('.unlock-week').count()) throw new Error('week 41 still offers Unlock now');
         await card.locator('.jump-week').tap();
