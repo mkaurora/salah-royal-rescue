@@ -93,7 +93,7 @@
   }
 
   /* ---------- panel ---------- */
-  var TABS = [['progress', 'Progress'], ['weekly', 'Weekly'], ['settings', 'Settings']];
+  var TABS = [['progress', 'Progress'], ['weekly', 'Weekly'], ['level2', 'Level 2'], ['settings', 'Settings']];
 
   function openPanel(tab, notice) {
     tab = tab || 'progress';
@@ -204,7 +204,68 @@
     });
   };
 
-  /* 3. Settings: PIN, Ask Helper, transfer code. */
+  /* 3. Level 2 (v4): progress per track, unlock any stage / tier / everything, set stars, timers on/off, reset. */
+  PANELS.level2 = function (body, refresh) {
+    var st = store(), L2 = LE.logic.level2, D = LE.level2 && LE.level2.data;
+    if (!D) { card(body, 'Level 2', 'Not available.'); return; }
+    var l2 = st.getLevel2();
+    ui.l2track = ui.l2track || 'a';
+    var counts = {};
+    D.tracks.forEach(function (t) { counts[t.id] = t.stages.length; });
+    var sum = card(body, 'Level 2 progress', 'Stages open in order. The next tier (Bronze → Silver → Gold) opens when ' + L2.MASTERY_NEED +
+      ' of the ' + L2.TIER_SIZE + ' stages of the tier before have 3 stars. Hints after ' + L2.HINT_AT + ' tries, Show Me after ' + L2.SHOWME_AT +
+      ', an easier version (max 2 stars) after ' + L2.EASIER_AT + '.');
+    D.tracks.forEach(function (t) {
+      var s = L2.summary(l2, t.id, t.stages);
+      sum.appendChild(h('div.lv-row.l2-sum', { 'data-track': t.id }, h('div.lv-name', h('b', t.icon), ' ', t.name),
+        h('span.lv-open', s.stars + ' / ' + s.max + ' ★ · ' + s.done + '/' + s.count + ' done · ' + s.tierName + ' open')));
+    });
+    var tm = card(body, 'Timers', 'Some Silver and Gold stages have a relaxed timer. It only decides the 3rd star and never fails a stage.');
+    tm.appendChild(h('div.a-row', abtn(l2.timers ? 'Timers: ON' : 'Timers: OFF', (l2.timers ? 'primary' : '') + ' toggle-timers', function () {
+      l2.timers = !l2.timers; st.save(); refresh();
+    })));
+    var all = card(body, 'All of Level 2');
+    all.appendChild(h('div.a-row',
+      abtn('Unlock all Level 2', 'unlock-l2', function () { L2.unlockAll(l2, counts); st.save(); toast('All Level 2 stages are open.'); refresh(); }),
+      abtn('Reset Level 2', 'danger reset-l2', function () {
+        confirmBox('Erase all Level 2 stars and lessons?', 'Erase', function () {
+          L2.reset(l2);
+          Object.keys(st.data.inProgress).forEach(function (k) { if (k.indexOf('l2-') === 0) delete st.data.inProgress[k]; });
+          if (st.data.last && /^l2/.test(st.data.last.screen || '')) st.data.last = { screen: 'menu' };
+          st.save(); toast('Level 2 was reset.'); refresh();
+        });
+      })));
+    var seg = h('div.a-seg.l2-seg');
+    D.tracks.forEach(function (t) {
+      var b = h('button.seg-' + t.id + (ui.l2track === t.id ? '.on' : ''), { type: 'button' }, t.icon + ' ' + t.short);
+      b.addEventListener('click', function () { ui.l2track = t.id; refresh(); });
+      seg.appendChild(b);
+    });
+    body.appendChild(seg);
+    var T = D.tracks.filter(function (t) { return t.id === ui.l2track; })[0];
+    var tiers = card(body, 'Tiers');
+    tiers.appendChild(h('div.a-row', [0, 1, 2].slice(0, L2.tierCount(T.stages)).map(function (k) {
+      var open = L2.isTierOpen(l2, T.id, T.stages, k);
+      return abtn((open ? '✔ ' : 'Open ') + L2.tierName(k), 'small unlock-tier' + (open ? ' primary' : ''), function () { L2.unlockTo(l2, T.id, k * L2.TIER_SIZE); st.save(); refresh(); });
+    })));
+    var list = card(body, T.name, 'Open = he can play it. Tap a number to set the stars.');
+    T.stages.forEach(function (s, i) {
+      var open = L2.isStageOpen(l2, T.id, T.stages, i), stars = L2.getStars(l2, s.id);
+      var row = h('div.lv-row.l2-row' + (open ? '' : '.locked'), { 'data-stage': s.id },
+        h('div.lv-name', h('b', String(i + 1)), ' ', s.name, ' ', h('small', L2.tierName(L2.tierOf(i)))),
+        open ? h('span.lv-open', 'open') : abtn('Open', 'small unlock-stage', function () { L2.unlockTo(l2, T.id, i); st.save(); refresh(); }));
+      var starSeg = h('div.a-seg.star-seg');
+      [0, 1, 2, 3].forEach(function (k) {
+        var b = h('button' + (k === stars ? '.on' : ''), { type: 'button', 'data-stars': k, 'aria-label': k + ' stars' }, k ? k + '★' : '0');
+        b.addEventListener('click', function () { L2.setStarsExact(l2, T.id, T.stages, i, k); st.save(); refresh(); });
+        starSeg.appendChild(b);
+      });
+      row.appendChild(starSeg);
+      list.appendChild(row);
+    });
+  };
+
+  /* 4. Settings: PIN, Ask Helper, transfer code. */
   PANELS.settings = function (body, refresh) {
     var st = store();
     var pinCard = card(body, 'Change PIN', 'Four digits. Default is 1994.');
@@ -252,7 +313,7 @@
         if (r.ok) { toast('Progress loaded.'); refresh(); } else imsg.textContent = r.error;
       });
     })), imsg);
-    body.appendChild(h('div.a-foot', 'Little Engineer v3'));
+    body.appendChild(h('div.a-foot', 'Little Engineer ' + (LE.APP_VERSION ? 'v' + LE.APP_VERSION : '')));
   };
 
   LE.parent = { openPin: openPin, openGate: openGate, openPanel: openPanel, panels: PANELS };

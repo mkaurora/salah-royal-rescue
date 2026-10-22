@@ -38,6 +38,8 @@ function precacheClips() {
   const groups = fs.existsSync(gf) ? JSON.parse(fs.readFileSync(gf, 'utf8')) : {};
   const names = ['common', 'cars'];
   WORLDS.forEach((w) => { for (let i = 0; i < PRECACHE_LEVELS; i++) names.push(w + ':' + i); });
+  // Level 2 (v4): the hub lines, the first stage of each track and the first Science Lab lesson
+  names.push('l2:hub', 'l2:a1', 'l2:b1', 'l2:c1', 'l2:lesson:gears');
   const keys = new Set();
   names.forEach((n) => (groups[n] || []).forEach((k) => keys.add(k)));
   return [...keys].sort().map((k) => 'audio/voice/' + k + '.mp3').filter((f) => fs.existsSync(path.join(ROOT, f)));

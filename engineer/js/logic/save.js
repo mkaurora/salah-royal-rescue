@@ -3,11 +3,13 @@
  * v3: parent mode (PIN + adult math gate, unlock / set stars / reset world), weekly project progress,
  * transfer codes (export / import progress as a short text code). */
 (function (root, factory) {
-  var mod = factory();
+  var mod = factory(typeof module === 'object' && module.exports ? require('./level2.js') : null);
   if (typeof module === 'object' && module.exports) module.exports = mod;
   else { root.LE = root.LE || {}; root.LE.save = mod; }
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof self !== 'undefined' ? self : this, function (L2node) {
   'use strict';
+  /** Level 2 rules (js/logic/level2.js, loaded before this file in the browser). */
+  function L2() { return L2node || (self.LE && self.LE.logic && self.LE.logic.level2); }
 
   var KEY = 'littleEngineerSave';
   var VERSION = 1;
@@ -28,7 +30,8 @@
       practice: { done: {}, state: null },
       unlocked: {},            // world -> highest level index opened by a parent (v3)
       weekly: defaultWeekly(), // weekly big projects (v3)
-      cars: defaultCars()      // Car Builder & Race (v3.2): garage + best stars per track
+      cars: defaultCars(),     // Car Builder & Race (v3.2): garage + best stars per track
+      level2: L2().defaults()  // Level 2 (v4): stars per stage, parent unlocks, lessons seen, timers on/off
     };
   }
   var MAX_CARS = 6;
@@ -114,6 +117,7 @@
     }
     if (d.seenTips && typeof d.seenTips === 'object') out.seenTips = d.seenTips;
     out.cars = sanitizeCars(d.cars);
+    out.level2 = L2().migrate(d.level2);   // v4: saves from before 4.0 have no level2 → fresh Level 2
     if (d.practice && typeof d.practice === 'object') {
       out.practice.done = (d.practice.done && typeof d.practice.done === 'object') ? d.practice.done : {};
       out.practice.state = d.practice.state || null;
@@ -248,8 +252,9 @@
 
       /** Wipe progress (keeps the settings — sound, voice, parent PIN — so a reset doesn't blast audio or lock out the parent). */
       reset: function () {
-        var settings = data.settings;
+        var settings = data.settings, timers = data.level2 ? data.level2.timers : true;
         data = defaults();
+        data.level2.timers = timers;
         data.settings = settings;
         data.settings.weeklyUnlockedMax = -1;
         persist();
@@ -288,16 +293,21 @@
       /** Parent: show week n as "this week" (null = follow the calendar again). */
       setCurrentWeekForce: function (n) { data.weekly.currentWeekForce = (n === null || n === undefined) ? null : Math.max(0, Math.floor(n)); persist(); },
 
+      /* ---------- Level 2 (v4) ---------- */
+      /** The live level2 object (rules in js/logic/level2.js); call save() after changing it. */
+      getLevel2: function () { return data.level2; },
+
       /* ---------- transfer ---------- */
       exportCode: function () { return exportCode(data); },
       /** Replace all progress with a transfer code. Returns { ok, error }. */
       importCode: function (code) {
         var r = importCode(code);
         if (!r.ok) return r;
-        var keep = data.settings, wm = r.data.settings.weeklyUnlockedMax;
+        var keep = data.settings, wm = r.data.settings.weeklyUnlockedMax, keepTimers = data.level2.timers;
         data = r.data;
         data.settings = keep;              // this device keeps its own sound / voice / PIN
         data.settings.weeklyUnlockedMax = wm;
+        data.level2.timers = keepTimers;   // the timer switch is this phone's parent setting
         persist();
         return { ok: true };
       }
@@ -379,7 +389,7 @@
   /** Progress only (no in-progress boards, no "last screen"); the PIN is not exported. */
   function exportCode(d) {
     var o = { v: VERSION, s: d.stars, u: d.unlocked, t: d.seenTips, p: d.practice.done, w: d.weekly.completed, c: { g: d.cars.garage, b: d.cars.best },
-      wm: d.settings.weeklyUnlockedMax };
+      wm: d.settings.weeklyUnlockedMax, l2: { s: d.level2.stars, o: d.level2.open, l: d.level2.lessons } };
     var json = JSON.stringify(o);
     return CODE_PREFIX + b64encode(json) + '.' + fnv(json).slice(0, 4);
   }
@@ -394,7 +404,7 @@
       if (fnv(json).slice(0, 4) !== body.slice(dot + 1)) return { ok: false, error: 'The code has a typo.' };
       var o = JSON.parse(json);
       var d = sanitize({ stars: o.s, unlocked: o.u, seenTips: o.t, practice: { done: o.p }, weekly: { completed: o.w }, cars: o.c ? { garage: o.c.g, best: o.c.b } : null,
-        settings: { weeklyUnlockedMax: o.wm } });
+        settings: { weeklyUnlockedMax: o.wm }, level2: o.l2 ? { stars: o.l2.s, open: o.l2.o, lessons: o.l2.l } : null });
       return { ok: true, data: d };
     } catch (e) {
       return { ok: false, error: 'The code could not be read.' };

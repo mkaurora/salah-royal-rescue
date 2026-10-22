@@ -26,7 +26,7 @@
     tapMe: 'Tap me for help!',
     watch: 'Watch me! 👀',
     nowYou: 'See? Now you try!',
-    tapGo: { Go: 'Your turn! Tap Go! ▶', Play: 'Your turn! Tap Play! ▶' },
+    tapGo: { Go: 'Your turn! Tap Go! ▶', Play: 'Your turn! Tap Play! ▶', Run: 'Your turn! Tap Run! ▶', Test: 'Your turn! Tap Test! ▶' },
     praise: ['Hooray! You did it!', 'Awesome job, Salah!', 'Wow! Super engineer!', 'You are amazing!'],
     didYouKnow: 'Did you know? ',
     weeklyLocked: 'This project is not open yet. Come back next week!',
@@ -36,7 +36,7 @@
     helperBye: 'Bye, helper! Back to building!',
     showMeReady: 'Stuck? Now I can show you how!',
     showMeLater: 'Let\'s try a hint first!',
-    demoGo: { Go: 'Now we press Go!', Play: 'Now we press Play!' },
+    demoGo: { Go: 'Now we press Go!', Play: 'Now we press Play!', Run: 'Now we press Run!', Test: 'Now we press Test!' },
     demoWorks: 'See? It works!',
     demoYourTurn: 'Now it is your turn. Build it yourself!',
     aiYourTurn: 'Your turn! Now you do the steps the helper showed you.',
@@ -48,7 +48,21 @@
         'tray:X': 'A cross wire goes here.', 'tray:P': 'A lamp goes here.', 'tray:B': 'A battery goes here.' },
       construction: { 'btn:U': 'Up!', 'btn:D': 'Down!', 'btn:L': 'Left!', 'btn:R': 'Right!', 'btn:G': 'Tap the hook button!',
         'tray:found': 'The foundation first!', 'tray:walls': 'Now the walls.', 'tray:window': 'A window.', 'tray:door': 'The door.',
-        'tray:roof': 'The roof goes on last!' }
+        'tray:roof': 'The roof goes on last!' },
+      frame: { 'tool:wood': 'Pick wood.' }
+    },
+    /* Level 2 (v4): hub, adaptive help, relaxed timer, bonus */
+    l2: {
+      hello: 'Level 2! You are a real engineer now. Pick a track!',
+      locked: 'Finish the stage before this one first!',
+      mastery: 'Get three stars on more stages to open the next tier!',
+      tierOpen: 'A new tier is open! Great work, engineer!',
+      easier: 'This one is tricky! Want to try an easier version?',
+      easyOn: 'Here is an easier version. You can win up to two stars.',
+      bonus: 'Wow, that was fast! Want to try the bonus challenge?',
+      timeUp: 'The timer ran out, but keep going! You can still win.',
+      lesson: 'Let\'s learn something new first!',
+      lessonDone: 'Now let\'s use it!'
     }
   };
   /* VOICE-LINES:END */
@@ -67,7 +81,8 @@
     { id: 'construction', name: 'Construction', sub: 'Dig, lift & build!' }
   ];
   function world(id) {
-    var meta = WORLD_META.filter(function (w) { return w.id === id; })[0];
+    // Level 2 (v4) plays in views that are not worlds of their own (frame, code, lab): LE.extraWorlds names them.
+    var meta = WORLD_META.filter(function (w) { return w.id === id; })[0] || (LE.extraWorlds && LE.extraWorlds[id]) || { id: id, name: id, sub: '' };
     return {
       id: id, name: meta.name, sub: meta.sub,
       levels: (LE.levels && LE.levels[id]) || [],
@@ -446,6 +461,9 @@
       grid.appendChild(card);
     });
     var weeklyCard = LE.weeklyHub ? LE.weeklyHub.menuCard() : null;
+    // Level 2 (v4): a gold card next to Construction (js/views/level2-hub.js)
+    var l2Card = LE.level2Hub ? LE.level2Hub.menuCard() : null;
+    if (l2Card) { grid.classList.add('with-l2'); grid.appendChild(l2Card); }
     // Car Builder & Race (took the Practice Room's slot)
     var carsBtn = LE.button('car-btn', '', function () { showCars(); }, { label: 'Car Builder & Race' });
     carsBtn.append(h('div.car-icon', '🏎️'), h('div', h('div.car-title', 'Car Builder & Race'), h('div.car-sub', 'Build a car, then race it!')));
@@ -651,9 +669,10 @@
   function playLevel(spec) {
     var worldId = spec.worldId, index = spec.index, level = spec.level;
     var w = world(worldId);
+    if (spec.content) w.content = spec.content;      // Level 2 stages bring their own tips + facts
     spec.setLast();
 
-    var el = h('div.level-screen.theme-' + worldId + (spec.weekly ? '.weekly-level' : ''));
+    var el = h('div.level-screen.theme-' + worldId + (spec.weekly ? '.weekly-level' : '') + (spec.cls ? '.' + spec.cls : ''));
     var best = spec.best;
     var title = h('span.lvl-title', h('span.lvl-num', spec.num), h('span', level.name));
     var restartBtn = LE.button('icon restart', '<svg viewBox="0 0 24 24"><path d="M5 12 a7 7 0 1 0 2.2 -5.1" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M4 3 v5 h5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>', function () {
@@ -752,7 +771,7 @@
     var buddy = new LE.Buddy(buddyBar);
     prefetchLevel(w, spec);
     LE.voice.prefetch([LINES.helperOffline, LINES.helperMic, LINES.helperBye]);
-    var won = false, alive = true, attempts = 0, listeners = {}, tutorialToken = 0, demoRunning = false, lastActivity = Date.now();
+    var won = false, alive = true, attempts = spec.attempts0 || 0, listeners = {}, tutorialToken = 0, demoRunning = false, lastActivity = Date.now();
 
     function emit(name, data) {
       lastActivity = Date.now();
@@ -784,10 +803,12 @@
 
     show({ el: el, destroy: function () { alive = false; tutorialToken++; clearInterval(idleT); clearInterval(showMeT); document.removeEventListener('visibilitychange', onVis); if (helperSession) helperSession.end(); if (LE.helperTalk) LE.helperTalk.stop(); buddy.destroy(); if (inst && inst.destroy) inst.destroy(); LE.hand.hide(); } });
     var inst = w.view.create(host, level, ctx);
-    LE.activeLevel = { world: worldId, index: index, weekly: spec.weekly || null, level: level, inst: inst, ctx: ctx, showMe: function () { return showMe(); }, buddy: buddy,
+    LE.activeLevel = { world: worldId, index: index, weekly: spec.weekly || null, level: level, inst: inst, ctx: ctx, showMe: function () { return showMe(); }, buddy: buddy, spec: spec,
       lastDemo: null, askHelper: openHelper, showMeOpen: function () { return showMeOpen(); }, demo: function () { return demo; },
       solve: function () { return solve(); },
       ai: function () { return ai; }, lastAi: null };
+    // Level 2 (v4): the stage adds its timer chip / budget hints and listens to view events.
+    if (spec.decorate) spec.decorate({ el: el, bar: bar, host: host, buddy: buddy, ctx: ctx, on: on, inst: inst, attempts: function () { return attempts; } });
 
     /** Test hook: build the stored solution through the same code paths as Show me (no hand, not a demo, so a
      *  win counts like a real one). The caller presses Go (worlds without Go win live). */
@@ -905,7 +926,7 @@
     document.addEventListener('visibilitychange', onVis);
     function playedMs() { return LE.now().getTime() - t0 - hiddenMs - (hiddenAt ? LE.now().getTime() - hiddenAt : 0); }
     function showMeOpen() {
-      return !LE.SHOWME_GATE || store.data.settings.showMeAlways || LE.showMeForce || attempts >= 2 || playedMs() >= SHOWME_MS;
+      return !LE.SHOWME_GATE || store.data.settings.showMeAlways || LE.showMeForce || attempts >= (spec.showMeAt || 2) || playedMs() >= SHOWME_MS;
     }
     function showMeBtn() {
       var open = showMeOpen();
@@ -1046,6 +1067,24 @@
       buddy.mood('sad');
       setTimeout(function () { buddy.mood(''); }, 1500);
       var msg = r.message || ENCOURAGE[(attempts - 1) % ENCOURAGE.length];
+      if (spec.onFail) spec.onFail(attempts);
+      // Level 2 (v4): adaptive help — hint after 2 tries, Show me after 4, an easier version after many (js/logic/level2.js).
+      var policy = spec.help ? spec.help(attempts) : null;
+      if (policy) {
+        if (policy === 'easier' && spec.easier) {
+          readyAnnounced = true;
+          buddy.say(msg + ' ' + LINES.l2.easier, { speakParts: [msg, LINES.l2.easier], buttons: [
+            { label: '🪜 Easier', cls: 'yellow easier-btn', onTap: function () { buddy.hide(); spec.easier(); } },
+            showMeBtn(),
+            { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }] });
+        } else if (policy === 'showme' || policy === 'easier') {
+          readyAnnounced = true;
+          buddy.say(msg + ' ' + LINES.showYou, { speakParts: [msg, LINES.showYou], buttons: [showMeBtn(), { label: '👍 Let me try', cls: 'green letmetry-btn', onTap: function () { buddy.hide(); } }] });
+        } else if (policy === 'hint' && level.hint) {
+          buddy.say(msg + ' Hint: ' + level.hint, { speakParts: [msg, LINES.hint, level.hint], buttons: [showMeBtn()] });
+        } else buddy.say(msg);
+        return;
+      }
       if (attempts >= 3) {
         buddy.say(msg + ' ' + LINES.showYou, {
           speakParts: [msg, LINES.showYou],
@@ -1063,6 +1102,7 @@
 
     function onWin(r) {
       won = true;
+      if (spec.adjustWin) r = spec.adjustWin(r) || r;   // Level 2: the relaxed timer / easier version cap the stars
       var stars = Math.max(1, Math.min(3, r.stars || 1));
       var prevBest = best;
       var res = spec.record(stars);
@@ -1091,10 +1131,12 @@
         note,
         fact ? h('div.fact', h('div.fact-title', '💡 Did you know?'), h('div.fact-text', fact)) : null,
         next,
+        res.bonus ? LE.button('yellow wide bonus-btn', res.bonus.label, function () { closeOverlay(); res.bonus.go(); }, { sound: 'whoosh' }) : null,
         h('div.row',
           LE.button('blue', '↻ Replay', function () { closeOverlay(); spec.replay(); }),
           res.map ? LE.button('purple', res.map.label, function () { closeOverlay(); res.map.go(); }) : null)
       ], 'win');
+      if (res.bonus && res.bonus.say) Promise.all([LE.wait(400 / LE.speed), buddy.afterSpeech(200)]).then(function () { if (alive) buddy.say(res.bonus.say); });
       starsEl.querySelectorAll('.win-star').forEach(function (s, i) {
         if (i < stars) setTimeout(function () {
           s.innerHTML = LE.starSVG(true); s.classList.add('pop'); LE.sound.play('star');
@@ -1102,7 +1144,7 @@
         }, (350 + i * 380) / LE.speed);
       });
       // Read the fact only after the praise clip has finished (real clips can run longer than the delay).
-      if (fact) Promise.all([LE.wait(1400 / LE.speed), buddy.afterSpeech(300)]).then(function () { if (alive) LE.speak(factLine(fact)); });
+      if (fact && !res.bonus) Promise.all([LE.wait(1400 / LE.speed), buddy.afterSpeech(300)]).then(function () { if (alive) LE.speak(factLine(fact)); });
       if (!res.hasNext) setTimeout(function () { LE.fx.confetti(220); LE.sound.play('cheer'); }, 1500 / LE.speed);
     }
   }
@@ -1118,7 +1160,7 @@
   }
 
   LE.app = { showMenu: showMenu, showMap: showMap, openLevel: openLevel, showCars: showCars, openSettings: openSettings, store: store,
-    showScreen: show, topbar: topbar, confirmDialog: confirmDialog,
+    showScreen: show, topbar: topbar, confirmDialog: confirmDialog, playLevel: playLevel, toast: toast,
     openWeeklyStep: openWeeklyStep, showWeekly: showWeekly, showWeeklyHub: showWeeklyHub };
 
   /** True when el (or an ancestor below <body>) is a scroll container whose content overflows. */
@@ -1155,6 +1197,7 @@
       else if (!noResume && last && last.screen === 'weekly-step' && weeklyProject(last.project)) resumeWeeklyStep(last.project, last.step);
       else if (!noResume && last && last.screen === 'weekly' && weeklyProject(last.project)) showWeeklyHub(last.project);
       else if (!noResume && last && (last.screen === 'cars' || last.screen === 'practice')) showCars();   // old Practice Room saves land in the garage
+      else if (!noResume && last && (last.screen === 'l2' || last.screen === 'l2-stage') && LE.level2Hub) LE.level2Hub.resume(last);
       else if (!noResume && last && last.screen === 'map' && world(last.world).levels.length) showMap(last.world);
       else showMenu();
     } catch (e) {

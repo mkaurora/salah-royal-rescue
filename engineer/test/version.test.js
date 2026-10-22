@@ -59,7 +59,7 @@ const vm = require('vm');
 
 test('Little Engineer: js/version.js is the one version; sw.js carries the same version, date and a current CONTENT hash', () => {
   const ver = VS.readVersion(path.join(ROOT, 'js/version.js'));
-  assert.match(ver.version, /^3\.\d+$/);
+  assert.match(ver.version, /^[34]\.\d+$/);
   assert.ok(ver.built, 'built date stamped (node tools/build-sw.js)');
   const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
   assert.strictEqual(VS.swGet(sw, 'VERSION'), ver.version, 'run node tools/build-sw.js');

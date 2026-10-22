@@ -20,7 +20,8 @@
   var VEHICLES = {
     car:   { load: 1.0 },
     bus:   { load: 1.6 },
-    truck: { load: 2.4 }
+    truck: { load: 2.4 },
+    firetruck: { load: 3.2 }   // Level 2 (v4): the heaviest vehicle
   };
   var STEP = 0.1;             // car position sampling step (grid units)
   var EPS = 1e-3;             // stiffness regularisation on free DOFs (mechanisms -> huge motion)
@@ -477,6 +478,8 @@
     isRoad: isRoad, cost: cost, anchorsOf: anchorsOf, isAnchor: isAnchor, isSolid: isSolid,
     validPoint: validPoint, canStart: canStart, startNodes: startNodes, splitBeam: splitBeam, normalize: normalize,
     checkBeam: checkBeam, addBeam: addBeam, reachable: reachable,
-    solveMulti: solveMulti, simulate: simulate, collapse: collapse, score: score, starsForCost: starsForCost, check: check
+    solveMulti: solveMulti, simulate: simulate, collapse: collapse, score: score, starsForCost: starsForCost, check: check,
+    // v4: the truss analysis pieces, reused by js/logic/structures.js (Level 2 wind / quake / crane tests)
+    analysis: { anchorSet: anchorSet, model: model, stiffness: stiffness, axialForces: axialForces, prune: prune, wobbleCheck: wobbleCheck }
   };
 });

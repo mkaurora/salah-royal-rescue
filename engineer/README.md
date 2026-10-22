@@ -39,6 +39,24 @@ shows a "Did you know?" fact. Progress, settings and the in-progress level are s
   nothing new → "You have the latest version"; new → updates and reloads). The game also checks on load and when it becomes visible;
   a new version waits and shows a small "New version! Tap to update" banner, and only that tap activates it (never mid-level).
 
+## v4.0 "Level 2" (October 2026)
+
+A gold **Level 2 ⭐** card on the menu opens the Level 2 hub: three tracks × 12 stages, each track in tiers
+(🥉 Bronze → 🥈 Silver → 🥇 Gold, 4 stages each). Every stage uses the normal level controller (Read then Go, buddy, Show me
+with the pointing hand, hints, "Did you know?", 1–3 stars, resume).
+
+| Track | What he does | Code |
+|---|---|---|
+| 🏗️ Engineer Challenges | big builds with a coin budget, an optional relaxed timer (3rd star only) and an animated **end test**: heavy truck / fire truck / bus bridges, wind test (houses, towers), earthquake test, crane lift test | `js/logic/structures.js` (reuses the bridges truss solver), `js/views/l2-frame-view.js`, Bridges view |
+| 🧩 Thinking Puzzles | plan the whole program, then Run (or 🐞 Step): counted + nested loops, **My move** (a function), if / else (wall, red, blue), keys + doors, conveyor belts, debugging stages, fewest-blocks stars | `js/logic/puzzles.js`, `js/views/l2-code-view.js` |
+| 🔬 Science Lab | 4 topics (gears, levers, ramps, circuits): a 4-card read-aloud lesson with a "try it" card, a quick check, then builds (gear trains with double gears, fulcrum + helper weights, ramp length + friction, roll to the star, parallel circuits, a switch without a short circuit) | `js/logic/lab.js`, `js/views/l2-lab-view.js`, Circuits view |
+
+Rules (`js/logic/level2.js`): stages open in order; the next tier opens with 3 stars on 3 of the 4 stages before it
+("mastery"); hint after 2 failed tries, Show me after 4, an **easier version** (max 2 stars) after 6; a quick 3-star win on
+some stages offers a ⭐ bonus challenge. Save: `level2` inside `littleEngineerSave` (old saves load fine).
+Parents area → **Level 2** tab: progress per track, open any stage / tier / everything, set stars, timers on/off, reset.
+Data: `js/data/level2-stages.js` (stages, lessons, tips, facts); hub + lessons: `js/views/level2-hub.js`; styles: `css/level2.css`.
+
 ## Run locally
 
 ```bash
@@ -60,6 +78,8 @@ npm run e2e              # headless iPhone 13 emulation; screenshots -> /workspa
 npm run e2e:levels       # plays EVERY level of every world via "Show me" + Go (DEVICE="iPhone SE" for small screen); shots -> .../levels/
 E2E_ONLY=voice node e2e/run.js   # just the voice-clip checks (WebAudio clip vs speechSynthesis fallback, pacing)
 node e2e/shots-v2.js     # v2 screenshots -> /workspace/little-engineer-shots/v2/
+node e2e/v4.js           # v4 Level 2: hub, one stage per track, Show me, lesson, parent tab, resume, 4× CPU perf,
+                         #   iPhone SE + Pixel no-overflow; shots -> /workspace/little-engineer-shots/level2/ (also run by npm run e2e)
 node e2e/v3.js           # v3: parent mode, weekly (fake clock), Read-then-Go, Ask Helper fallbacks, Show me, Update game
                          #   (DEVICE="iPhone SE", E2E_ONLY=parent|weekly|readgo|helper|showme|update); shots -> /workspace/little-engineer-v3-shots/
 node tools/helper-smoke.js q.wav   # one real Ask Helper session (needs internet + ElevenLabs credits)

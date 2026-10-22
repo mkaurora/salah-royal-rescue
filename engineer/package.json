@@ -5,7 +5,7 @@
   "description": "Salah's Little Engineer - a kids' engineering & coding PWA",
   "scripts": {
     "test": "node --test test/",
-    "e2e": "node e2e/run.js",
+    "e2e": "node e2e/run.js && node e2e/v4.js",
     "serve": "node e2e/server.js",
     "icons": "node tools/make-icons.js",
     "e2e:levels": "node e2e/all-levels.js"

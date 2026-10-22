@@ -128,6 +128,33 @@ function carsLines() {
   return out;
 }
 
+/** Level 2 (v4): per stage (goal, hint, tutorial, tip card, the win fact — same fact index as level2-hub.js), easy/bonus
+ *  goals + hints, quiz questions + "why" lines, lesson cards. Groups: 'l2:<stageId>', 'l2:lesson:<topic>', 'l2:hub'. */
+function level2Static(LINES) {
+  const D = require(path.join(ROOT, 'js/data/level2-stages.js'));
+  const out = [];
+  D.tracks.forEach((t) => {
+    t.stages.forEach((st, i) => {
+      const lines = [];
+      [st, st.easy, st.bonus].filter(Boolean).forEach((v) => {
+        lines.push(v.goal, v.hint);
+        (v.tutorial || []).forEach((x) => { if (x.say) lines.push(x.say); });
+        (v.questions || []).forEach((q) => lines.push(q.q, q.why));
+      });
+      const tip = st.tip && D.tips[st.tip];
+      if (tip) lines.push(VK.tipLine(tip.title, tip.text));
+      const facts = D.facts[t.id] || [];
+      if (facts.length) lines.push(LINES.didYouKnow + facts[i % facts.length]);
+      out.push({ group: 'l2:' + st.id, lines: lines.filter(Boolean) });
+    });
+    (D.facts[t.id] || []).forEach((f) => out.push({ group: null, lines: [LINES.didYouKnow + f] }));
+  });
+  Object.keys(D.tips).forEach((k) => out.push({ group: null, lines: [VK.tipLine(D.tips[k].title, D.tips[k].text)] }));
+  Object.keys(D.lessons).forEach((k) => out.push({ group: 'l2:lesson:' + k, lines: D.lessons[k].cards.map((c) => c.text) }));
+  out.push({ group: 'l2:hub', lines: Object.values(LINES.l2) });
+  return out;
+}
+
 function staticCollect() {
   const { LINES, lines: shell } = shellLines();
   const groups = { common: new Set(), practice: new Set() };
@@ -149,6 +176,10 @@ function staticCollect() {
   carsLines().forEach((t) => add(groups.cars, t));
   weeklyStatic(LINES).forEach(({ group, lines }) => {
     const g = groups[group] = groups[group] || new Set();
+    lines.forEach((t) => add(g, t));
+  });
+  level2Static(LINES).forEach(({ group, lines }) => {
+    const g = group ? (groups[group] = groups[group] || new Set()) : null;
     lines.forEach((t) => add(g, t));
   });
   viewLiterals().forEach((v) => add(null, v.text));
@@ -341,6 +372,89 @@ async function runtimeCollect() {
     await page.context().close();
   }
 
+  // Level 2 (v4): every stage — fresh (tip, tutorial), failing attempts, Show me → win (+ the easy / bonus variants).
+  {
+    const page = await newPage();
+    await page.evaluate(() => { const l = LE.app.store.getLevel2(); LE.logic.level2.unlockAll(l, LE.level2Hub.counts()); LE.app.store.save(); });
+    const list = await page.evaluate(() => LE.level2.data.tracks.flatMap((t) => t.stages.map((s, i) => ({ t: t.id, i, id: s.id, easy: !!s.easy, bonus: !!s.bonus, topic: s.topic || null }))));
+    for (const s of list) {
+      const g = 'l2:' + s.id;
+      try {
+        if (s.topic) {
+          // the lesson plays before the topic's first stage
+          await page.evaluate((topic) => { LE.app.store.getLevel2().lessons[topic] = false; }, s.topic);
+        }
+        await page.evaluate(([t, i]) => { const st = LE.app.store; st.data.seenTips = {}; const l = st.getLevel2(); delete l.stars[LE.level2.data.tracks.find((x) => x.id === t).stages[i].id]; LE.level2Hub.openStage(t, i, { fresh: true }); }, [s.t, s.i]);
+        for (let k = 0; k < 6; k++) {
+          await page.waitForTimeout(200);
+          if (!(await page.locator('.l2-lesson').count())) break;
+          // walk the lesson, poke the try-it card
+          await page.evaluate(() => { const w = LE.activeLesson && LE.activeLesson.widget(); if (w) { if (w.add) w.add(); if (w.setF) w.setF(-2); if (w.steep) w.steep(true); if (w.toggle) w.toggle(); } });
+          await clickIf(page, '.l2-next');
+        }
+        if (s.topic) note('l2:lesson:' + s.topic, await take(page));
+        await page.waitForSelector('.level-screen .play-host');
+        await page.waitForTimeout(300);
+        await clickIf(page, '.overlay.tip .btn');
+        const tut = await page.evaluate(() => LE.activeLevel.level.tutorial || null);
+        if (tut) {
+          await clickIf(page, '.bubble.show .btn');
+          for (const x of tut) {
+            await page.waitForTimeout(150);
+            if (x.wait) await page.evaluate(([ev, times]) => { for (let k = 0; k < times; k++) LE.activeLevel.ctx.emit(ev); }, [x.wait, x.times || 1]);
+            else await clickIf(page, '.bubble.show .btn');
+          }
+          await page.waitForTimeout(200);
+        }
+        await clickIf(page, '.buddy-char');
+        const noGo = await page.evaluate(() => !!LE.activeLevel.inst.noGo);
+        if (!noGo) {
+          for (let k = 0; k < 7; k++) {   // empty / start board: fail attempts → hint, Show me, easier offers
+            await page.evaluate(() => LE.activeLevel.inst.reset && LE.activeLevel.inst.reset());
+            await page.evaluate(() => { const g = LE.activeLevel.inst; if (g.go) g.go(); });
+            await page.waitForFunction(() => !LE.activeLevel.inst.busy, null, { timeout: 20000 }).catch(() => {});
+            await page.waitForTimeout(200);
+          }
+        } else {
+          await page.evaluate(() => { const q = LE.activeLevel.level.questions || []; q.forEach((x) => { const b = document.querySelector('[data-ans="' + (1 - x.right) + '"]'); if (b) b.click(); }); });
+        }
+        await page.evaluate(([t, i]) => LE.level2Hub.openStage(t, i, { fresh: true, noLesson: true }), [s.t, s.i]);
+        await page.waitForSelector('.level-screen .play-host');
+        await page.waitForTimeout(250);
+        await page.evaluate(() => LE.activeLevel.showMe());
+        await page.waitForTimeout(200);
+        await page.waitForFunction(() => !document.querySelector('.demo-shield'), null, { timeout: 120000 });
+        await page.evaluate(() => LE.activeLevel.solve());
+        await page.waitForTimeout(200);
+        const wonLive = await page.waitForSelector('.overlay.win', { timeout: 1200 }).then(() => true, () => false);
+        if (!noGo && !wonLive) await page.evaluate(() => { const g = LE.activeLevel.inst; if (g.go) g.go(); });
+        await page.waitForSelector('.overlay.win', { timeout: 60000 });
+        await page.waitForTimeout(700);
+        for (const v of ['easy', 'bonus']) {
+          if (!s[v]) continue;
+          await page.evaluate(([t, i, v]) => LE.level2Hub.openStage(t, i, { fresh: true, variant: v, noLesson: true }), [s.t, s.i, v]);
+          await page.waitForSelector('.level-screen .play-host');
+          await page.waitForTimeout(300);
+          await clickIf(page, '.buddy-char');
+          await page.evaluate(() => LE.activeLevel.solve());
+          await page.waitForTimeout(200);
+          const w2 = await page.waitForSelector('.overlay.win', { timeout: 1200 }).then(() => true, () => false);
+          if (!w2) await page.evaluate(() => { const g = LE.activeLevel.inst; if (g.go) g.go(); });
+          await page.waitForSelector('.overlay.win', { timeout: 60000 }).catch(() => {});
+          await page.waitForTimeout(500);
+        }
+      } catch (e) {
+        errors.push(`${g}: ${String(e.message || e).split('\n')[0]}`);
+      }
+      note(g, await take(page));
+    }
+    await page.evaluate(() => LE.level2Hub.show('a'));
+    await page.waitForTimeout(300);
+    await clickIf(page, '.l2-node.locked');
+    note('l2:hub', await take(page));
+    await page.context().close();
+  }
+
   await browser.close();
   server.close();
   return { captured, errors };
@@ -384,5 +498,5 @@ async function main() {
   if (errors.length) { console.log('capture problems:\n  ' + errors.join('\n  ')); process.exitCode = 1; }
 }
 
-module.exports = { staticCollect, viewLiterals, shellLines, levelLines, dynamicLines, weeklyStatic, weeklyStepLines, WORLDS };
+module.exports = { staticCollect, viewLiterals, shellLines, levelLines, dynamicLines, weeklyStatic, weeklyStepLines, level2Static, WORLDS };
 if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });
