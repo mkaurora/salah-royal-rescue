@@ -1,19 +1,68 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Salah's Islands</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#4fc3e8">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Islands">
-<meta name="theme-color" content="#38b6eb">
-<meta http-equiv="Cache-Control" content="no-cache">
-<style>html,body{margin:0;height:100%;font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(#7fd3f5,#38b6eb 60%,#1e82c8);color:#fff;text-align:center}
-main{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:18px;padding:24px;box-sizing:border-box}
-img{width:150px;height:150px;border-radius:34px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
-h1{margin:0;font-size:34px;text-shadow:0 3px 0 rgba(0,0,0,.2)}p{margin:0;font-size:20px}
-button{font-size:20px;padding:14px 30px;border:0;border-radius:40px;background:#ffd23f;color:#5a3b00;font-weight:700;box-shadow:0 5px 0 #c99a00}</style></head>
-<body><main><img src="icons/icon-512.png" alt=""><h1>Salah's Islands</h1>
-<p>Coming soon! 🏝️<br>Your new island adventure is being built.</p>
-<button onclick="location.reload()">Check again</button></main>
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()))}</script>
-</body></html>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Salah's Islands">
+<title>Salah's Islands</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+<div id="app">
+  <div id="scr-intro" class="screen hidden"></div>
+  <div id="scr-home" class="screen hidden"></div>
+  <div id="scr-wardrobe" class="screen hidden"></div>
+  <div id="scr-map" class="screen hidden"></div>
+  <div id="scr-world" class="screen hidden"></div>
+  <div id="mg" class="hidden"></div>
+  <div id="bm" class="hidden"></div>
+  <div id="popups"></div>
+  <div id="fly"></div>
+  <div id="toast"></div>
+  <div id="banner" class="hidden"></div>
+</div>
+<script src="./js/version.js"></script>
+<script src="./js/core/visit.js"></script>
+<script src="./js/logic/rng.js"></script>
+<script src="./js/logic/path.js"></script>
+<script src="./js/data/collectibles.js"></script>
+<script src="./js/data/islands.js"></script>
+<script src="./js/data/quests.js"></script>
+<script src="./js/data/wardrobe.js"></script>
+<script src="./js/data/buildItems.js"></script>
+<script src="./js/data/achievements.js"></script>
+<script src="./js/data/curriculum/math.js"></script>
+<script src="./js/data/curriculum/english.js"></script>
+<script src="./js/data/curriculum/science.js"></script>
+<script src="./js/data/curriculum/index.js"></script>
+<script src="./js/logic/minigames.js"></script>
+<script src="./js/logic/build.js"></script>
+<script src="./js/logic/learn.js"></script>
+<script src="./js/logic/progress.js"></script>
+<script src="./js/logic/quests.js"></script>
+<script src="./js/core/updater.js"></script>
+<script src="./js/audio/audio.js"></script>
+<script src="./js/ui/ui.js"></script>
+<script src="./js/render/avatar.js"></script>
+<script src="./js/render/sprites.js"></script>
+<script src="./js/render/world.js"></script>
+<script src="./js/ui/game.js"></script>
+<script src="./js/ui/play.js"></script>
+<script src="./js/minigames/core.js"></script>
+<script src="./js/minigames/games1.js"></script>
+<script src="./js/minigames/games2.js"></script>
+<script src="./js/ui/build.js"></script>
+<script src="./js/ui/panels.js"></script>
+<script src="./js/ui/parents.js"></script>
+<script src="./js/ui/home.js"></script>
+<script src="./js/ui/wardrobe.js"></script>
+<script src="./js/ui/map.js"></script>
+<script src="./js/main.js"></script>
+</body>
+</html>
