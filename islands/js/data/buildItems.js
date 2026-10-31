@@ -1,5 +1,5 @@
 /* Build / decorate items: footprint w×h (rotation 0–3, odd swaps w/h), layer 'floor' (paths, rugs: may sit under 'obj'
- * items) or 'obj'; solid = blocks the avatar; home = home plot only (no item uses it since v1.1: houses go on every island). Bought one copy at a time; quest gifts add copies.
+ * items) or 'obj'; solid = blocks the avatar; home = home plot only (no item uses it since v1.1: houses go on every island). Since v1.2 every house is 2x2 so the plot has room for other things; old saves keep each house's anchor and simply draw it at 2x2. Bought one copy at a time; quest gifts add copies.
  * UMD: SI.buildItems. */
 (function (root, factory) {
   var mod = factory();
@@ -16,11 +16,11 @@
   // [id, name, icon, w, h, layer('f'|'o'), solid(1|0), home(1|0), coins, gems, req]
   var RAW = {
     houses: [
-      ['b-hut', 'Beach Hut', '🛖', 3, 3, 'o', 1, 0, 220, 0],
-      ['b-cabin', 'Wooden Cabin', '🏠', 4, 3, 'o', 1, 0, 340, 0, { level: 4 }],
+      ['b-hut', 'Beach Hut', '🛖', 2, 2, 'o', 1, 0, 220, 0],
+      ['b-cabin', 'Wooden Cabin', '🏠', 2, 2, 'o', 1, 0, 340, 0, { level: 4 }],
       ['b-tent', 'Camp Tent', '⛺', 2, 2, 'o', 1, 0, 120, 0],
-      ['b-treehouse', 'Tree House', '🌳', 3, 3, 'o', 1, 0, 520, 0, { level: 10 }],
-      ['b-ice-dome', 'Ice Dome', '🧊', 3, 3, 'o', 1, 0, 400, 0, { chain: 'q4' }],
+      ['b-treehouse', 'Tree House', '🌳', 2, 2, 'o', 1, 0, 520, 0, { level: 10 }],
+      ['b-ice-dome', 'Ice Dome', '🧊', 2, 2, 'o', 1, 0, 400, 0, { chain: 'q4' }],
       ['b-lighthouse', 'Mini Lighthouse', '🗼', 2, 2, 'o', 1, 0, 0, 10, { level: 25 }]
     ],
     furniture: [
