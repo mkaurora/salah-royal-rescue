@@ -383,7 +383,7 @@
     g.drawImage(bo.c, sx(bx) - 43 * Z, sy(by) - 46 * Z + bob, bo.w * Z, bo.h * Z);
   }
 
-  var ITEM_BASE = { houses: 0.95, furniture: 0.82, plants: 0.95, paths: 0.8, fun: 0.9, lights: 0.9 };
+  var ITEM_BASE = { houses: 1.0, furniture: 0.82, plants: 0.95, paths: 0.8, fun: 0.9, lights: 0.9 };
   function drawItem(o) {
     var it = o.it, sizePx = Math.max(o.w, o.h) * T * (ITEM_BASE[it.cat] || 0.85) * (it.layer === 'floor' ? 0.9 : 1);
     if (it.layer === 'floor') { g.globalAlpha = 0.85; g.fillStyle = it.cat === 'paths' ? 'rgba(255,255,255,0.35)' : 'rgba(255,150,100,0.35)'; var X0 = sx(o.wx), Y0 = sy(o.wy); roundRect(X0 + 2, Y0 + 2, o.w * T * Z - 4, o.h * T * Z - 4, 8 * Z); g.fill(); g.globalAlpha = 1; }

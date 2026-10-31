@@ -244,7 +244,7 @@
     if (!L.length && !st.preview) { g.fillStyle = 'rgba(45,27,82,.5)'; g.font = '900 ' + Math.round(c * 0.5) + 'px ' + SI.mgcore.FONT; g.textAlign = 'center'; g.fillText('Your plot is empty. Let’s decorate!', W / 2, oy + c * z.h / 2); }
   }
   function rr(g, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
-  var ITEM_BASE = { houses: 0.95, furniture: 0.82, plants: 0.95, paths: 0.8, fun: 0.9, lights: 0.9 };
+  var ITEM_BASE = { houses: 1.0, furniture: 0.82, plants: 0.95, paths: 0.8, fun: 0.9, lights: 0.9 };
   function drawItem(g, id, gx, gy, rot, alpha, sel, lift) {
     var it = BI.byId[id], f = BUILD.footprint(id, rot), c = st.cell, X = st.ox + gx * c, Y = st.oy + gy * c, w = f.w * c, h = f.h * c;
     var px = Math.round(Math.max(8, Math.min(120, Math.max(f.w, f.h) * c * (ITEM_BASE[it.cat] || 0.85) * (it.layer === 'floor' ? 0.9 : 1))));
