@@ -3,10 +3,10 @@
  * WAITS until the player taps "New version! Tap to update" (SKIP_WAITING) — only the very first install activates
  * at once. On activate it deletes only its OWN old caches (prefix 'islands-'). Scope = this folder (/islands/). */
 'use strict';
-var VERSION = '1.0';
-var BUILT = '23 Oct 2026';
-var BUILD = '9c4de4b679';
-var CACHE = 'islands-v1.0-9c4de4b679';
+var VERSION = '1.1';
+var BUILT = '31 Oct 2026';
+var BUILD = '05ff1d2537';
+var CACHE = 'islands-v1.1-05ff1d2537';
 var PRECACHE = [
   './',
   './css/app.css',

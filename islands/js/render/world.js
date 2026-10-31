@@ -37,7 +37,7 @@
   function resize() {
     if (!cv || !host || host.classList.contains('hidden')) return;
     var r = host.getBoundingClientRect(); W = Math.max(200, r.width); Hh = Math.max(300, r.height);
-    dpr = Math.min(2, root.devicePixelRatio || 1);
+    dpr = Math.min(1.5, root.devicePixelRatio || 1);
     cv.width = Math.round(W * dpr); cv.height = Math.round(Hh * dpr); cv.style.width = W + 'px'; cv.style.height = Hh + 'px';
     var z = Math.max(0.8, Math.min(1.35, Math.min(W / 390, Hh / 760))); if (z !== Z) { Z = z; chunks = {}; chunkN = 0; }
     QS = dpr * Z;
