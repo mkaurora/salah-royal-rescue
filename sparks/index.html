@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sparks · شرارة</title>
+  <meta name="description" content="Five bright ideas a day, in English and Arabic. Works offline.">
+  <meta name="theme-color" content="#FBF7EF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#17140F" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Sparks">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preload" href="fonts/Nunito-var.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="css/app.css">
+  <script>
+    // Apply saved theme and language before first paint to avoid a flash.
+    (function () {
+      try {
+        var d = document.documentElement;
+        var lang = JSON.parse(localStorage.getItem('sparks.lang') || 'null');
+        var theme = JSON.parse(localStorage.getItem('sparks.theme') || '"system"');
+        if (lang === 'ar') { d.lang = 'ar'; d.dir = 'rtl'; }
+        var dark = theme === 'dark' || (theme === 'system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+        d.dataset.theme = dark ? 'dark' : 'light';
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="app-shell">
+    <main id="main" class="app" tabindex="-1" aria-live="polite"></main>
+    <nav class="tabbar" id="tabbar" hidden></nav>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="update-banner" id="update-banner" hidden>
+    <button type="button" id="update-btn" class="update-btn"></button>
+  </div>
+  <noscript><p class="noscript">Sparks needs JavaScript to run.</p></noscript>
+
+  <script src="version.js"></script>
+  <script src="data/decks/01-world-history.js"></script>
+  <script src="data/decks/02-islamic-arab-history.js"></script>
+  <script src="data/decks/03-gulf-kuwait.js"></script>
+  <script src="data/decks/04-money-investing.js"></script>
+  <script src="data/decks/05-business-strategy.js"></script>
+  <script src="data/decks/06-psychology-people.js"></script>
+  <script src="data/decks/07-tech-ai.js"></script>
+  <script src="data/decks/08-parenting-family.js"></script>
+  <script src="data/decks/09-health-body.js"></script>
+  <script src="data/decks/10-thinkers-books.js"></script>
+  <script src="data/decks/11-spain-morocco.js"></script>
+  <script src="data/decks/12-science-space.js"></script>
+  <script src="data/decks/13-everyday-knowledge.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/daily.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/speech.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
