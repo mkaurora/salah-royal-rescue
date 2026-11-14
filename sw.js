@@ -1,4 +1,4 @@
-// Royal Rescue service worker (scope: the site root; /engineer/, /learn/, /chat/ and /racer/ have their own and are skipped here).
+// Royal Rescue service worker (scope: the site root; /engineer/, /learn/, /chat/, /racer/, /islands/, /trucks/, /swarm/, /sparks/ and /v1/ have their own and are skipped here).
 // Game files are network-first, past the HTTP cache, so an online launch always gets the newest version; the cached
 // copy is used offline or on a very slow network. Music is cache-first. A new version waits until the page asks it to
 // take over (SKIP_WAITING after a tap on "Update"), so nothing reloads in the middle of a level.
@@ -10,7 +10,7 @@ const LEGACY=['salah-v1','salah-v2','salah-v3','salah-v4','salah-v5','salah-v6']
 self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(u=>new Request(u,{cache:'reload'})))).then(()=>caches.keys()).then(k=>{if(k.some(x=>LEGACY.includes(x)))return self.skipWaiting()})));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x.startsWith('salah-')&&x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
 self.addEventListener('message',e=>{const d=e.data||{};if(d.type==='SKIP_WAITING')self.skipWaiting();if(d.type==='VERSION'&&e.ports&&e.ports[0])e.ports[0].postMessage({cache:C,build:BUILD,version:VERSION,built:BUILT})});
-const skip=p=>['engineer','learn','chat','racer'].some(d=>p.includes('/'+d+'/')||p.endsWith('/'+d));
+const skip=p=>['engineer','learn','chat','racer','islands','trucks','swarm','sparks','v1'].some(d=>p.includes('/'+d+'/')||p.endsWith('/'+d));
 function put(req,res){if(res&&res.status===200&&res.type==='basic'){const cp=res.clone();caches.open(C).then(c=>c.put(req,cp))}return res}
 function fromCache(req){return caches.match(req,{ignoreSearch:true}).then(h=>h||(req.mode==='navigate'?caches.match('index.html').then(x=>x||caches.match('./')):h))}
 function networkFirst(req){return new Promise(resolve=>{let settled=false;const done=r=>{if(!settled&&r){settled=true;resolve(r)}};
